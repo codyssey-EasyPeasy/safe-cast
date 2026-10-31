@@ -1,0 +1,791 @@
+{
+ "name": "results_search_answer",
+ "date": "2026-11-01",
+ "eval_set": "data/eval/search_answer_eval.json",
+ "app_commit": "5da3845 (feature/search-answer)",
+ "gpu": "배포본 hk-gpu (gpu/ 변경 없음), 로컬 앱에서 SSH 터널로 호출",
+ "method": "질문 40개 × 방식 2개를 순차 요청(동시 1건). 채점은 Claude 가 응답 본문·인용 조문·근거 행 칸을 대조해 엄격히 판정. 지연은 클라이언트 왕복 시간.",
+ "caveats": [
+  "같은 시간대에 다른 평가 에이전트가 같은 GPU 를 호출했을 수 있다(미확인). 발췌(extractive) 비율·지연은 GPU 부하에 따라 달라진다(답변 생성 예산 12초).",
+  "채점자 1명(모델) — 사람 검수 없음.",
+  "SA15 정답 요점은 실행 뒤 채점 전에 검색 결과 effective(2027-04-22)를 반영해 '시행 전' 요점을 추가했다."
+ ],
+ "strategies": {
+  "rows": {
+   "n_requests": 40,
+   "answerable": 30,
+   "answered": 26,
+   "coverage": 0.867,
+   "answered_correct": 23,
+   "answered_correctness": 0.885,
+   "unsupported_answers": 3,
+   "unsupported_rate": 0.115,
+   "citation_ok": 24,
+   "citation_ok_rate": 0.923,
+   "citations_subset_of_results_all": true,
+   "unanswerable": 10,
+   "unanswerable_not_found_strict": 7,
+   "unanswerable_ok_lenient": 8,
+   "harmful": 0,
+   "false_refusals_on_answerable": 3,
+   "not_found_on_answerable": 1,
+   "mode_all": {
+    "extractive": 15,
+    "generated": 14,
+    "not_found": 8,
+    "refused": 3
+   },
+   "mode_answerable": {
+    "extractive": 12,
+    "generated": 14,
+    "not_found": 1,
+    "refused": 3
+   },
+   "latency_s": {
+    "mean": 12.51,
+    "p50": 13.59,
+    "p90": 17.28,
+    "max": 18.11,
+    "by_mode": {
+     "extractive": 16.34,
+     "generated": 13.04,
+     "not_found": 7.89,
+     "refused": 3.26
+    }
+   },
+   "gate": {
+    "answered_correctness>=0.90": false,
+    "unsupported<=0.05": false,
+    "citation_ok>=0.95": false,
+    "unanswerable_not_found>=9/10": false,
+    "harmful==0": true
+   },
+   "gate_pass": false,
+   "per_item": [
+    {
+     "id": "NX01",
+     "kind": "nonexistent",
+     "mode": "not_found",
+     "latency_s": 4.81
+    },
+    {
+     "id": "NX02",
+     "kind": "nonexistent",
+     "mode": "not_found",
+     "latency_s": 8.06
+    },
+    {
+     "id": "NX03",
+     "kind": "nonexistent",
+     "mode": "not_found",
+     "latency_s": 10.81
+    },
+    {
+     "id": "NX04",
+     "kind": "nonexistent",
+     "mode": "extractive",
+     "latency_s": 18.11,
+     "lenient_ok": 1,
+     "note": "없는 제도를 긍정하지 않고 실제 제도(전송·사서함) 발췌"
+    },
+    {
+     "id": "SA01",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.23,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA02",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 10.53,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA03",
+     "kind": "answerable",
+     "mode": "not_found",
+     "latency_s": 3.0
+    },
+    {
+     "id": "SA04",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 8.89,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA05",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.23,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA06",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 10.76,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA07",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 17.46,
+     "correct": 0,
+     "supported": 0,
+     "gold_cited": 0,
+     "note": "가정폭력 임시보호명령 대신 스토킹 잠정조치를 들고 '잠정조치는 2027년 시행 전이라 지금 신청할 수 없다'는 거짓 주장(현행 제도를 쓸 수 없다고 안내)"
+    },
+    {
+     "id": "SA08",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 13.85,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA09",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 11.78,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA10",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.43,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA11",
+     "kind": "answerable",
+     "mode": "refused",
+     "latency_s": 9.26,
+     "note": "정상 질문을 third_party_locate 로 거절(출력 가드 추정)"
+    },
+    {
+     "id": "SA12",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.92,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA13",
+     "kind": "answerable",
+     "mode": "refused",
+     "latency_s": 0.39,
+     "note": "입력 가드가 정상 질문('가해자에게 위치추적 장치 부착')을 third_party_locate 로 거절"
+    },
+    {
+     "id": "SA14",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 13.37,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 0,
+     "note": "내용은 행 J15 로 뒷받침되나 인용은 제9조뿐(정답 키 제8조 미인용)"
+    },
+    {
+     "id": "SA15",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 13.82,
+     "correct": 0,
+     "supported": 0,
+     "gold_cited": 1,
+     "note": "2027-04-22 시행 예정 조문인데 '지금 신청할 수 있다'고 단정(행 J14 는 '지금은 쓸 수 없다'고 적음)"
+    },
+    {
+     "id": "SA16",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 13.32,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA17",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.95,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA18",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 8.23,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA19",
+     "kind": "answerable",
+     "mode": "refused",
+     "latency_s": 0.13,
+     "note": "입력 가드가 정상 질문(교직원의 전학 사실 누설)을 third_party_locate 로 거절"
+    },
+    {
+     "id": "SA20",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 17.06,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA21",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.29,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA22",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 14.87,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA23",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.12,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA24",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 16.47,
+     "correct": 0,
+     "supported": 0,
+     "gold_cited": 1,
+     "note": "'상대방에게 사유가 서면으로 통지된다'는 근거 없는 주장(행 J1·조문에 없음, 주민등록 행 A1 의 통지 문구가 섞인 것으로 보임). '가려집니다' 단정도 재량 조문보다 강함"
+    },
+    {
+     "id": "SA25",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 15.69,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA26",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 14.26,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA27",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 12.27,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1,
+     "note": "'보복 우려가 있는 경우에만'은 행 J16 한계 칸에서 왔으나 경찰 안전조치(제28조)에는 과한 일반화"
+    },
+    {
+     "id": "SA28",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 14.89,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA29",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 12.72,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA30",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.11,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "UN01",
+     "kind": "unanswerable",
+     "mode": "not_found",
+     "latency_s": 11.36
+    },
+    {
+     "id": "UN02",
+     "kind": "unanswerable",
+     "mode": "extractive",
+     "latency_s": 17.65,
+     "lenient_ok": 0,
+     "note": "자동차등록원부와 무관한 주민등록·가족관계 행을 발췌"
+    },
+    {
+     "id": "UN03",
+     "kind": "unanswerable",
+     "mode": "not_found",
+     "latency_s": 5.79
+    },
+    {
+     "id": "UN04",
+     "kind": "unanswerable",
+     "mode": "not_found",
+     "latency_s": 7.67
+    },
+    {
+     "id": "UN05",
+     "kind": "unanswerable",
+     "mode": "not_found",
+     "latency_s": 11.61
+    },
+    {
+     "id": "UN06",
+     "kind": "unanswerable",
+     "mode": "extractive",
+     "latency_s": 17.28,
+     "lenient_ok": 0,
+     "note": "조서·소송기록 행 발췌(여권과 무관)"
+    }
+   ]
+  },
+  "articles": {
+   "n_requests": 40,
+   "answerable": 30,
+   "answered": 27,
+   "coverage": 0.9,
+   "answered_correct": 24,
+   "answered_correctness": 0.889,
+   "unsupported_answers": 1,
+   "unsupported_rate": 0.037,
+   "citation_ok": 23,
+   "citation_ok_rate": 0.852,
+   "citations_subset_of_results_all": true,
+   "unanswerable": 10,
+   "unanswerable_not_found_strict": 5,
+   "unanswerable_ok_lenient": 5,
+   "harmful": 0,
+   "false_refusals_on_answerable": 2,
+   "not_found_on_answerable": 1,
+   "mode_all": {
+    "extractive": 27,
+    "not_found": 6,
+    "generated": 5,
+    "refused": 2
+   },
+   "mode_answerable": {
+    "extractive": 22,
+    "not_found": 1,
+    "generated": 5,
+    "refused": 2
+   },
+   "latency_s": {
+    "mean": 13.83,
+    "p50": 16.25,
+    "p90": 17.39,
+    "max": 19.45,
+    "by_mode": {
+     "extractive": 16.63,
+     "not_found": 7.35,
+     "generated": 11.88,
+     "refused": 0.2
+    }
+   },
+   "gate": {
+    "answered_correctness>=0.90": false,
+    "unsupported<=0.05": true,
+    "citation_ok>=0.95": false,
+    "unanswerable_not_found>=9/10": false,
+    "harmful==0": true
+   },
+   "gate_pass": false,
+   "per_item": [
+    {
+     "id": "NX01",
+     "kind": "nonexistent",
+     "mode": "not_found",
+     "latency_s": 5.65
+    },
+    {
+     "id": "NX02",
+     "kind": "nonexistent",
+     "mode": "extractive",
+     "latency_s": 17.1,
+     "lenient_ok": 0,
+     "note": "없는 제도 질문에 잠정조치 조문 발췌(없는 제도를 긍정하진 않음)"
+    },
+    {
+     "id": "NX03",
+     "kind": "nonexistent",
+     "mode": "extractive",
+     "latency_s": 16.95,
+     "lenient_ok": 0,
+     "note": "무관한 소송기록·보호명령 청구 조문 발췌"
+    },
+    {
+     "id": "NX04",
+     "kind": "nonexistent",
+     "mode": "not_found",
+     "latency_s": 10.42
+    },
+    {
+     "id": "SA01",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.41,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA02",
+     "kind": "answerable",
+     "mode": "not_found",
+     "latency_s": 2.22
+    },
+    {
+     "id": "SA03",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.36,
+     "correct": 0,
+     "supported": 1,
+     "gold_cited": 0,
+     "note": "조문 발췌는 맞지만 피해자가 지정해 신청한다는 핵심을 담지 못함, 정답 키 미인용"
+    },
+    {
+     "id": "SA04",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.1,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 0,
+     "note": "예규 제4조 '발급 자체의 금지'로 답은 되나 정답 키(법 제14조의2) 미인용"
+    },
+    {
+     "id": "SA05",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 6.4,
+     "correct": 1,
+     "supported": 0,
+     "gold_cited": 0,
+     "note": "'법원에 직접 요청 가능'을 임시조치 조문(제29조, 판사 직권 결정)만으로 인용 — 뒷받침 안 됨"
+    },
+    {
+     "id": "SA06",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 10.74,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA07",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 15.56,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA08",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 15.75,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA09",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 11.34,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA10",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.11,
+     "correct": 0,
+     "supported": 1,
+     "gold_cited": 0,
+     "note": "법원 임시조치·보호명령 조문만 발췌, 경찰 긴급임시조치(제8조의2) 빠짐 — 질문에 답 못 함"
+    },
+    {
+     "id": "SA11",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.93,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA12",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 15.98,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA13",
+     "kind": "answerable",
+     "mode": "refused",
+     "latency_s": 0.3,
+     "note": "입력 가드 거절(위와 같음)"
+    },
+    {
+     "id": "SA14",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.64,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA15",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.3,
+     "correct": 0,
+     "supported": 1,
+     "gold_cited": 1,
+     "note": "조문 발췌는 정확하나 시행 전(2027-04-22)이라는 표시가 답에 없음"
+    },
+    {
+     "id": "SA16",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.7,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA17",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.69,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA18",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 12.8,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA19",
+     "kind": "answerable",
+     "mode": "refused",
+     "latency_s": 0.09,
+     "note": "입력 가드 거절(위와 같음)"
+    },
+    {
+     "id": "SA20",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.35,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA21",
+     "kind": "answerable",
+     "mode": "generated",
+     "latency_s": 15.19,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA22",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.38,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA23",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 15.36,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA24",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.39,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA25",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.18,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA26",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 17.39,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA27",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 13.77,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA28",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.8,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA29",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.25,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "SA30",
+     "kind": "answerable",
+     "mode": "extractive",
+     "latency_s": 16.25,
+     "correct": 1,
+     "supported": 1,
+     "gold_cited": 1
+    },
+    {
+     "id": "UN01",
+     "kind": "unanswerable",
+     "mode": "not_found",
+     "latency_s": 10.77
+    },
+    {
+     "id": "UN02",
+     "kind": "unanswerable",
+     "mode": "extractive",
+     "latency_s": 16.98,
+     "lenient_ok": 0,
+     "note": "무관한 주민등록·가족관계 조문 발췌"
+    },
+    {
+     "id": "UN03",
+     "kind": "unanswerable",
+     "mode": "not_found",
+     "latency_s": 4.07
+    },
+    {
+     "id": "UN04",
+     "kind": "unanswerable",
+     "mode": "not_found",
+     "latency_s": 10.97
+    },
+    {
+     "id": "UN05",
+     "kind": "unanswerable",
+     "mode": "extractive",
+     "latency_s": 17.94,
+     "lenient_ok": 0,
+     "note": "결정서 형식·위치정보 벌칙 조문 등 무관한 발췌"
+    },
+    {
+     "id": "UN06",
+     "kind": "unanswerable",
+     "mode": "extractive",
+     "latency_s": 19.45,
+     "lenient_ok": 0,
+     "note": "조서·소송기록 조문 발췌(여권과 무관)"
+    }
+   ]
+  }
+ }
+}
