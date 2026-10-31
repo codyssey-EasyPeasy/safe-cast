@@ -13,7 +13,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 import httpx
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -23,6 +23,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from . import llm as _llm
 from . import retrieval as _retrieval
 from .engine import VICTIM_LABEL, VICTIM_TYPES, Engine, load_knowledge
 
@@ -68,6 +69,35 @@ class DocCheckRequest(BaseModel):
     text: str = Field(max_length=20000)
 
 
+class IntakeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str = Field(min_length=1, max_length=2000)
+
+
+class AnswerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    question: str = Field(min_length=1, max_length=500)
+    item_ids: list[Annotated[str, Field(pattern=_llm.ITEM_ID_RE)]] = Field(
+        min_length=1, max_length=8
+    )
+
+
+class RewriteSpan(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    start: int = Field(ge=0, le=4000)
+    end: int = Field(ge=1, le=4000)
+    label: str = Field(default="", max_length=20)
+
+
+class RewriteRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str = Field(min_length=1, max_length=4000)
+    spans: list[RewriteSpan] = Field(default_factory=list, max_length=60)
+
+
+LLM_UNAVAILABLE = "지금은 이 기능을 쓸 수 없습니다. 체크 항목으로 계속 진행할 수 있습니다."
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
@@ -93,13 +123,17 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
 
 
 def _require_access_code(request: Request) -> None:
-    """ACCESS_CODE 가 설정된 경우 /api/* 인증. 미설정이면 데모 모드 통과."""
-    code = os.environ.get("ACCESS_CODE", "")
-    if not code:
+    """접근 코드는 기본 비활성(SPEC §7: 피해자 본인이 직접 쓴다).
+
+    `REQUIRE_ACCESS_CODE=1` 일 때만 `ACCESS_CODE` 와 `X-Access-Code` 를 비교한다.
+    그때 ACCESS_CODE 가 비어 있으면 fail-closed 로 막는다.
+    """
+    if os.environ.get("REQUIRE_ACCESS_CODE", "").strip() != "1":
         return
+    code = os.environ.get("ACCESS_CODE", "")
     provided = request.headers.get("X-Access-Code", "")
-    if not hmac.compare_digest(code, provided):
-        raise HTTPException(status_code=401, detail="기관 코드가 필요합니다")
+    if not code or not hmac.compare_digest(code, provided):
+        raise HTTPException(status_code=401, detail="접근 코드가 필요합니다")
 
 
 def create_app(
@@ -110,6 +144,9 @@ def create_app(
     engine = Engine(knowledge)
     retriever = _retrieval.Retriever()
     gpu_url = os.environ.get("GPU_URL", DEFAULT_GPU_URL).rstrip("/")
+    items_by_id = {it.get("id"): it for it in engine.items if it.get("id")}
+    known_flags = set(engine.flag_ids())
+    probe = _llm.FeatureProbe()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -207,6 +244,80 @@ def create_app(
             return {"available": True, "spans": data.get("spans") or []}
         except (httpx.HTTPError, ValueError, KeyError, TypeError):
             return {"available": False}
+
+    # --- 내부 LLM 기능(SPEC §8). 실패하면 503 → 화면은 체크박스 방식으로 동작. ---
+    def _llm_down() -> HTTPException:
+        probe.mark_down()
+        return HTTPException(status_code=503, detail=LLM_UNAVAILABLE)
+
+    async def _llm_gate(request: Request) -> tuple[httpx.AsyncClient, str]:
+        client: httpx.AsyncClient = request.app.state.client
+        url: str = request.app.state.gpu_url
+        if _llm.llm_disabled_by_env():
+            raise HTTPException(status_code=503, detail=LLM_UNAVAILABLE)
+        return client, url
+
+    @app.get("/api/features")
+    async def features(request: Request, _: None = Depends(_require_access_code)):
+        client: httpx.AsyncClient = request.app.state.client
+        return {"llm": await probe.llm(client, request.app.state.gpu_url)}
+
+    @app.post("/api/intake")
+    async def intake_endpoint(
+        req: IntakeRequest, request: Request, _: None = Depends(_require_access_code)
+    ):
+        client, url = await _llm_gate(request)
+        if await _retrieval.intent(req.text, client, url):
+            return {"refused": True, "message": REFUSAL_MESSAGE}
+        try:
+            out = await _llm.intake(
+                req.text,
+                client=client,
+                gpu_url=url,
+                known_flags=known_flags,
+                victim_types=VICTIM_TYPES,
+            )
+        except _llm.LLMUnavailable:
+            raise _llm_down()
+        return {"refused": False, **out}
+
+    @app.post("/api/answer")
+    async def answer_endpoint(
+        req: AnswerRequest, request: Request, _: None = Depends(_require_access_code)
+    ):
+        client, url = await _llm_gate(request)
+        if await _retrieval.intent(req.question, client, url):
+            return {"refused": True, "message": REFUSAL_MESSAGE}
+        try:
+            out = await _llm.answer(
+                req.question,
+                req.item_ids,
+                client=client,
+                gpu_url=url,
+                items_by_id=items_by_id,
+                articles=retriever.articles,
+            )
+        except _llm.LLMUnavailable:
+            raise _llm_down()
+        if out.get("refused"):
+            return {"refused": True, "message": REFUSAL_MESSAGE}
+        return {"refused": False, **out}
+
+    @app.post("/api/rewrite")
+    async def rewrite_endpoint(
+        req: RewriteRequest, request: Request, _: None = Depends(_require_access_code)
+    ):
+        client, url = await _llm_gate(request)
+        try:
+            out = await _llm.rewrite(
+                req.text,
+                [s.model_dump() for s in req.spans],
+                client=client,
+                gpu_url=url,
+            )
+        except _llm.LLMUnavailable:
+            raise _llm_down()
+        return out
 
     static_dir = REPO_ROOT / "web" / "static"
     if static_dir.is_dir():

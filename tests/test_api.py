@@ -264,11 +264,13 @@ def test_doccheck_down(make_client):
 
 
 def test_access_code(make_client, monkeypatch):
+    # 기본 비활성(SPEC §7). REQUIRE_ACCESS_CODE=1 일 때만 검사한다.
+    monkeypatch.setenv("REQUIRE_ACCESS_CODE", "1")
     monkeypatch.setenv("ACCESS_CODE", "secret")
     with make_client(httpx.MockTransport(make_handler())) as client:
         r = client.get("/api/flags")
         assert r.status_code == 401
-        assert r.json()["detail"] == "기관 코드가 필요합니다"
+        assert r.json()["detail"] == "접근 코드가 필요합니다"
 
         r2 = client.get("/api/flags", headers={"X-Access-Code": "secret"})
         assert r2.status_code == 200

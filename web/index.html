@@ -3,75 +3,127 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
 <title>숨은집 지킴이</title>
 <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
 <header class="site-header">
   <h1>숨은집 지킴이</h1>
-  <p class="disclaimer" role="note">
-    법률정보 안내이며 법률상담이 아닙니다. 긴급 <a href="tel:112">112</a> · <a href="tel:1366">1366</a> · 법률구조공단 <a href="tel:132">132</a>
-  </p>
+  <p class="tagline">새 주소가 상대에게 알려지지 않도록, 지금 쓸 수 있는 보호 제도를 순서대로 정리해 드립니다.</p>
 </header>
 
-<button type="button" id="quick-exit" class="quick-exit" aria-label="빠른 나가기 (즉시 상태를 지우고 중립 사이트로 이동)">빠른 나가기</button>
+<button type="button" id="quick-exit" class="quick-exit" aria-label="빠른 나가기: 입력한 내용을 지우고 날씨 검색 화면으로 바로 이동합니다">빠른 나가기</button>
+
+<section id="safety" class="safety" aria-labelledby="safety-title">
+  <h2 id="safety-title" tabindex="-1">시작하기 전에 확인해 주세요</h2>
+
+  <div class="emergency" role="note" aria-label="긴급 연락처">
+    <p class="emergency-lead">지금 위험하면 바로 연락하세요.</p>
+    <ul class="emergency-list">
+      <li><a href="tel:112" class="emergency-call"><strong>112</strong><span>경찰 긴급신고</span></a></li>
+      <li><a href="tel:1366" class="emergency-call"><strong>1366</strong><span>여성긴급전화 · 24시간</span></a></li>
+      <li><a href="tel:132" class="emergency-call"><strong>132</strong><span>대한법률구조공단</span></a></li>
+    </ul>
+  </div>
+
+  <div id="safety-body">
+    <h3 class="safety-sub">안전한 기기에서 보고 계신가요?</h3>
+    <ul class="safety-list">
+      <li>상대가 함께 쓰거나 볼 수 있는 휴대전화·컴퓨터·계정이라면, 가능하면 다른 기기를 쓰는 것이 안전합니다.</li>
+      <li>시크릿 창(개인정보 보호 창)으로 열면 방문 기록이 덜 남습니다. 그래도 기록이 남을 수 있으니, 다 본 뒤 방문 기록을 확인해 주세요.</li>
+      <li>화면 오른쪽 위의 <strong>‘빠른 나가기’</strong> 버튼을 누르거나 <kbd>Esc</kbd> 키를 두 번 누르면 입력한 내용을 지우고 날씨 검색 화면으로 바로 넘어갑니다.</li>
+      <li>이 사이트는 입력한 내용을 저장하지 않습니다.</li>
+    </ul>
+    <p class="disclaimer" role="note">
+      이 사이트는 <strong>법률정보 안내</strong>이며 법률상담이 아닙니다. 내 사건에 맞는 판단은
+      1366(24시간)이나 대한법률구조공단 132에서 받을 수 있습니다.
+    </p>
+  </div>
+  <button type="button" id="safety-toggle" class="safety-toggle" aria-expanded="true" aria-controls="safety-body">안내 접기</button>
+</section>
 
 <nav class="tabs" role="tablist" aria-label="기능 선택">
-  <button role="tab" id="tab-diagnose" aria-controls="panel-diagnose" aria-selected="true" tabindex="0">진단</button>
+  <button role="tab" id="tab-diagnose" aria-controls="panel-diagnose" aria-selected="true" tabindex="0">보호 제도 찾기</button>
   <button role="tab" id="tab-docs" aria-controls="panel-docs" aria-selected="false" tabindex="-1">서류 점검</button>
-  <button role="tab" id="tab-search" aria-controls="panel-search" aria-selected="false" tabindex="-1">근거 질의</button>
+  <button role="tab" id="tab-search" aria-controls="panel-search" aria-selected="false" tabindex="-1">근거 조문</button>
 </nav>
 
-<main>
+<main id="main">
   <section id="panel-diagnose" role="tabpanel" aria-labelledby="tab-diagnose" class="panel">
-    <h2>내 상황에 맞는 제도 찾기</h2>
+    <h2>내 상황에 맞는 보호 제도 찾기</h2>
+    <p class="lead">해당하는 항목을 고르면 급한 것부터 순서대로 보여 드립니다. 이름이나 주소는 적지 않아도 됩니다.</p>
     <form id="diagnose-form" autocomplete="off" novalidate>
       <fieldset class="victim-fieldset">
-        <legend>피해 유형</legend>
+        <legend>어떤 피해를 겪고 계신가요?</legend>
         <label class="victim-item"><input type="radio" name="victim_type" value="family" required> 가정폭력</label>
         <label class="victim-item"><input type="radio" name="victim_type" value="stalking"> 스토킹</label>
         <label class="victim-item"><input type="radio" name="victim_type" value="dating"> 교제폭력</label>
         <label class="victim-item"><input type="radio" name="victim_type" value="sexual"> 성폭력</label>
       </fieldset>
 
+      <section id="llm-intake" class="llm-slot llm-box" hidden aria-labelledby="llm-intake-title">
+        <h3 id="llm-intake-title" class="llm-title">말로 설명하기 <span class="optional">(선택)</span></h3>
+        <label for="intake-text" class="field-label">상황을 편하게 적어 주시면 아래 항목을 대신 골라 드립니다.</label>
+        <textarea id="intake-text" class="doc-text intake-text" rows="4" maxlength="2000" spellcheck="false" autocomplete="off"
+                  aria-describedby="intake-hint"></textarea>
+        <p class="hint" id="intake-hint">이름·주소·연락처는 적지 않아도 됩니다. 적은 내용은 저장되지 않으며, 고른 결과는 반드시 직접 확인한 뒤 진행합니다.</p>
+        <div class="btn-row">
+          <button type="button" id="intake-btn">항목 골라 보기</button>
+        </div>
+        <div id="intake-status" class="status" role="status" aria-live="polite"></div>
+      </section>
+
+      <div id="auto-notice" class="auto-notice" hidden tabindex="-1" role="region" aria-label="자동 선택 안내">
+        <p class="auto-notice-lead"><span class="badge ai-badge">AI 생성</span> 자동으로 고른 항목입니다. 확인하고 고쳐 주세요.</p>
+        <p class="auto-notice-sub">표시된 항목이 맞는지 살펴보고, 틀린 것은 체크를 풀어 주세요. 아직 아무것도 제출되지 않았습니다.</p>
+        <ul id="auto-unclear" class="auto-unclear"></ul>
+      </div>
+
       <fieldset class="flags-fieldset">
-        <legend>상황 체크</legend>
-        <div id="flags-container" class="flags-container" aria-live="polite"></div>
+        <legend>해당하는 상황을 모두 골라 주세요</legend>
+        <div id="flags-container" class="flags-container"></div>
       </fieldset>
 
-      <button type="submit" class="primary">진단하기</button>
+      <button type="submit" class="primary">보호 제도 보기</button>
     </form>
 
     <div id="diagnose-status" class="status" role="status" aria-live="polite"></div>
-    <div id="diagnose-results" class="results" aria-live="polite"></div>
+    <div id="diagnose-results" class="results"></div>
   </section>
 
   <section id="panel-docs" role="tabpanel" aria-labelledby="tab-docs" class="panel" hidden>
     <h2>서류 점검</h2>
-    <label for="doc-text" class="field-label">서류 내용을 붙여넣으세요</label>
-    <textarea id="doc-text" class="doc-text" rows="8" spellcheck="false" autocomplete="off"></textarea>
+    <p class="lead">내야 할 서류에 새 주소를 짐작하게 하는 단서가 없는지 미리 살펴봅니다.</p>
+    <label for="doc-text" class="field-label">서류 내용을 붙여 넣어 주세요</label>
+    <textarea id="doc-text" class="doc-text" rows="8" spellcheck="false" autocomplete="off" aria-describedby="doc-hint"></textarea>
     <p class="hint" id="doc-hint">
-      이 브라우저 밖으로 내용이 전송되지 않습니다. ‘2단계 점검’ 버튼을 누른 경우에만 서버로 전송됩니다.
+      ‘기본 점검’은 이 브라우저 안에서만 동작합니다. ‘정밀 점검’과 ‘안전한 문장으로 바꾸기’를 누를 때만 내용이 서버로 보내지며, 저장되지 않습니다.
     </p>
     <div class="btn-row">
-      <button type="button" id="doc-tier1" class="primary">1단계 점검(이 브라우저에서만)</button>
-      <button type="button" id="doc-tier2">기관 내부 2단계 점검</button>
+      <button type="button" id="doc-tier1" class="primary">기본 점검(이 브라우저에서만)</button>
+      <button type="button" id="doc-tier2">정밀 점검</button>
+      <button type="button" id="doc-rewrite" class="llm-slot" hidden>안전한 문장으로 바꾸기</button>
     </div>
     <div id="doc-status" class="status" role="status" aria-live="polite"></div>
-    <div id="doc-highlight" class="doc-highlight" aria-label="하이라이트된 서류 내용"></div>
-    <div id="doc-findings" class="doc-findings" aria-live="polite"></div>
+    <div id="doc-highlight" class="doc-highlight" role="region" aria-label="단서가 표시된 서류 내용"></div>
+    <div id="doc-findings" class="doc-findings"></div>
+    <div id="doc-rewrite-result" class="rewrite-result" tabindex="-1" hidden></div>
+    <p class="help-line">혼자 하기 어려우면 <a href="tel:1366">1366</a> · <a href="tel:132">132</a></p>
   </section>
 
   <section id="panel-search" role="tabpanel" aria-labelledby="tab-search" class="panel" hidden>
-    <h2>근거 질의</h2>
-    <label for="search-q" class="field-label">궁금한 점을 입력하세요</label>
+    <h2>근거 조문 찾기</h2>
+    <label for="search-q" class="field-label">궁금한 점을 적어 주세요</label>
     <div class="search-row">
-      <input id="search-q" type="text" class="search-input" autocomplete="off"
+      <input id="search-q" type="text" class="search-input" autocomplete="off" maxlength="500"
              placeholder="예: 소장 접수 전에 주소 비공개를 신청할 수 있나요?">
       <button type="button" id="search-btn" class="primary">근거 찾기</button>
     </div>
     <div id="search-status" class="status" role="status" aria-live="polite"></div>
-    <div id="search-results" class="results" aria-live="polite"></div>
+    <div id="search-results" class="results"></div>
   </section>
 </main>
 
