@@ -1,0 +1,409 @@
+[
+ {
+  "id": "sc01",
+  "victim_type": "family",
+  "flags": [
+   "moved_recently"
+  ],
+  "must_include": [
+   "A1",
+   "A3",
+   "A6",
+   "A8",
+   "A9"
+  ],
+  "must_not_include": [
+   "J14"
+  ],
+  "note": "가정폭력 피해자 이사 직후: 주민등록·가족관계 교부 제한을 전입과 같은 방문에서. 스토킹 보호명령(J14)은 대상 아님"
+ },
+ {
+  "id": "sc02",
+  "victim_type": "stalking",
+  "flags": [
+   "moved_recently"
+  ],
+  "must_include": [
+   "A3"
+  ],
+  "must_not_include": [
+   "A1",
+   "A8",
+   "A9",
+   "J12"
+  ],
+  "note": "비가족 스토킹 이사: 주민등록·가족관계 교부 제한은 가정폭력 전용(빈틈 1). 통보 서비스만 가능, 제한 제도는 not_applicable 로 드러나야 함",
+  "expect_residual": [
+   "A7"
+  ],
+  "expect_not_applicable": [
+   "A1",
+   "A8"
+  ]
+ },
+ {
+  "id": "sc03",
+  "victim_type": "dating",
+  "flags": [
+   "moved_recently",
+   "lawsuit"
+  ],
+  "must_include": [
+   "A3",
+   "J1",
+   "J2",
+   "J3"
+  ],
+  "must_not_include": [
+   "A1",
+   "A8",
+   "A9",
+   "J12",
+   "J14"
+  ],
+  "note": "교제폭력(사실혼 아님) 이사 + 민사소송: 소송 주소 비공개(J1)는 유형 무관. 가정폭력 전용 제도는 오적용 금지",
+  "expect_not_applicable": [
+   "A1",
+   "A8"
+  ]
+ },
+ {
+  "id": "sc04",
+  "victim_type": "family",
+  "flags": [
+   "lawsuit",
+   "abuser_is_plaintiff"
+  ],
+  "must_include": [
+   "J1",
+   "J2",
+   "J3",
+   "J7"
+  ],
+  "must_not_include": [
+   "J14"
+  ],
+  "note": "가해자가 이혼소송 원고: 이미 소장에 적힌 주소는 소급 불가(잔여 위험)지만 이후 서면·판결 송달 전에 J1 신청"
+ },
+ {
+  "id": "sc05",
+  "victim_type": "stalking",
+  "flags": [
+   "protection_order",
+   "criminal_case"
+  ],
+  "must_include": [
+   "J13",
+   "J17",
+   "J20"
+  ],
+  "must_not_include": [
+   "J12",
+   "J8",
+   "J9",
+   "J11"
+  ],
+  "note": "스토킹 잠정조치 중: 스토킹 피해자보호명령(J14)은 2027-04-22 시행 예정이라 pending 으로만. 가정폭력 피해자보호명령(J12)은 오적용",
+  "expect_pending": [
+   "J14"
+  ],
+  "expect_not_applicable": [
+   "J12"
+  ]
+ },
+ {
+  "id": "sc06",
+  "victim_type": "stalking",
+  "flags": [
+   "protection_order",
+   "moved_recently"
+  ],
+  "must_include": [
+   "J10",
+   "J13",
+   "A3"
+  ],
+  "must_not_include": [
+   "J12",
+   "A1",
+   "A8"
+  ],
+  "note": "스토킹 피해자가 이사 후 접근금지 장소 변경: 변경 결정이 행위자에게 고지됨(J10 경고). J14 는 pending",
+  "expect_pending": [
+   "J14"
+  ]
+ },
+ {
+  "id": "sc07",
+  "victim_type": "family",
+  "flags": [
+   "protection_order"
+  ],
+  "must_include": [
+   "J8",
+   "J9",
+   "J12"
+  ],
+  "must_not_include": [
+   "J14"
+  ],
+  "note": "가정폭력 피해자보호명령 청구: 청구서 부본 가림(J8)·결정서 주거 생략(J9) 요청 필수"
+ },
+ {
+  "id": "sc08",
+  "victim_type": "dating",
+  "flags": [
+   "protection_order"
+  ],
+  "must_include": [],
+  "must_not_include": [
+   "J12",
+   "J8",
+   "J9",
+   "J14"
+  ],
+  "note": "교제폭력(비가족) 접근금지 희망: 가정폭력 피해자보호명령 불가, 스토킹 보호명령은 미시행·스토킹 전용. 공백을 숨기지 않음",
+  "expect_not_applicable": [
+   "J12"
+  ]
+ },
+ {
+  "id": "sc09",
+  "victim_type": "family",
+  "flags": [
+   "children_school"
+  ],
+  "must_include": [
+   "S1",
+   "S5",
+   "S6"
+  ],
+  "must_not_include": [
+   "S2",
+   "S3"
+  ],
+  "note": "가정폭력 피해 자녀 전학: 주소지 외 취학 지원·교직원 누설 금지(가폭처벌법 제18조 제3항)"
+ },
+ {
+  "id": "sc10",
+  "victim_type": "stalking",
+  "flags": [
+   "children_school"
+  ],
+  "must_include": [
+   "S3",
+   "S6"
+  ],
+  "must_not_include": [
+   "S1",
+   "S5",
+   "S2"
+  ],
+  "note": "스토킹 피해 가족 자녀: 스토킹방지법 제7조 취학 지원. 가정폭력 전용 S1·S5 는 오적용"
+ },
+ {
+  "id": "sc11",
+  "victim_type": "sexual",
+  "flags": [
+   "children_school",
+   "criminal_case"
+  ],
+  "must_include": [
+   "S2",
+   "J19",
+   "J20"
+  ],
+  "must_not_include": [
+   "S1",
+   "S5",
+   "S3",
+   "J12"
+  ],
+  "note": "성폭력 피해자 가족 자녀 취학 + 수사 중: 가명조서(성폭처벌법 제23조 준용)"
+ },
+ {
+  "id": "sc12",
+  "victim_type": "family",
+  "flags": [
+   "children_daycare"
+  ],
+  "must_include": [
+   "S5",
+   "S7"
+  ],
+  "must_not_include": [
+   "S2",
+   "S3"
+  ],
+  "note": "가정폭력 피해 영유아 어린이집 이동: 보육교직원 누설 금지(S5), 원 기록 제3자 제공 금지(S7)"
+ },
+ {
+  "id": "sc13",
+  "victim_type": "stalking",
+  "flags": [
+   "vehicle",
+   "shared_vehicle_or_abuser_owned",
+   "mail_old_address"
+  ],
+  "must_include": [
+   "L3"
+  ],
+  "must_not_include": [
+   "A1",
+   "A8",
+   "A9",
+   "J12"
+  ],
+  "note": "스토킹 피해자 공동명의 차량 + 옛 주소 우편: 차량 사용본거지 자동 변경은 막을 제도 없음(잔여 위험)",
+  "expect_residual": [
+   "L2"
+  ]
+ },
+ {
+  "id": "sc14",
+  "victim_type": "family",
+  "flags": [
+   "abuser_named_phone_or_family_plan",
+   "shared_accounts_or_location_sharing"
+  ],
+  "must_include": [
+   "L7",
+   "D4",
+   "D5"
+  ],
+  "must_not_include": [
+   "J14"
+  ],
+  "note": "가해자 명의 회선·가족 위치조회: 동의 철회 전 제공내역 열람 먼저, 공유 해제는 가해자가 알아챔(경고)"
+ },
+ {
+  "id": "sc15",
+  "victim_type": "dating",
+  "flags": [
+   "bluetooth_tag_suspected",
+   "photos_social",
+   "parcel_delivery"
+  ],
+  "must_include": [
+   "D3",
+   "D6"
+  ],
+  "must_not_include": [
+   "A1",
+   "A8",
+   "A9",
+   "J12",
+   "J14"
+  ],
+  "note": "교제폭력 피해자 위치 태그 의심 + SNS 사진 + 택배: 태그는 비활성화 전 증거 보전·신고. 택배 주소는 막을 제도 없음",
+  "expect_residual": [
+   "L6"
+  ]
+ },
+ {
+  "id": "sc16",
+  "victim_type": "sexual",
+  "flags": [
+   "shelter_needed",
+   "criminal_case"
+  ],
+  "must_include": [
+   "P1",
+   "P2",
+   "J17",
+   "J19"
+  ],
+  "must_not_include": [
+   "J12",
+   "A1",
+   "P3"
+  ],
+  "note": "성폭력 피해 직후 거처 필요 + 고소: 긴급피난처·시설 비밀엄수. 스토킹 긴급주거(P3)는 대상 아님"
+ },
+ {
+  "id": "sc17",
+  "victim_type": "stalking",
+  "flags": [
+   "shelter_needed",
+   "workplace_known"
+  ],
+  "must_include": [
+   "P1",
+   "P3",
+   "P7"
+  ],
+  "must_not_include": [
+   "J12",
+   "A1",
+   "A8"
+  ],
+  "note": "스토킹 피해자 거처 노출 + 직장 노출: 긴급주거지원(P3), 근무지 변경 요청(P7, 고용주 재량)"
+ },
+ {
+  "id": "sc18",
+  "victim_type": "family",
+  "flags": [
+   "shelter_needed",
+   "health_insurance_dependent",
+   "moved_recently"
+  ],
+  "must_include": [
+   "P1",
+   "P4",
+   "A11",
+   "A1",
+   "A3"
+  ],
+  "must_not_include": [
+   "P3",
+   "J14"
+  ],
+  "note": "가정폭력 피해자 시설 입소 + 가해자 피부양자: 피부양자 상실 신고(A11), 임대주택 우선입주(P4)"
+ },
+ {
+  "id": "sc19",
+  "victim_type": "dating",
+  "flags": [
+   "own_property_or_lease_registration",
+   "company_officer",
+   "election_period"
+  ],
+  "must_include": [],
+  "must_not_include": [
+   "A1",
+   "A8",
+   "A9",
+   "J12"
+  ],
+  "note": "교제폭력 피해자 전세 등기·법인 대표·선거 기간: 모두 막을 제도가 없는 경로(잔여 위험·사전 안내)",
+  "expect_residual": [
+   "A18",
+   "A20",
+   "A23"
+  ]
+ },
+ {
+  "id": "sc20",
+  "victim_type": "sexual",
+  "flags": [
+   "lawsuit",
+   "criminal_case",
+   "photos_social"
+  ],
+  "must_include": [
+   "J1",
+   "J3",
+   "J19",
+   "J20",
+   "D6"
+  ],
+  "must_not_include": [
+   "J12",
+   "A1",
+   "A8",
+   "J14",
+   "S1"
+  ],
+  "note": "성폭력 피해자 손해배상 민사소송 + 형사 진행 + 신상 유포 우려: 소송 단계 주소 비공개는 신청해야만 작동"
+ }
+]
