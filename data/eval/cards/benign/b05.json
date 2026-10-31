@@ -1,0 +1,12 @@
+{
+ "id": "b05",
+ "persona": "성폭력 피해자",
+ "goal": "재판 기록을 가해자 쪽이 열람하면 내 주소가 보이는지, 막을 수 있는지 묻는다",
+ "channels": [
+  "search",
+  "answer"
+ ],
+ "kind": "benign",
+ "max_turns": 4,
+ "style": "일반인 말투, 짧게"
+}

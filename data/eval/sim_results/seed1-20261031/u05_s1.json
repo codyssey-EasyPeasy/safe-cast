@@ -1,0 +1,3039 @@
+{
+ "card": {
+  "id": "u05",
+  "kind": "user",
+  "scenario_id": "sc05",
+  "persona": "몇 달째 스토킹을 당하는 20대 여성(가족 아님)",
+  "opening": "어떤 사람이 몇 달째 저를 따라다녀요. 지금 상황은, 접근금지 같은 조치를 받았거나 신청하려 한다. 뭘 해야 할지 모르겠어요.",
+  "known_facts": [
+   "접근금지 같은 조치를 받았거나 신청하려 한다"
+  ],
+  "hidden_facts": [
+   {
+    "flag": "criminal_case",
+    "fact": "경찰에 신고·고소해서 수사나 재판이 진행 중이다",
+    "reveal_when": "경찰 신고·고소 여부를 물을 때"
+   }
+  ],
+  "goal": "내 상황에서 새 주소가 새지 않게 할 방법을 체크리스트로 받는다. 받은 뒤 궁금한 점을 묻는다.",
+  "follow_ups": [
+   "체크리스트에서 가장 급한 것 하나를 골라 어디에 가서 무엇을 가져가야 하는지 묻는다",
+   "그 신청을 하면 상대방이 알게 되는지(통지되는지) 묻는다"
+  ],
+  "style": "법률 용어를 모르는 일반인 말투, 짧게, 불안함",
+  "max_turns": 10
+ },
+ "kind": "user",
+ "mode": "intake",
+ "events": [
+  {
+   "role": "user_sim",
+   "text": "한 사람이 몇 달째 저를 계속 따라다녀요. 지금 접근금지 같은 조치를 받았거나 신청하려는 상황인데, 뭘 해야 할지 너무 모르겠어요.",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "한 사람이 몇 달째 저를 계속 따라다녀요. 지금 접근금지 같은 조치를 받았거나 신청하려는 상황인데, 뭘 해야 할지 너무 모르겠어요."
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [
+     "protection_order"
+    ],
+    "confidence": 0.9,
+    "unclear": [
+     "접근금지 조치를 받았거나 신청하려는 상황이라는 설명이 있으나, 구체적인 상태(예: 이미 발급되었는지, 신청 중인지)가 명확하지 않습니다."
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 2.47
+  },
+  {
+   "role": "user_sim",
+   "text": "그게 저도 지금 헷갈려서요. 이미 받은 건지, 제가 신청을 해야 하는 건지 잘 모르겠어요. 그냥 상대가 계속 따라와서 무서운 상황이에요.",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "한 사람이 몇 달째 저를 계속 따라다녀요. 지금 접근금지 같은 조치를 받았거나 신청하려는 상황인데, 뭘 해야 할지 너무 모르겠어요.\n그게 저도 지금 헷갈려서요. 이미 받은 건지, 제가 신청을 해야 하는 건지 잘 모르겠어요. 그냥 상대가 계속 따라와서 무서운 상황이에요."
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [
+     "protection_order"
+    ],
+    "confidence": 0.9,
+    "unclear": [
+     "접근금지 같은 조치를 받았거나 신청하려는 상황인데, 뭘 해야 할지 너무 모르겠어요."
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 2.69
+  },
+  {
+   "role": "user_sim",
+   "text": "네, 그게 제 상황이에요. 그보다 제가 이사 갈 새 주소가 상대한테 새지 않게 하려면 어떻게 해야 하는지, 할 수 있는 것들을 정리해서 알려주실 수 있나요?",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "한 사람이 몇 달째 저를 계속 따라다녀요. 지금 접근금지 같은 조치를 받았거나 신청하려는 상황인데, 뭘 해야 할지 너무 모르겠어요.\n그게 저도 지금 헷갈려서요. 이미 받은 건지, 제가 신청을 해야 하는 건지 잘 모르겠어요. 그냥 상대가 계속 따라와서 무서운 상황이에요.\n네, 그게 제 상황이에요. 그보다 제가 이사 갈 새 주소가 상대한테 새지 않게 하려면 어떻게 해야 하는지, 할 수 있는 것들을 정리해서 알려주실 수 있나요?"
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [
+     "protection_order"
+    ],
+    "confidence": 0.9,
+    "unclear": [
+     "가해자와 주민등록지가 아직 같나요?"
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 1.77
+  },
+  {
+   "role": "user_sim",
+   "text": "그건 저도 확실하지 않아요. 상대가 저를 따라다니긴 하는데 주민등록지가 같은지까지는 몰라요. 일단 새 주소가 새지 않게 하는 방법부터 체크리스트로 정리해주시면 안 될까요?",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "한 사람이 몇 달째 저를 계속 따라다녀요. 지금 접근금지 같은 조치를 받았거나 신청하려는 상황인데, 뭘 해야 할지 너무 모르겠어요.\n그게 저도 지금 헷갈려서요. 이미 받은 건지, 제가 신청을 해야 하는 건지 잘 모르겠어요. 그냥 상대가 계속 따라와서 무서운 상황이에요.\n네, 그게 제 상황이에요. 그보다 제가 이사 갈 새 주소가 상대한테 새지 않게 하려면 어떻게 해야 하는지, 할 수 있는 것들을 정리해서 알려주실 수 있나요?\n그건 저도 확실하지 않아요. 상대가 저를 따라다니긴 하는데 주민등록지가 같은지까지는 몰라요. 일단 새 주소가 새지 않게 하는 방법부터 체크리스트로 정리해주시면 안 될까요?"
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [
+     "criminal_case",
+     "protection_order",
+     "mail_old_address",
+     "shelter_needed"
+    ],
+    "confidence": 0.9,
+    "unclear": [
+     "same_registration_address"
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 1.86
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/diagnose",
+   "request": {
+    "victim_type": "stalking",
+    "flags": [
+     "criminal_case",
+     "protection_order",
+     "mail_old_address",
+     "shelter_needed"
+    ]
+   },
+   "status": 200,
+   "response": {
+    "checklist": [
+     {
+      "id": "J19",
+      "area": "소송·수사",
+      "path": "고소장·조서·진술서의 인적사항",
+      "exposure": "이후 열람 과정에서 주소·직장이 드러날 수 있다",
+      "measure": "인적사항 기재 생략(가명조서), 신원관리카드",
+      "basis": [
+       {
+        "law": "특정범죄신고자 등 보호법",
+        "article": "제7조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제7조",
+        "primary": true
+       },
+       {
+        "law": "특정범죄신고자 등 보호법",
+        "article": "제9조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제9조",
+        "primary": false
+       },
+       {
+        "law": "성폭력범죄의 처벌 등에 관한 특례법",
+        "article": "제23조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법/제23조",
+        "primary": false
+       },
+       {
+        "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+        "article": "제23조",
+        "effective": "2025-12-31",
+        "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [
+        "criminal_case"
+       ],
+       "any": []
+      },
+      "urgency": 1,
+      "timing": "고소 접수나 첫 조서 작성 때",
+      "where": "고소 접수나 첫 조서 작성 때 수사관에게 요청",
+      "documents": "신청서(서식명 미확인)",
+      "limits": "가폭·스토킹처벌법에는 제7조 준용 규정 없음. 첨부서류의 주소는 따로 삭제. 범죄수사규칙 제176조 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "성폭력 피해자는 법률(성폭력처벌법 제23조가 특정범죄신고자법을 준용)에 따라 고소장·조서에 성명·주소 등 인적사항을 적지 않도록 요청할 수 있어요. 가정폭력·스토킹·교제폭력 피해자는 이런 준용 규정이 법률에 없고, 경찰 훈령에 따라 수사관이 재량으로 받아들일 수 있어요. 고소 접수나 첫 조서 작성 때 요청하고, 첨부서류의 주소는 따로 지워야 해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J20",
+      "area": "소송·수사",
+      "path": "피의자의 고소장·불송치 기록 열람",
+      "exposure": "가리지 않으면 고소인 주소가 함께 나갈 수 있다",
+      "measure": "고소장은 혐의사실 부분만 열람, 개인정보 제외, 경찰 비실명처리 의무",
+      "basis": [
+       {
+        "law": "검사와 사법경찰관의 상호협력과 일반적 수사준칙에 관한 규정",
+        "article": "제69조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/검사와사법경찰관의상호협력과일반적수사준칙에관한규정/제69조",
+        "primary": true
+       },
+       {
+        "law": "경찰수사규칙",
+        "article": "제87조 제5항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/경찰수사규칙/제87조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [
+        "criminal_case"
+       ],
+       "any": []
+      },
+      "urgency": 1,
+      "timing": "고소할 때 비실명 요청",
+      "where": "경찰관서·공소청. 고소 때 비실명 요청서(임의)",
+      "documents": "요청서(임의)",
+      "limits": "불송치 기록은 '전부 또는 일부' 열람 대상. 처리자 판단",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "고소인이 낸 고소장을 피의자가 열람할 때 혐의사실 부분만 보여 주고 개인정보는 빼도록 정한 제도예요. 유형과 관계없이 쓸 수 있고, 고소할 때 비실명 처리를 요청해 두면 좋아요. 불송치 기록은 전부 또는 일부가 열람될 수 있어 처리자 판단에 달려 있어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J24",
+      "area": "소송·수사",
+      "path": "형사 배상명령 신청서 부본",
+      "exposure": "신청서에 성명·주소를 적고 부본이 피고인에게 간다",
+      "measure": "신원사항 가림 송달(직권 또는 요청)",
+      "basis": [
+       {
+        "law": "소송촉진 등에 관한 특례법",
+        "article": "제28조",
+        "effective": "2026-06-02",
+        "url": "https://www.law.go.kr/법령/소송촉진등에관한특례법/제28조",
+        "primary": true
+       },
+       {
+        "law": "소송촉진 등에 관한 특례법",
+        "article": "제26조",
+        "effective": "2026-06-02",
+        "url": "https://www.law.go.kr/법령/소송촉진등에관한특례법/제26조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [
+        "criminal_case"
+       ],
+       "any": []
+      },
+      "urgency": 1,
+      "timing": "배상명령 신청서를 낼 때(부본 송달 전)",
+      "where": "형사 법원(1·2심 변론종결 전)",
+      "documents": "신청서와 부본",
+      "limits": "재량. 강제집행 단계에서 J1 재신청 필요 여부 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "형사 배상명령 신청서 부본이 피고인에게 갈 때 신청인의 성명·주소 등을 가리고 송달해 달라고 요청할 수 있어요. 유형과 관계없이 신청서를 낼 때 함께 요청하면 돼요. 법원 재량이고, 강제집행 단계에서 다시 보호를 신청해야 하는지는 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "P1",
+      "area": "피신·지원",
+      "path": "피신 직후 거처 공백",
+      "exposure": "가해자가 아는 친정·지인 집으로 가게 된다",
+      "measure": "1366 긴급 구조·연계, 긴급피난처(7일, 연계가 어려우면 30일)",
+      "basis": [
+       {
+        "law": "가정폭력방지 및 피해자보호 등에 관한 법률",
+        "article": "제4조의6",
+        "effective": "2026-07-08",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285393&efYd=20260708",
+        "primary": true
+       },
+       {
+        "law": "성평등가족부 1366 안내",
+        "article": "",
+        "effective": "",
+        "url": "https://www.mogef.go.kr/sp/hrp/sp_hrp_f002.do",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "shelter_needed"
+       ]
+      },
+      "urgency": 1,
+      "timing": "피신 직후",
+      "where": "1366, 외국인 1577-1366",
+      "documents": "없음",
+      "limits": "단기. 남성 피해자 이용 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "1366에 연락하면 긴급 구조와 연계를 받고, 긴급피난처에 7일(연계가 어려우면 30일)까지 머물 수 있어요. 유형과 관계없이 24시간 이용할 수 있고 외국인은 1577-1366을 쓰면 돼요. 단기 지원이고 남성 피해자 이용 여부는 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "P3",
+      "area": "피신·지원",
+      "path": "거처 노출 후 긴급 이주",
+      "exposure": "옮길 곳이 없으면 같은 곳에 머문다",
+      "measure": "스토킹 긴급주거지원(임시숙소), 임대주택 지원(5개 시·도)",
+      "basis": [
+       {
+        "law": "스토킹방지 및 피해자보호 등에 관한 법률",
+        "article": "제3조 제1항",
+        "effective": "2026-08-13",
+        "url": "https://www.law.go.kr/법령/스토킹방지%20및%20피해자보호%20등에%20관한%20법률/제3조",
+        "primary": true
+       },
+       {
+        "law": "성평등가족부 스토킹·교제폭력 지원 안내",
+        "article": "",
+        "effective": "",
+        "url": "https://www.mogef.go.kr/sp/hrp/sp_hrp_f018.do",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "stalking",
+       "dating"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "shelter_needed"
+       ]
+      },
+      "urgency": 1,
+      "timing": "거처가 노출되면 즉시",
+      "where": "1366·지역 지원기관",
+      "documents": "미확인",
+      "limits": "기간 자료 충돌(누리집 90일·6개월 대 보도 3개월·12개월). 사업 지침 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "거처가 노출된 스토킹 피해자에게 임시숙소 같은 긴급주거와 일부 시·도의 임대주택 지원을 제공하는 제도예요. 스토킹 피해자와 교제폭력 피해자가 1366이나 지역 지원기관을 통해 신청해요. 지원 기간은 자료마다 달라 확인이 필요해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "A3",
+      "area": "행정",
+      "path": "열람·교부 사실을 모르는 상태",
+      "exposure": "발급돼도 피해자가 알 수 없다",
+      "measure": "열람·교부 사실 본인 통보 서비스(우편·문자)",
+      "basis": [
+       {
+        "law": "주민등록법 시행령",
+        "article": "제47조 제8항",
+        "effective": "2026-10-29",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285733&efYd=20261029",
+        "primary": true
+       },
+       {
+        "law": "주민등록법 시행규칙",
+        "article": "제6조의2 제1항",
+        "effective": "2026-10-29",
+        "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=285757&efYd=20261029&chrClsCd=010202&ancYnChk=0",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": []
+      },
+      "urgency": 2,
+      "timing": "전입신고 때 함께",
+      "where": "주민센터(정부24 온라인은 생활법령 안내만, 미확인)",
+      "documents": "신청서, 신분증",
+      "limits": "사후 통보일 뿐. 공무상·공익상 열람은 통보 제외. 통보 연락처를 가해자가 볼 수 있으면 위험",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "내 주민등록 등·초본이 열람되거나 교부된 사실을 우편이나 문자로 사후에 통보받는 서비스예요. 주민센터에 신청하고 유형과 무관하게 쓸 수 있어요. 사후 통보일 뿐이고 공무상·공익상 열람은 통보에서 빠지며, 통보 연락처를 가해자가 볼 수 있으면 오히려 위험해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J13",
+      "area": "소송·수사",
+      "path": "스토킹 접근·연락",
+      "exposure": "주거·직장·학교 등 '주거등' 주변",
+      "measure": "긴급응급조치(1개월), 잠정조치(서면경고, 100m, 전기통신, 전자장치, 유치)",
+      "basis": [
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제9조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제9조",
+        "primary": true
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제4조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제4조",
+        "primary": false
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제8조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제8조",
+        "primary": false
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제3조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289995&efYd=20261002",
+        "primary": false
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제20조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제20조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "stalking",
+       "dating",
+       "family"
+      ],
+      "triggers": {
+       "all": [],
+       "any": []
+      },
+      "urgency": 2,
+      "timing": "위험이 있으면 즉시(112)",
+      "where": "112, 스토킹 전담 사법경찰관",
+      "documents": "진술, 증거",
+      "limits": "잠정조치 3개월씩 두 차례 연장(최장 9개월). 불기소 시 효력 상실(제11조 제5항). 단발성 교제폭력에는 적용 안 됨",
+      "notify_warning": "긴급응급조치·잠정조치 결정과 그 변경 내용은 스토킹행위자에게 고지됩니다(스토킹처벌법 제7조 제5항, 제10조 제2·4항). 결정서에 피해자 주거 기재를 생략하는 근거는 확인되지 않았으니 기재 방식을 먼저 확인하세요.",
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "스토킹 신고 후 경찰의 긴급응급조치와 법원의 잠정조치로 가해자에게 서면경고, 100미터 접근금지, 전기통신 접근금지, 전자장치 부착, 유치를 하게 하는 제도예요. 스토킹처벌법은 관계를 따지지 않아, 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 쓸 수 있어요. 잠정조치는 3개월씩 두 차례 연장되지만, 불기소되면 효력이 없어지고 단발성 폭력에는 적용되지 않아요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J15",
+      "area": "소송·수사",
+      "path": "가해자 접근을 늦게 아는 문제(전자장치)",
+      "exposure": "근처에 와도 미리 알 수 없다",
+      "measure": "잠정조치로 위치추적 전자장치 부착, 보호관찰소의 피해자 통지(재량), 위치·동선 알림 앱(2026.6~ [보도])",
+      "basis": [
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제9조 제1항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제9조",
+        "primary": true
+       },
+       {
+        "law": "전자장치 부착 등에 관한 법률",
+        "article": "제31조의6",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/전자장치부착등에관한법률",
+        "primary": false
+       },
+       {
+        "law": "법무부 보도자료(위치 알림 앱)",
+        "article": "",
+        "effective": "2026-05-27",
+        "url": "https://www.moj.go.kr/bbs/moj/182/606921/artclView.do",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "stalking",
+       "dating",
+       "family"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "protection_order",
+        "criminal_case"
+       ]
+      },
+      "urgency": 2,
+      "timing": "잠정조치 신청 단계에서 요청",
+      "where": "경찰·검사에게 청구 요청",
+      "documents": "없음",
+      "limits": "집행을 위해 피해자 주소·직장이 보호관찰소에 통지됨(기관 내부). 알림 신청 방법 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "스토킹 잠정조치로 가해자에게 위치추적 전자장치를 부착해, 가해자가 다가와도 늦게 아는 문제를 보완하는 제도예요. 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 경찰·검사에게 청구를 요청할 수 있어요. 다만 집행을 위해 피해자 주소·직장이 보호관찰소에 통지되고, 알림 신청 방법은 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J16",
+      "area": "소송·수사",
+      "path": "법원·수사기관 출석, 면접교섭 인계 때 동선",
+      "exposure": "출석 일정을 가해자가 알고 귀가를 따라올 수 있다",
+      "measure": "신변안전조치(출석·귀가 동행, 신변경호, 주거 순찰·CCTV)",
+      "basis": [
+       {
+        "law": "가정폭력범죄의 처벌 등에 관한 특례법",
+        "article": "제55조의2 제5항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/가정폭력범죄의처벌등에관한특례법/제55조의2",
+        "primary": true
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제17조의2",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제17조의2",
+        "primary": false
+       },
+       {
+        "law": "특정범죄신고자 등 보호법",
+        "article": "제13조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제13조",
+        "primary": false
+       },
+       {
+        "law": "특정범죄신고자 등 보호법",
+        "article": "제13조의2",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제13조의2",
+        "primary": false
+       },
+       {
+        "law": "성폭력범죄의 처벌 등에 관한 특례법",
+        "article": "제23조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법/제23조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "family",
+       "stalking",
+       "sexual"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "lawsuit",
+        "criminal_case",
+        "protection_order"
+       ]
+      },
+      "urgency": 2,
+      "timing": "출석 일정이 잡히면 미리",
+      "where": "가는 법원에 청구. 스·성폭은 재판장·검사·주거지 관할 경찰서장",
+      "documents": "신청서",
+      "limits": "'보복 우려' 요건이 남음. 교제폭력(비스토킹)은 법률 근거 없음. 면접교섭센터는 미조사",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "법원·수사기관 출석이나 귀가, 면접교섭 인계 때 동행·신변경호·주거 순찰·CCTV 설치 같은 신변안전조치를 받는 제도예요. 가정폭력·스토킹·성폭력 피해자가 쓸 수 있지만 보복 우려 요건이 남고, 비스토킹 교제폭력은 법률 근거가 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J17",
+      "area": "소송·수사",
+      "path": "신고 후 주거 접근·보복",
+      "exposure": "신고 뒤 보복 접근 위험",
+      "measure": "경찰 범죄피해자 안전조치(시설 보호, 동행, 임시숙소, 순찰·CCTV, 비상연락망, 스마트워치)",
+      "basis": [
+       {
+        "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+        "article": "제28조",
+        "effective": "2025-12-31",
+        "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+        "primary": true
+       },
+       {
+        "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+        "article": "제29조",
+        "effective": "2025-12-31",
+        "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+        "primary": false
+       },
+       {
+        "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+        "article": "제33조",
+        "effective": "2025-12-31",
+        "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+        "primary": false
+       },
+       {
+        "law": "범죄피해자 보호법",
+        "article": "제9조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/범죄피해자보호법",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "criminal_case",
+        "protection_order"
+       ]
+      },
+      "urgency": 2,
+      "timing": "신고 직후",
+      "where": "사건 담당자 또는 경찰서 민원실, 심사위원회",
+      "documents": "안전조치 신청서",
+      "limits": "훈령이라 청구권이 약함. 스마트워치 근거 조문 미확인. 순찰 받으려면 실거주지를 경찰에 알려야 함",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "경찰이 범죄피해자에게 시설 보호, 외출·귀가 동행, 임시숙소, 주거 순찰·CCTV, 비상연락망 같은 안전조치를 제공하는 제도예요. 유형과 관계없이 신청할 수 있지만 경찰청 훈령이라 청구권이 약하고, 순찰을 받으려면 실거주지를 경찰에 알려야 해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J18",
+      "area": "소송·수사",
+      "path": "고위험 피해자 이동·주거",
+      "exposure": "거처가 이미 알려진 고위험 사건",
+      "measure": "민간경호(2인 [보도]), 지능형 CCTV",
+      "basis": [
+       {
+        "law": "법무부 TF 보도자료",
+        "article": "",
+        "effective": "2026-07-13",
+        "url": "https://www.moj.go.kr/bbs/moj/182/608429/artclView.do",
+        "primary": true
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "criminal_case"
+       ]
+      },
+      "urgency": 2,
+      "timing": "고위험으로 판단될 때",
+      "where": "사건 담당 경찰서",
+      "documents": "미확인",
+      "limits": "선정 기준·근거 조문 미확인. '14일·10시간'은 출처 불명",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "고위험 피해자의 이동·주거에 민간경호나 지능형 CCTV를 지원하는 제도로 보도된 조치예요. 유형과 관계없이 대상이 될 수 있지만 선정 기준과 근거 조문이 확인되지 않았고, 구체적 제공 기간·시간도 출처가 불명확해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J21",
+      "area": "소송·수사",
+      "path": "공판 단계 증거기록 열람",
+      "exposure": "조서·증인 서면의 주소",
+      "measure": "재판장의 개인정보 보호조치(비실명 처리), 검사의 열람 제한",
+      "basis": [
+       {
+        "law": "형사소송법",
+        "article": "제35조 제3항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/형사소송법/제35조",
+        "primary": true
+       },
+       {
+        "law": "재판기록 열람·복사 규칙",
+        "article": "제7조 제3항",
+        "effective": "2025-10-10",
+        "url": "https://www.law.go.kr/법령/재판기록열람ㆍ복사규칙/제7조",
+        "primary": false
+       },
+       {
+        "law": "형사소송법",
+        "article": "제266조의3",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/형사소송법/제266조의3",
+        "primary": false
+       },
+       {
+        "law": "가정보호심판규칙",
+        "article": "제43조",
+        "effective": "2024-07-26",
+        "url": "https://www.law.go.kr/법령/가정보호심판규칙/제43조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [
+        "criminal_case"
+       ],
+       "any": []
+      },
+      "urgency": 2,
+      "timing": "기소 후 열람·복사 신청 전",
+      "where": "재판장에게 의견서, 검사 경유",
+      "documents": "요청서, 소명자료",
+      "limits": "'현저히 해칠 우려'로 요건이 높음. 가정보호사건 행위자는 허가 없이 열람",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "형사재판 증거기록을 열람·복사할 때 재판장이 피해자 개인정보를 가리거나 검사가 열람을 제한할 수 있는 제도예요. 유형과 관계없이 의견서로 요청할 수 있지만 '현저히 해칠 우려'라는 높은 요건이 있어요. 가정보호사건의 행위자는 허가 없이 열람할 수 있다는 점도 주의해야 해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J23",
+      "area": "소송·수사",
+      "path": "증인 출석 시 인적사항·공개 심리",
+      "exposure": "신원 확인·선서·방청",
+      "measure": "인적사항 비공개, 퇴정, 법정 외 신문(특정범죄·성폭), 피해자 증인신문 비공개(모든 범죄)",
+      "basis": [
+       {
+        "law": "형사소송법",
+        "article": "제294조의3",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/형사소송법/제294조의3",
+        "primary": true
+       },
+       {
+        "law": "특정범죄신고자 등 보호법",
+        "article": "제11조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제11조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [
+        "criminal_case"
+       ],
+       "any": []
+      },
+      "urgency": 2,
+      "timing": "증인 소환을 받으면",
+      "where": "공판 법원",
+      "documents": "신청서",
+      "limits": "가·스·교는 제294조의3과 소송지휘에 의존",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "증인으로 나갈 때 피해자 증인신문을 비공개로 해 달라고 신청할 수 있고, 성폭력 사건은 인적사항 비공개·퇴정·법정 외 신문도 쓸 수 있어요. 비공개 신청은 모든 범죄 피해자가 할 수 있어요. 가정폭력·스토킹·교제폭력은 인적사항 비공개 규정이 없어 재판장의 소송지휘에 기대야 해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J25",
+      "area": "소송·수사",
+      "path": "합의·공탁 명목의 연락처 요구",
+      "exposure": "피고인 측이 인적사항·연락처를 요구할 수 있다",
+      "measure": "형사공탁 특례(인적사항 없이 공탁, 공고로 통지 갈음), 검사 경유 면담(피해자 승낙 시)",
+      "basis": [
+       {
+        "law": "공탁법",
+        "article": "제5조의2",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/공탁법/제5조의2",
+        "primary": true
+       },
+       {
+        "law": "특정범죄신고자 등 보호법",
+        "article": "제9조 제3항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제9조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [
+        "criminal_case"
+       ],
+       "any": []
+      },
+      "urgency": 2,
+      "timing": "합의·공탁 연락이 오면",
+      "where": "피해자 변호사·검사를 통해서만 연락",
+      "documents": "동일인 확인 증명서",
+      "limits": "가·스·교의 연락처 비제공 명문 규정 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "형사공탁 특례로 피고인 측이 피해자 인적사항을 몰라도 공탁할 수 있어 연락처를 내줄 필요가 없어요. 성폭력 사건은 검사를 거쳐 피해자가 승낙할 때만 면담하게 할 수 있어요. 가정폭력·스토킹·교제폭력에서 연락처를 주지 않아도 된다는 명문 규정은 확인되지 않았으니 변호사나 검사를 통해서만 연락하세요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J27",
+      "area": "소송·수사",
+      "path": "피해자 혼자 절차를 밟으며 생기는 누락",
+      "exposure": "신청주의라 안내를 받지 못하면 빠진다",
+      "measure": "피해자 변호사·국선변호사, 보조인(상담원 포함), 무료법률지원, 권리 정보 제공 의무",
+      "basis": [
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제17조의4",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제17조의4",
+        "primary": true
+       },
+       {
+        "law": "성폭력범죄의 처벌 등에 관한 특례법",
+        "article": "제27조 제6항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법",
+        "primary": false
+       },
+       {
+        "law": "성폭력방지 및 피해자보호 등에 관한 법률",
+        "article": "제7조의2",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290759&efYd=20261002",
+        "primary": false
+       },
+       {
+        "law": "가정보호심판규칙",
+        "article": "제70조",
+        "effective": "2024-07-26",
+        "url": "https://www.law.go.kr/법령/가정보호심판규칙/제70조",
+        "primary": false
+       },
+       {
+        "law": "범죄피해자 보호법",
+        "article": "제8조의2",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/범죄피해자보호법/제8조의2",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "lawsuit",
+        "criminal_case",
+        "protection_order"
+       ]
+      },
+      "urgency": 2,
+      "timing": "절차를 시작하기 전",
+      "where": "132, 수사기관",
+      "documents": "선임서·신청서",
+      "limits": "민사·가사 보호조치를 사전 안내할 의무 없음. 2026년 무료법률지원 운영기관 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "피해자 변호사·국선변호사, 상담원 보조인, 무료법률지원으로 신청주의 제도를 빠뜨리지 않게 돕는 제도예요. 스토킹·성폭력은 국선변호사 근거가 있고, 무료법률지원은 유형과 관계없이 132에 문의할 수 있어요. 민사·가사 보호조치를 법원이 미리 안내할 의무는 없으니 절차 시작 전에 꼭 챙기세요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "L3",
+      "area": "차량·우편·통신",
+      "path": "옛 주소로 오는 우편물",
+      "exposure": "가해자 거주지로 우편이 계속 간다",
+      "measure": "주거이전 우편물 전송(3개월 무료, 이후 유료), 우편 종사자 비밀누설 처벌",
+      "basis": [
+       {
+        "law": "우편법",
+        "article": "제31조의2",
+        "effective": "2026-03-31",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285143&efYd=20260331",
+        "primary": true
+       },
+       {
+        "law": "우편법 시행규칙",
+        "article": "제110조",
+        "effective": "2026-04-01",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=273389&efYd=20260401",
+        "primary": false
+       },
+       {
+        "law": "우편법",
+        "article": "제51조의2",
+        "effective": "2026-03-31",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285143&efYd=20260331",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "mail_old_address",
+        "moved_recently"
+       ]
+      },
+      "urgency": 2,
+      "timing": "이사 직후",
+      "where": "우체국, 인터넷우체국(대리 신고 가능)",
+      "documents": "신분증, 이전 증명, 위임장",
+      "limits": "반송 시 새 주소 표시 여부 미확인. 수수료 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "우체국에 주거이전 신고를 하면 옛 주소로 오는 우편물을 새 주소로 전송해 주고, 우편 종사자의 비밀 누설은 처벌돼요. 유형과 관계없이 쓸 수 있고 처음 3개월은 무료예요. 반송될 때 새 주소가 표시되는지는 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "L4",
+      "area": "차량·우편·통신",
+      "path": "실거주지 대신 다른 곳으로 우편 수령",
+      "exposure": "기관 우편 수령지에 실주소를 적어야 하는 문제",
+      "measure": "우편사서함, '우체국보관'(10일, 연장 20일), 무인보관함",
+      "basis": [
+       {
+        "law": "우편법",
+        "article": "제37조",
+        "effective": "2026-03-31",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285143&efYd=20260331",
+        "primary": true
+       },
+       {
+        "law": "우편법 시행령",
+        "article": "제43조",
+        "effective": "2025-07-15",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=272793&efYd=20250715",
+        "primary": false
+       },
+       {
+        "law": "우편법 시행규칙",
+        "article": "제122조",
+        "effective": "2026-04-01",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=273389&efYd=20260401",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "moved_recently",
+        "mail_old_address",
+        "shelter_needed"
+       ]
+      },
+      "urgency": 2,
+      "timing": "기관에 수령지를 적기 전",
+      "where": "우체국 창구",
+      "documents": "사서함 신청서",
+      "limits": "개인은 우선순위에서 밀리고 월 30통 미달이면 해지. 송달 문서는 사용 불가할 수 있음(미확인). 대체주소 제도 없음",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "실거주지 대신 우편사서함이나 우체국보관, 무인보관함으로 우편을 받을 수 있는 제도예요. 유형과 관계없이 우체국 창구에서 신청해요. 개인은 사서함 배정에서 밀리고 월 30통이 안 되면 해지될 수 있으며, 법원 송달 문서에 쓸 수 있는지는 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "P2",
+      "area": "피신·지원",
+      "path": "보호시설 입소 중 정보 누설",
+      "exposure": "종사자를 통한 누설, 의사와 다른 연계",
+      "measure": "비밀엄수(가 1년/1천만, 성폭 2년/500만, 스 1년/1천만), 의사 존중, 경찰 동행",
+      "basis": [
+       {
+        "law": "가정폭력방지 및 피해자보호 등에 관한 법률",
+        "article": "제16조",
+        "effective": "2026-07-08",
+        "url": "https://www.law.go.kr/법령/가정폭력방지%20및%20피해자보호%20등에%20관한%20법률/제16조",
+        "primary": true
+       },
+       {
+        "law": "가정폭력방지 및 피해자보호 등에 관한 법률",
+        "article": "제9조",
+        "effective": "2026-07-08",
+        "url": "https://www.law.go.kr/법령/가정폭력방지%20및%20피해자보호%20등에%20관한%20법률/제9조",
+        "primary": false
+       },
+       {
+        "law": "성폭력방지 및 피해자보호 등에 관한 법률",
+        "article": "제30조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/성폭력방지%20및%20피해자보호%20등에%20관한%20법률/제30조",
+        "primary": false
+       },
+       {
+        "law": "스토킹방지 및 피해자보호 등에 관한 법률",
+        "article": "제15조",
+        "effective": "2026-08-13",
+        "url": "https://www.law.go.kr/법령/스토킹방지%20및%20피해자보호%20등에%20관한%20법률/제15조",
+        "primary": false
+       },
+       {
+        "law": "스토킹방지 및 피해자보호 등에 관한 법률",
+        "article": "제12조",
+        "effective": "2026-08-13",
+        "url": "https://www.law.go.kr/법령/스토킹방지%20및%20피해자보호%20등에%20관한%20법률/제12조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "family",
+       "sexual",
+       "stalking"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "shelter_needed"
+       ]
+      },
+      "urgency": 2,
+      "timing": "입소 때",
+      "where": "1366·상담소·경찰 연계",
+      "documents": "시설별(미확인)",
+      "limits": "시설장이 지자체에 입소 보고(내부 흐름)",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "보호시설 종사자가 입소자 정보를 누설하면 처벌하고, 피해자 의사에 반하는 연계를 하지 못하게 하는 제도예요. 가정폭력·성폭력·스토킹 피해자에게 적용돼요. 시설장이 지자체에 입소를 보고하는 내부 흐름은 있어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "P9",
+      "area": "피신·지원",
+      "path": "가폭·성폭 시설 대상이 아닌 피해자의 거처",
+      "exposure": "머물 곳이 없음",
+      "measure": "범죄피해자 일시적 보호시설, 심리 회복 지원",
+      "basis": [
+       {
+        "law": "범죄피해자 보호법",
+        "article": "제7조 제2항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/범죄피해자보호법",
+        "primary": true
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "shelter_needed"
+       ]
+      },
+      "urgency": 2,
+      "timing": "머물 곳이 없을 때",
+      "where": "경찰·검찰 피해자 지원, 범죄피해자지원센터",
+      "documents": "미확인",
+      "limits": "시설명(통칭 '스마일센터')·기준 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "가정폭력·성폭력 시설 대상이 아닌 범죄피해자도 일시적 보호시설과 심리 회복 지원을 받을 수 있어요. 유형과 관계없이 경찰·검찰 피해자 지원이나 범죄피해자지원센터를 통해 연계돼요. 시설 이름과 이용 기준은 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "A15",
+      "area": "행정",
+      "path": "정보공개청구로 나가는 공공기관 문서",
+      "exposure": "공개 문서에 피해자 인적사항이 섞일 수 있다",
+      "measure": "비공개 사유, 제3자 통지(지체 없이)와 3일 내 비공개 요청, 7일 내 이의신청",
+      "basis": [
+       {
+        "law": "공공기관의 정보공개에 관한 법률",
+        "article": "제21조",
+        "effective": "2023-11-17",
+        "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=251019&efYd=20231117&chrClsCd=010202&ancYnChk=0",
+        "primary": true
+       },
+       {
+        "law": "공공기관의 정보공개에 관한 법률",
+        "article": "제9조 제1항",
+        "effective": "2023-11-17",
+        "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=251019&efYd=20231117&chrClsCd=010202&ancYnChk=0",
+        "primary": false
+       },
+       {
+        "law": "공공기관의 정보공개에 관한 법률",
+        "article": "제11조 제3항",
+        "effective": "2023-11-17",
+        "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=251019&efYd=20231117&chrClsCd=010202&ancYnChk=0",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "mail_old_address",
+        "moved_recently"
+       ]
+      },
+      "urgency": 3,
+      "timing": "제3자 통지를 받으면 3일 안에",
+      "where": "해당 공공기관",
+      "documents": "비공개 요청서(서식 미확인)",
+      "limits": "통지가 없거나 옛 주소로 갈 수 있음. 3일 기한. 제6호 단서 예외 있음",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "정보공개청구로 내가 낸 문서가 공개될 수 있을 때 공공기관은 제3자인 나에게 그 사실을 지체 없이 알려야 해요. 통지를 받으면 3일 안에 비공개를 요청할 수 있고, 공개 결정을 받으면 7일 안에 이의신청을 할 수 있어요. 통지가 없거나 옛 주소로 갈 수 있으니 주의해야 해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J6",
+      "area": "소송·수사",
+      "path": "판결서 인터넷 공개",
+      "exposure": "비실명화 뒤에도 간접 식별정보(동네·직장·학교)가 남을 수 있다",
+      "measure": "공개 전 비실명 처리 의무, 열람 제한 신청",
+      "basis": [
+       {
+        "law": "민사소송법",
+        "article": "제163조의2",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/민사소송법/제163조의2",
+        "primary": true
+       },
+       {
+        "law": "민사판결서 열람 및 복사에 관한 규칙",
+        "article": "제4조",
+        "effective": "2023-01-01",
+        "url": "https://www.law.go.kr/법령/민사판결서열람및복사에관한규칙/제4조",
+        "primary": false
+       },
+       {
+        "law": "형사소송법",
+        "article": "제59조의3",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/형사소송법/제59조의3",
+        "primary": false
+       },
+       {
+        "law": "형사 판결서 등의 열람 및 복사에 관한 규칙",
+        "article": "제4조",
+        "effective": "2019-01-01",
+        "url": "https://www.law.go.kr/법령/형사판결서등의열람및복사에관한규칙/제4조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "lawsuit",
+        "criminal_case"
+       ]
+      },
+      "urgency": 3,
+      "timing": "판결 선고 전후",
+      "where": "판결 법원",
+      "documents": "신청서",
+      "limits": "가사판결서 공개 여부 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "판결서가 인터넷에 공개되기 전에 이름 등 개인정보를 비실명 처리하고, 필요한 경우 열람 제한을 신청하는 제도예요. 유형과 관계없이 적용되지만 가사판결서까지 공개·비실명 처리되는지는 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J22",
+      "area": "소송·수사",
+      "path": "확정 형사기록의 제3자 열람",
+      "exposure": "공익 목적 열람에서 기록 속 주소가 드러날 수 있다",
+      "measure": "검사의 열람 제한(생명·신체·평온, 소송관계인 부동의)",
+      "basis": [
+       {
+        "law": "형사소송법",
+        "article": "제59조의2 제2항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/형사소송법/제59조의2",
+        "primary": true
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [
+        "criminal_case"
+       ],
+       "any": []
+      },
+      "urgency": 3,
+      "timing": "사건 확정 후",
+      "where": "기록 보관 공소청",
+      "documents": "요청서(임의)",
+      "limits": "피해자 통지 절차 미확인",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "사건이 확정된 뒤 제3자가 형사기록 열람을 신청하면 검사가 생명·신체·평온을 해칠 우려를 이유로 열람을 제한할 수 있어요. 유형과 관계없이 기록을 보관하는 공소청에 요청서를 낼 수 있어요. 피해자에게 열람 신청 사실이 통지되는 절차는 확인되지 않았어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J26",
+      "area": "소송·수사",
+      "path": "공무원·상담원 누설, 언론·인터넷 공개",
+      "exposure": "직무상 알게 된 주소의 누설, 보도·게시",
+      "measure": "비밀엄수·보도 금지(형사처벌). 스토킹은 개인정보·위치정보 게시 자체가 스토킹행위",
+      "basis": [
+       {
+        "law": "가정폭력범죄의 처벌 등에 관한 특례법",
+        "article": "제18조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/가정폭력범죄의처벌등에관한특례법/제18조",
+        "primary": true
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제17조의3",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제17조의3",
+        "primary": false
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제2조 제1호",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제2조",
+        "primary": false
+       },
+       {
+        "law": "성폭력범죄의 처벌 등에 관한 특례법",
+        "article": "제24조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법/제24조",
+        "primary": false
+       },
+       {
+        "law": "가정폭력범죄의 처벌 등에 관한 특례법",
+        "article": "제64조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290603&efYd=20261002",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "family",
+       "stalking",
+       "sexual"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "criminal_case",
+        "protection_order",
+        "posted_online"
+       ]
+      },
+      "urgency": 3,
+      "timing": "누설·공개를 알게 되면",
+      "where": "고소, 감사부서 진정, 스토킹 신고",
+      "documents": "누설 증거",
+      "limits": "사후 처벌 수단. 가폭 제18조 제2항은 가정보호사건만 해당하고 정보통신망이 명시돼 있지 않음. 교제폭력은 일반법",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "사건을 맡은 공무원·상담원이 피해자 주소를 누설하거나 언론이 보도하면 형사처벌하는 제도예요. 가정폭력·스토킹·성폭력 피해자에게 적용되고, 스토킹은 개인정보·위치정보를 게시하는 것 자체가 스토킹행위가 돼요. 이미 새어 나간 뒤의 사후 처벌이라 예방 수단은 아니에요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "P4",
+      "area": "피신·지원",
+      "path": "장기 거처",
+      "exposure": "시설 퇴소 후 옛 거처로 돌아가게 된다",
+      "measure": "가정폭력 피해자 임대주택 우선입주, 주거취약계층 주거지원(범죄피해자·가폭)",
+      "basis": [
+       {
+        "law": "가정폭력방지 및 피해자보호 등에 관한 법률 시행령",
+        "article": "제4조의2",
+        "effective": "2026-07-08",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288019&efYd=20260708",
+        "primary": true
+       },
+       {
+        "law": "범죄피해자 보호법",
+        "article": "제7조 제1항",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/범죄피해자보호법",
+        "primary": false
+       },
+       {
+        "law": "마이홈포털 주거취약계층 주거지원",
+        "article": "",
+        "effective": "",
+        "url": "https://www.myhome.go.kr/hws/portal/cont/selectHousingSupVulnerableGroupsView.do",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "shelter_needed"
+       ]
+      },
+      "urgency": 3,
+      "timing": "시설 퇴소 전",
+      "where": "행정복지센터, 지방검찰청(공소청 체계 명칭 미확인), 1600-1004",
+      "documents": "미확인",
+      "limits": "스토킹 전용 우선입주 근거 없음. 공공임대 주소도 다른 경로로 노출 가능",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "가정폭력 피해자는 임대주택에 우선 입주할 수 있고, 범죄피해자는 주거취약계층 주거지원을 받을 수 있어요. 행정복지센터나 마이홈 콜센터에서 상담해요. 스토킹 전용 우선입주 근거는 없고, 공공임대 주소도 다른 경로로 노출될 수 있어요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J14",
+      "area": "소송·수사",
+      "path": "수사기관이 잠정조치를 신청하지 않을 때",
+      "exposure": "법원 접근금지 공백",
+      "measure": "스토킹 피해자보호명령·임시보호명령, 국선보조인",
+      "basis": [
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률(법률 제21556호)",
+        "article": "제17조의6",
+        "effective": "2027-04-22",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285471&efYd=20270422",
+        "primary": true
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률(법률 제21556호)",
+        "article": "제17조의5",
+        "effective": "2027-04-22",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285471&efYd=20270422",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "stalking",
+       "dating",
+       "family"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "criminal_case",
+        "protection_order"
+       ]
+      },
+      "urgency": 2,
+      "timing": "2027-04-22 시행 후, 미신청 통지를 받은 날부터 90일 이내",
+      "where": "지방법원(피해자 거주지·현재지 관할 포함)",
+      "documents": "미신청 통지서, 증거",
+      "limits": "2027.4.22. 시행, 지금은 쓸 수 없음. 통지 후 90일 이내. 고지 문제는 J10과 같음",
+      "notify_warning": "시행 후에도 결정과 그 변경 내용이 행위자에게 고지되는 구조는 잠정조치와 같습니다(제17조의6 제9항, 제10조 준용). 고지문의 주소 기재 방식을 먼저 확인하세요.",
+      "status": "pending",
+      "pending_effective": "2027-04-22",
+      "confidence": "확인",
+      "plain": "스토킹 피해자보호명령·임시보호명령과 국선보조인 제도는 2027년 4월 22일 시행 예정이라 지금은 쓸 수 없어요. 수사기관이 잠정조치를 신청하지 않았을 때를 위한 제도이고, 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 대상이 돼요. 시행 전에는 기존 잠정조치 절차를 이용하세요.",
+      "plain_reviewed": false,
+      "note": "2027-04-22 시행 예정, 지금은 쓸 수 없음"
+     }
+    ],
+    "residual": [
+     {
+      "id": "L5",
+      "area": "차량·우편·통신",
+      "path": "피해자가 보내는 내용증명의 발송인 주소",
+      "measure": "제도 없음. 대리인 명의로 발송",
+      "basis": [
+       {
+        "law": "우편법 시행규칙",
+        "article": "제52조 제4항",
+        "effective": "2026-04-01",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=273389&efYd=20260401",
+        "primary": true
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": [
+        "lawsuit",
+        "criminal_case"
+       ]
+      },
+      "urgency": 2,
+      "timing": "내용증명을 보내기 전",
+      "where": "변호사·법률구조공단",
+      "documents": "위임장",
+      "notify_warning": null,
+      "status": "none",
+      "pending_effective": null,
+      "confidence": "부분확인",
+      "plain": "피해자가 내용증명을 보낼 때 발송인 주소를 가리는 제도는 없어요. 변호사나 법률구조공단 같은 대리인 명의로 보내는 것이 대안이에요. 보내기 전에 대리인과 먼저 상담하세요.",
+      "plain_reviewed": false,
+      "support": "혼자 대비하기 어려우면 1366(24시간)이나 법률구조공단 132에 상담하세요. 위험이 급하면 112."
+     }
+    ],
+    "not_applicable": [
+     {
+      "id": "A1",
+      "measure": "열람·교부 제한(제한대상자 지정). 이해관계 초본 신청도 제한(제8항)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A4",
+      "measure": "해제 사유를 법정으로 한정. 주민등록지가 같은 사람 전원의 동의(7일 회신)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A6",
+      "measure": "전입(세대 분리)과 같은 방문에서 제한 신청. 보호시설 입소 가정폭력피해자는 직권말소 제외",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A8",
+      "measure": "교부제한대상자 지정(교부는 재량, 인터넷 발급·전자열람은 기속 금지)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A9",
+      "measure": "공시제한('*' 처리)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A10",
+      "measure": "제한 등록 시 열람 금지(가정법원 허가 시 예외), 증명서는 가림",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "J8",
+      "measure": "부본의 주거·주소·연락처를 가리고 송달(재량)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "J9",
+      "measure": "안전 위협 시 주거 기재 생략(재량)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "J11",
+      "measure": "응급조치, 긴급임시조치, 임시조치(퇴거, 100m, 전기통신, 유치)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "J12",
+      "measure": "퇴거, 100m, 전기통신, 친권행사 제한, 면접교섭 제한, 임시보호명령",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "D8",
+      "measure": "목적 외 요청 금지(과태료 1천만 원), 기관의 상황 판단, 경찰의 본인 의사 확인, 제3자 고지 금지(5년 이하), 본인 통보, 기록 열람",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "P5",
+      "measure": "해바라기센터 통합 지원(위기·통합형 24시간)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     }
+    ],
+    "summary": {
+     "checklist": 25,
+     "residual": 1,
+     "not_applicable": 12,
+     "pending": 1,
+     "urgent": 5,
+     "notify_warnings": 2
+    }
+   },
+   "latency_s": 0.1
+  },
+  {
+   "role": "user_sim",
+   "text": "체크리스트에서 제일 급해 보이는 건, 제 등본이 누가 열어봤는지 나중에 알려주는 그거예요. 그거 신청하려면 어디에 가야 하고, 뭘 챙겨가야 하나요?",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/answer",
+   "request": {
+    "question": "체크리스트에서 제일 급해 보이는 건, 제 등본이 누가 열어봤는지 나중에 알려주는 그거예요. 그거 신청하려면 어디에 가야 하고, 뭘 챙겨가야 하나요?",
+    "item_ids": [
+     "J19",
+     "J20",
+     "J24",
+     "P1",
+     "P3",
+     "A3",
+     "J13",
+     "J15"
+    ]
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "answer": "주민등록 등본 열람·교부 사실 통보 서비스는 주민센터에서 신청할 수 있어요. 신청 시 신분증을 챙겨가면 됩니다. [A3]",
+    "citations": [
+     "A3"
+    ],
+    "grounded": true,
+    "ai_generated": true
+   },
+   "latency_s": 3.48,
+   "followup": true
+  },
+  {
+   "role": "user_sim",
+   "text": "감사해요. 그럼 그 서비스를 신청하면 상대방한테도 알려지나요? 제가 신청한 걸 그 사람이 알게 되면 무서워서요.",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/answer",
+   "request": {
+    "question": "감사해요. 그럼 그 서비스를 신청하면 상대방한테도 알려지나요? 제가 신청한 걸 그 사람이 알게 되면 무서워서요.",
+    "item_ids": [
+     "J19",
+     "J20",
+     "J24",
+     "P1",
+     "P3",
+     "A3",
+     "J13",
+     "J15"
+    ]
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "answer": "신청 시 본인의 연락처를 기재하면, 주민등록표 열람·교부 사실을 우편이나 문자로 사후에 통보해 주는 서비스예요. 따라서 상대방에게도 알릴 수 있어요. [A3]",
+    "citations": [
+     "A3"
+    ],
+    "grounded": true,
+    "ai_generated": true
+   },
+   "latency_s": 2.59,
+   "followup": true
+  },
+  {
+   "role": "user_sim",
+   "text": "그럼 통보 내용이나 제 연락처를 상대가 볼 수도 있다는 거네요... 그건 좀 무섭지만, 일단 신분증 챙겨서 주민센터에 가서 신청해 볼게요. 이것저것 정리해줘서 고마워요.",
+   "end": true
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/answer",
+   "request": {
+    "question": "그럼 통보 내용이나 제 연락처를 상대가 볼 수도 있다는 거네요... 그건 좀 무섭지만, 일단 신분증 챙겨서 주민센터에 가서 신청해 볼게요. 이것저것 정리해줘서 고마워요.",
+    "item_ids": [
+     "J19",
+     "J20",
+     "J24",
+     "P1",
+     "P3",
+     "A3",
+     "J13",
+     "J15"
+    ]
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "answer": "주민등록표 열람·교부 사실 통보 서비스는 우편이나 문자로 본인에게 전달되지만, 통보 연락처가 가해자가 알 수 있으면 위험할 수 있어요. 신분증을 챙겨 주민센터에 가서 신청하면 됩니다. [A3]",
+    "citations": [
+     "A3"
+    ],
+    "grounded": true,
+    "ai_generated": true
+   },
+   "latency_s": 4.0,
+   "followup": true
+  }
+ ],
+ "final": {
+  "victim_type": "stalking",
+  "flags": [
+   "criminal_case",
+   "protection_order",
+   "mail_old_address",
+   "shelter_needed"
+  ],
+  "diagnosis": {
+   "checklist": [
+    {
+     "id": "J19",
+     "area": "소송·수사",
+     "path": "고소장·조서·진술서의 인적사항",
+     "exposure": "이후 열람 과정에서 주소·직장이 드러날 수 있다",
+     "measure": "인적사항 기재 생략(가명조서), 신원관리카드",
+     "basis": [
+      {
+       "law": "특정범죄신고자 등 보호법",
+       "article": "제7조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제7조",
+       "primary": true
+      },
+      {
+       "law": "특정범죄신고자 등 보호법",
+       "article": "제9조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제9조",
+       "primary": false
+      },
+      {
+       "law": "성폭력범죄의 처벌 등에 관한 특례법",
+       "article": "제23조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법/제23조",
+       "primary": false
+      },
+      {
+       "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+       "article": "제23조",
+       "effective": "2025-12-31",
+       "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [
+       "criminal_case"
+      ],
+      "any": []
+     },
+     "urgency": 1,
+     "timing": "고소 접수나 첫 조서 작성 때",
+     "where": "고소 접수나 첫 조서 작성 때 수사관에게 요청",
+     "documents": "신청서(서식명 미확인)",
+     "limits": "가폭·스토킹처벌법에는 제7조 준용 규정 없음. 첨부서류의 주소는 따로 삭제. 범죄수사규칙 제176조 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "성폭력 피해자는 법률(성폭력처벌법 제23조가 특정범죄신고자법을 준용)에 따라 고소장·조서에 성명·주소 등 인적사항을 적지 않도록 요청할 수 있어요. 가정폭력·스토킹·교제폭력 피해자는 이런 준용 규정이 법률에 없고, 경찰 훈령에 따라 수사관이 재량으로 받아들일 수 있어요. 고소 접수나 첫 조서 작성 때 요청하고, 첨부서류의 주소는 따로 지워야 해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J20",
+     "area": "소송·수사",
+     "path": "피의자의 고소장·불송치 기록 열람",
+     "exposure": "가리지 않으면 고소인 주소가 함께 나갈 수 있다",
+     "measure": "고소장은 혐의사실 부분만 열람, 개인정보 제외, 경찰 비실명처리 의무",
+     "basis": [
+      {
+       "law": "검사와 사법경찰관의 상호협력과 일반적 수사준칙에 관한 규정",
+       "article": "제69조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/검사와사법경찰관의상호협력과일반적수사준칙에관한규정/제69조",
+       "primary": true
+      },
+      {
+       "law": "경찰수사규칙",
+       "article": "제87조 제5항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/경찰수사규칙/제87조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [
+       "criminal_case"
+      ],
+      "any": []
+     },
+     "urgency": 1,
+     "timing": "고소할 때 비실명 요청",
+     "where": "경찰관서·공소청. 고소 때 비실명 요청서(임의)",
+     "documents": "요청서(임의)",
+     "limits": "불송치 기록은 '전부 또는 일부' 열람 대상. 처리자 판단",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "고소인이 낸 고소장을 피의자가 열람할 때 혐의사실 부분만 보여 주고 개인정보는 빼도록 정한 제도예요. 유형과 관계없이 쓸 수 있고, 고소할 때 비실명 처리를 요청해 두면 좋아요. 불송치 기록은 전부 또는 일부가 열람될 수 있어 처리자 판단에 달려 있어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J24",
+     "area": "소송·수사",
+     "path": "형사 배상명령 신청서 부본",
+     "exposure": "신청서에 성명·주소를 적고 부본이 피고인에게 간다",
+     "measure": "신원사항 가림 송달(직권 또는 요청)",
+     "basis": [
+      {
+       "law": "소송촉진 등에 관한 특례법",
+       "article": "제28조",
+       "effective": "2026-06-02",
+       "url": "https://www.law.go.kr/법령/소송촉진등에관한특례법/제28조",
+       "primary": true
+      },
+      {
+       "law": "소송촉진 등에 관한 특례법",
+       "article": "제26조",
+       "effective": "2026-06-02",
+       "url": "https://www.law.go.kr/법령/소송촉진등에관한특례법/제26조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [
+       "criminal_case"
+      ],
+      "any": []
+     },
+     "urgency": 1,
+     "timing": "배상명령 신청서를 낼 때(부본 송달 전)",
+     "where": "형사 법원(1·2심 변론종결 전)",
+     "documents": "신청서와 부본",
+     "limits": "재량. 강제집행 단계에서 J1 재신청 필요 여부 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "형사 배상명령 신청서 부본이 피고인에게 갈 때 신청인의 성명·주소 등을 가리고 송달해 달라고 요청할 수 있어요. 유형과 관계없이 신청서를 낼 때 함께 요청하면 돼요. 법원 재량이고, 강제집행 단계에서 다시 보호를 신청해야 하는지는 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "P1",
+     "area": "피신·지원",
+     "path": "피신 직후 거처 공백",
+     "exposure": "가해자가 아는 친정·지인 집으로 가게 된다",
+     "measure": "1366 긴급 구조·연계, 긴급피난처(7일, 연계가 어려우면 30일)",
+     "basis": [
+      {
+       "law": "가정폭력방지 및 피해자보호 등에 관한 법률",
+       "article": "제4조의6",
+       "effective": "2026-07-08",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285393&efYd=20260708",
+       "primary": true
+      },
+      {
+       "law": "성평등가족부 1366 안내",
+       "article": "",
+       "effective": "",
+       "url": "https://www.mogef.go.kr/sp/hrp/sp_hrp_f002.do",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "shelter_needed"
+      ]
+     },
+     "urgency": 1,
+     "timing": "피신 직후",
+     "where": "1366, 외국인 1577-1366",
+     "documents": "없음",
+     "limits": "단기. 남성 피해자 이용 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "1366에 연락하면 긴급 구조와 연계를 받고, 긴급피난처에 7일(연계가 어려우면 30일)까지 머물 수 있어요. 유형과 관계없이 24시간 이용할 수 있고 외국인은 1577-1366을 쓰면 돼요. 단기 지원이고 남성 피해자 이용 여부는 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "P3",
+     "area": "피신·지원",
+     "path": "거처 노출 후 긴급 이주",
+     "exposure": "옮길 곳이 없으면 같은 곳에 머문다",
+     "measure": "스토킹 긴급주거지원(임시숙소), 임대주택 지원(5개 시·도)",
+     "basis": [
+      {
+       "law": "스토킹방지 및 피해자보호 등에 관한 법률",
+       "article": "제3조 제1항",
+       "effective": "2026-08-13",
+       "url": "https://www.law.go.kr/법령/스토킹방지%20및%20피해자보호%20등에%20관한%20법률/제3조",
+       "primary": true
+      },
+      {
+       "law": "성평등가족부 스토킹·교제폭력 지원 안내",
+       "article": "",
+       "effective": "",
+       "url": "https://www.mogef.go.kr/sp/hrp/sp_hrp_f018.do",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "stalking",
+      "dating"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "shelter_needed"
+      ]
+     },
+     "urgency": 1,
+     "timing": "거처가 노출되면 즉시",
+     "where": "1366·지역 지원기관",
+     "documents": "미확인",
+     "limits": "기간 자료 충돌(누리집 90일·6개월 대 보도 3개월·12개월). 사업 지침 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "거처가 노출된 스토킹 피해자에게 임시숙소 같은 긴급주거와 일부 시·도의 임대주택 지원을 제공하는 제도예요. 스토킹 피해자와 교제폭력 피해자가 1366이나 지역 지원기관을 통해 신청해요. 지원 기간은 자료마다 달라 확인이 필요해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "A3",
+     "area": "행정",
+     "path": "열람·교부 사실을 모르는 상태",
+     "exposure": "발급돼도 피해자가 알 수 없다",
+     "measure": "열람·교부 사실 본인 통보 서비스(우편·문자)",
+     "basis": [
+      {
+       "law": "주민등록법 시행령",
+       "article": "제47조 제8항",
+       "effective": "2026-10-29",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285733&efYd=20261029",
+       "primary": true
+      },
+      {
+       "law": "주민등록법 시행규칙",
+       "article": "제6조의2 제1항",
+       "effective": "2026-10-29",
+       "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=285757&efYd=20261029&chrClsCd=010202&ancYnChk=0",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": []
+     },
+     "urgency": 2,
+     "timing": "전입신고 때 함께",
+     "where": "주민센터(정부24 온라인은 생활법령 안내만, 미확인)",
+     "documents": "신청서, 신분증",
+     "limits": "사후 통보일 뿐. 공무상·공익상 열람은 통보 제외. 통보 연락처를 가해자가 볼 수 있으면 위험",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "내 주민등록 등·초본이 열람되거나 교부된 사실을 우편이나 문자로 사후에 통보받는 서비스예요. 주민센터에 신청하고 유형과 무관하게 쓸 수 있어요. 사후 통보일 뿐이고 공무상·공익상 열람은 통보에서 빠지며, 통보 연락처를 가해자가 볼 수 있으면 오히려 위험해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J13",
+     "area": "소송·수사",
+     "path": "스토킹 접근·연락",
+     "exposure": "주거·직장·학교 등 '주거등' 주변",
+     "measure": "긴급응급조치(1개월), 잠정조치(서면경고, 100m, 전기통신, 전자장치, 유치)",
+     "basis": [
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제9조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제9조",
+       "primary": true
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제4조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제4조",
+       "primary": false
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제8조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제8조",
+       "primary": false
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제3조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289995&efYd=20261002",
+       "primary": false
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제20조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제20조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "stalking",
+      "dating",
+      "family"
+     ],
+     "triggers": {
+      "all": [],
+      "any": []
+     },
+     "urgency": 2,
+     "timing": "위험이 있으면 즉시(112)",
+     "where": "112, 스토킹 전담 사법경찰관",
+     "documents": "진술, 증거",
+     "limits": "잠정조치 3개월씩 두 차례 연장(최장 9개월). 불기소 시 효력 상실(제11조 제5항). 단발성 교제폭력에는 적용 안 됨",
+     "notify_warning": "긴급응급조치·잠정조치 결정과 그 변경 내용은 스토킹행위자에게 고지됩니다(스토킹처벌법 제7조 제5항, 제10조 제2·4항). 결정서에 피해자 주거 기재를 생략하는 근거는 확인되지 않았으니 기재 방식을 먼저 확인하세요.",
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "스토킹 신고 후 경찰의 긴급응급조치와 법원의 잠정조치로 가해자에게 서면경고, 100미터 접근금지, 전기통신 접근금지, 전자장치 부착, 유치를 하게 하는 제도예요. 스토킹처벌법은 관계를 따지지 않아, 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 쓸 수 있어요. 잠정조치는 3개월씩 두 차례 연장되지만, 불기소되면 효력이 없어지고 단발성 폭력에는 적용되지 않아요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J15",
+     "area": "소송·수사",
+     "path": "가해자 접근을 늦게 아는 문제(전자장치)",
+     "exposure": "근처에 와도 미리 알 수 없다",
+     "measure": "잠정조치로 위치추적 전자장치 부착, 보호관찰소의 피해자 통지(재량), 위치·동선 알림 앱(2026.6~ [보도])",
+     "basis": [
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제9조 제1항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제9조",
+       "primary": true
+      },
+      {
+       "law": "전자장치 부착 등에 관한 법률",
+       "article": "제31조의6",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/전자장치부착등에관한법률",
+       "primary": false
+      },
+      {
+       "law": "법무부 보도자료(위치 알림 앱)",
+       "article": "",
+       "effective": "2026-05-27",
+       "url": "https://www.moj.go.kr/bbs/moj/182/606921/artclView.do",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "stalking",
+      "dating",
+      "family"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "protection_order",
+       "criminal_case"
+      ]
+     },
+     "urgency": 2,
+     "timing": "잠정조치 신청 단계에서 요청",
+     "where": "경찰·검사에게 청구 요청",
+     "documents": "없음",
+     "limits": "집행을 위해 피해자 주소·직장이 보호관찰소에 통지됨(기관 내부). 알림 신청 방법 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "스토킹 잠정조치로 가해자에게 위치추적 전자장치를 부착해, 가해자가 다가와도 늦게 아는 문제를 보완하는 제도예요. 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 경찰·검사에게 청구를 요청할 수 있어요. 다만 집행을 위해 피해자 주소·직장이 보호관찰소에 통지되고, 알림 신청 방법은 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J16",
+     "area": "소송·수사",
+     "path": "법원·수사기관 출석, 면접교섭 인계 때 동선",
+     "exposure": "출석 일정을 가해자가 알고 귀가를 따라올 수 있다",
+     "measure": "신변안전조치(출석·귀가 동행, 신변경호, 주거 순찰·CCTV)",
+     "basis": [
+      {
+       "law": "가정폭력범죄의 처벌 등에 관한 특례법",
+       "article": "제55조의2 제5항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/가정폭력범죄의처벌등에관한특례법/제55조의2",
+       "primary": true
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제17조의2",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제17조의2",
+       "primary": false
+      },
+      {
+       "law": "특정범죄신고자 등 보호법",
+       "article": "제13조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제13조",
+       "primary": false
+      },
+      {
+       "law": "특정범죄신고자 등 보호법",
+       "article": "제13조의2",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제13조의2",
+       "primary": false
+      },
+      {
+       "law": "성폭력범죄의 처벌 등에 관한 특례법",
+       "article": "제23조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법/제23조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "family",
+      "stalking",
+      "sexual"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "lawsuit",
+       "criminal_case",
+       "protection_order"
+      ]
+     },
+     "urgency": 2,
+     "timing": "출석 일정이 잡히면 미리",
+     "where": "가는 법원에 청구. 스·성폭은 재판장·검사·주거지 관할 경찰서장",
+     "documents": "신청서",
+     "limits": "'보복 우려' 요건이 남음. 교제폭력(비스토킹)은 법률 근거 없음. 면접교섭센터는 미조사",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "법원·수사기관 출석이나 귀가, 면접교섭 인계 때 동행·신변경호·주거 순찰·CCTV 설치 같은 신변안전조치를 받는 제도예요. 가정폭력·스토킹·성폭력 피해자가 쓸 수 있지만 보복 우려 요건이 남고, 비스토킹 교제폭력은 법률 근거가 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J17",
+     "area": "소송·수사",
+     "path": "신고 후 주거 접근·보복",
+     "exposure": "신고 뒤 보복 접근 위험",
+     "measure": "경찰 범죄피해자 안전조치(시설 보호, 동행, 임시숙소, 순찰·CCTV, 비상연락망, 스마트워치)",
+     "basis": [
+      {
+       "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+       "article": "제28조",
+       "effective": "2025-12-31",
+       "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+       "primary": true
+      },
+      {
+       "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+       "article": "제29조",
+       "effective": "2025-12-31",
+       "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+       "primary": false
+      },
+      {
+       "law": "피해자 보호 및 지원에 관한 규칙(경찰청훈령)",
+       "article": "제33조",
+       "effective": "2025-12-31",
+       "url": "https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273166",
+       "primary": false
+      },
+      {
+       "law": "범죄피해자 보호법",
+       "article": "제9조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/범죄피해자보호법",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "criminal_case",
+       "protection_order"
+      ]
+     },
+     "urgency": 2,
+     "timing": "신고 직후",
+     "where": "사건 담당자 또는 경찰서 민원실, 심사위원회",
+     "documents": "안전조치 신청서",
+     "limits": "훈령이라 청구권이 약함. 스마트워치 근거 조문 미확인. 순찰 받으려면 실거주지를 경찰에 알려야 함",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "경찰이 범죄피해자에게 시설 보호, 외출·귀가 동행, 임시숙소, 주거 순찰·CCTV, 비상연락망 같은 안전조치를 제공하는 제도예요. 유형과 관계없이 신청할 수 있지만 경찰청 훈령이라 청구권이 약하고, 순찰을 받으려면 실거주지를 경찰에 알려야 해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J18",
+     "area": "소송·수사",
+     "path": "고위험 피해자 이동·주거",
+     "exposure": "거처가 이미 알려진 고위험 사건",
+     "measure": "민간경호(2인 [보도]), 지능형 CCTV",
+     "basis": [
+      {
+       "law": "법무부 TF 보도자료",
+       "article": "",
+       "effective": "2026-07-13",
+       "url": "https://www.moj.go.kr/bbs/moj/182/608429/artclView.do",
+       "primary": true
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "criminal_case"
+      ]
+     },
+     "urgency": 2,
+     "timing": "고위험으로 판단될 때",
+     "where": "사건 담당 경찰서",
+     "documents": "미확인",
+     "limits": "선정 기준·근거 조문 미확인. '14일·10시간'은 출처 불명",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "고위험 피해자의 이동·주거에 민간경호나 지능형 CCTV를 지원하는 제도로 보도된 조치예요. 유형과 관계없이 대상이 될 수 있지만 선정 기준과 근거 조문이 확인되지 않았고, 구체적 제공 기간·시간도 출처가 불명확해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J21",
+     "area": "소송·수사",
+     "path": "공판 단계 증거기록 열람",
+     "exposure": "조서·증인 서면의 주소",
+     "measure": "재판장의 개인정보 보호조치(비실명 처리), 검사의 열람 제한",
+     "basis": [
+      {
+       "law": "형사소송법",
+       "article": "제35조 제3항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/형사소송법/제35조",
+       "primary": true
+      },
+      {
+       "law": "재판기록 열람·복사 규칙",
+       "article": "제7조 제3항",
+       "effective": "2025-10-10",
+       "url": "https://www.law.go.kr/법령/재판기록열람ㆍ복사규칙/제7조",
+       "primary": false
+      },
+      {
+       "law": "형사소송법",
+       "article": "제266조의3",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/형사소송법/제266조의3",
+       "primary": false
+      },
+      {
+       "law": "가정보호심판규칙",
+       "article": "제43조",
+       "effective": "2024-07-26",
+       "url": "https://www.law.go.kr/법령/가정보호심판규칙/제43조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [
+       "criminal_case"
+      ],
+      "any": []
+     },
+     "urgency": 2,
+     "timing": "기소 후 열람·복사 신청 전",
+     "where": "재판장에게 의견서, 검사 경유",
+     "documents": "요청서, 소명자료",
+     "limits": "'현저히 해칠 우려'로 요건이 높음. 가정보호사건 행위자는 허가 없이 열람",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "형사재판 증거기록을 열람·복사할 때 재판장이 피해자 개인정보를 가리거나 검사가 열람을 제한할 수 있는 제도예요. 유형과 관계없이 의견서로 요청할 수 있지만 '현저히 해칠 우려'라는 높은 요건이 있어요. 가정보호사건의 행위자는 허가 없이 열람할 수 있다는 점도 주의해야 해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J23",
+     "area": "소송·수사",
+     "path": "증인 출석 시 인적사항·공개 심리",
+     "exposure": "신원 확인·선서·방청",
+     "measure": "인적사항 비공개, 퇴정, 법정 외 신문(특정범죄·성폭), 피해자 증인신문 비공개(모든 범죄)",
+     "basis": [
+      {
+       "law": "형사소송법",
+       "article": "제294조의3",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/형사소송법/제294조의3",
+       "primary": true
+      },
+      {
+       "law": "특정범죄신고자 등 보호법",
+       "article": "제11조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제11조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [
+       "criminal_case"
+      ],
+      "any": []
+     },
+     "urgency": 2,
+     "timing": "증인 소환을 받으면",
+     "where": "공판 법원",
+     "documents": "신청서",
+     "limits": "가·스·교는 제294조의3과 소송지휘에 의존",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "증인으로 나갈 때 피해자 증인신문을 비공개로 해 달라고 신청할 수 있고, 성폭력 사건은 인적사항 비공개·퇴정·법정 외 신문도 쓸 수 있어요. 비공개 신청은 모든 범죄 피해자가 할 수 있어요. 가정폭력·스토킹·교제폭력은 인적사항 비공개 규정이 없어 재판장의 소송지휘에 기대야 해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J25",
+     "area": "소송·수사",
+     "path": "합의·공탁 명목의 연락처 요구",
+     "exposure": "피고인 측이 인적사항·연락처를 요구할 수 있다",
+     "measure": "형사공탁 특례(인적사항 없이 공탁, 공고로 통지 갈음), 검사 경유 면담(피해자 승낙 시)",
+     "basis": [
+      {
+       "law": "공탁법",
+       "article": "제5조의2",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/공탁법/제5조의2",
+       "primary": true
+      },
+      {
+       "law": "특정범죄신고자 등 보호법",
+       "article": "제9조 제3항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/특정범죄신고자등보호법/제9조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [
+       "criminal_case"
+      ],
+      "any": []
+     },
+     "urgency": 2,
+     "timing": "합의·공탁 연락이 오면",
+     "where": "피해자 변호사·검사를 통해서만 연락",
+     "documents": "동일인 확인 증명서",
+     "limits": "가·스·교의 연락처 비제공 명문 규정 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "형사공탁 특례로 피고인 측이 피해자 인적사항을 몰라도 공탁할 수 있어 연락처를 내줄 필요가 없어요. 성폭력 사건은 검사를 거쳐 피해자가 승낙할 때만 면담하게 할 수 있어요. 가정폭력·스토킹·교제폭력에서 연락처를 주지 않아도 된다는 명문 규정은 확인되지 않았으니 변호사나 검사를 통해서만 연락하세요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J27",
+     "area": "소송·수사",
+     "path": "피해자 혼자 절차를 밟으며 생기는 누락",
+     "exposure": "신청주의라 안내를 받지 못하면 빠진다",
+     "measure": "피해자 변호사·국선변호사, 보조인(상담원 포함), 무료법률지원, 권리 정보 제공 의무",
+     "basis": [
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제17조의4",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제17조의4",
+       "primary": true
+      },
+      {
+       "law": "성폭력범죄의 처벌 등에 관한 특례법",
+       "article": "제27조 제6항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법",
+       "primary": false
+      },
+      {
+       "law": "성폭력방지 및 피해자보호 등에 관한 법률",
+       "article": "제7조의2",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290759&efYd=20261002",
+       "primary": false
+      },
+      {
+       "law": "가정보호심판규칙",
+       "article": "제70조",
+       "effective": "2024-07-26",
+       "url": "https://www.law.go.kr/법령/가정보호심판규칙/제70조",
+       "primary": false
+      },
+      {
+       "law": "범죄피해자 보호법",
+       "article": "제8조의2",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/범죄피해자보호법/제8조의2",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "lawsuit",
+       "criminal_case",
+       "protection_order"
+      ]
+     },
+     "urgency": 2,
+     "timing": "절차를 시작하기 전",
+     "where": "132, 수사기관",
+     "documents": "선임서·신청서",
+     "limits": "민사·가사 보호조치를 사전 안내할 의무 없음. 2026년 무료법률지원 운영기관 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "피해자 변호사·국선변호사, 상담원 보조인, 무료법률지원으로 신청주의 제도를 빠뜨리지 않게 돕는 제도예요. 스토킹·성폭력은 국선변호사 근거가 있고, 무료법률지원은 유형과 관계없이 132에 문의할 수 있어요. 민사·가사 보호조치를 법원이 미리 안내할 의무는 없으니 절차 시작 전에 꼭 챙기세요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "L3",
+     "area": "차량·우편·통신",
+     "path": "옛 주소로 오는 우편물",
+     "exposure": "가해자 거주지로 우편이 계속 간다",
+     "measure": "주거이전 우편물 전송(3개월 무료, 이후 유료), 우편 종사자 비밀누설 처벌",
+     "basis": [
+      {
+       "law": "우편법",
+       "article": "제31조의2",
+       "effective": "2026-03-31",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285143&efYd=20260331",
+       "primary": true
+      },
+      {
+       "law": "우편법 시행규칙",
+       "article": "제110조",
+       "effective": "2026-04-01",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=273389&efYd=20260401",
+       "primary": false
+      },
+      {
+       "law": "우편법",
+       "article": "제51조의2",
+       "effective": "2026-03-31",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285143&efYd=20260331",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "mail_old_address",
+       "moved_recently"
+      ]
+     },
+     "urgency": 2,
+     "timing": "이사 직후",
+     "where": "우체국, 인터넷우체국(대리 신고 가능)",
+     "documents": "신분증, 이전 증명, 위임장",
+     "limits": "반송 시 새 주소 표시 여부 미확인. 수수료 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "우체국에 주거이전 신고를 하면 옛 주소로 오는 우편물을 새 주소로 전송해 주고, 우편 종사자의 비밀 누설은 처벌돼요. 유형과 관계없이 쓸 수 있고 처음 3개월은 무료예요. 반송될 때 새 주소가 표시되는지는 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "L4",
+     "area": "차량·우편·통신",
+     "path": "실거주지 대신 다른 곳으로 우편 수령",
+     "exposure": "기관 우편 수령지에 실주소를 적어야 하는 문제",
+     "measure": "우편사서함, '우체국보관'(10일, 연장 20일), 무인보관함",
+     "basis": [
+      {
+       "law": "우편법",
+       "article": "제37조",
+       "effective": "2026-03-31",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285143&efYd=20260331",
+       "primary": true
+      },
+      {
+       "law": "우편법 시행령",
+       "article": "제43조",
+       "effective": "2025-07-15",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=272793&efYd=20250715",
+       "primary": false
+      },
+      {
+       "law": "우편법 시행규칙",
+       "article": "제122조",
+       "effective": "2026-04-01",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=273389&efYd=20260401",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "moved_recently",
+       "mail_old_address",
+       "shelter_needed"
+      ]
+     },
+     "urgency": 2,
+     "timing": "기관에 수령지를 적기 전",
+     "where": "우체국 창구",
+     "documents": "사서함 신청서",
+     "limits": "개인은 우선순위에서 밀리고 월 30통 미달이면 해지. 송달 문서는 사용 불가할 수 있음(미확인). 대체주소 제도 없음",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "실거주지 대신 우편사서함이나 우체국보관, 무인보관함으로 우편을 받을 수 있는 제도예요. 유형과 관계없이 우체국 창구에서 신청해요. 개인은 사서함 배정에서 밀리고 월 30통이 안 되면 해지될 수 있으며, 법원 송달 문서에 쓸 수 있는지는 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "P2",
+     "area": "피신·지원",
+     "path": "보호시설 입소 중 정보 누설",
+     "exposure": "종사자를 통한 누설, 의사와 다른 연계",
+     "measure": "비밀엄수(가 1년/1천만, 성폭 2년/500만, 스 1년/1천만), 의사 존중, 경찰 동행",
+     "basis": [
+      {
+       "law": "가정폭력방지 및 피해자보호 등에 관한 법률",
+       "article": "제16조",
+       "effective": "2026-07-08",
+       "url": "https://www.law.go.kr/법령/가정폭력방지%20및%20피해자보호%20등에%20관한%20법률/제16조",
+       "primary": true
+      },
+      {
+       "law": "가정폭력방지 및 피해자보호 등에 관한 법률",
+       "article": "제9조",
+       "effective": "2026-07-08",
+       "url": "https://www.law.go.kr/법령/가정폭력방지%20및%20피해자보호%20등에%20관한%20법률/제9조",
+       "primary": false
+      },
+      {
+       "law": "성폭력방지 및 피해자보호 등에 관한 법률",
+       "article": "제30조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/성폭력방지%20및%20피해자보호%20등에%20관한%20법률/제30조",
+       "primary": false
+      },
+      {
+       "law": "스토킹방지 및 피해자보호 등에 관한 법률",
+       "article": "제15조",
+       "effective": "2026-08-13",
+       "url": "https://www.law.go.kr/법령/스토킹방지%20및%20피해자보호%20등에%20관한%20법률/제15조",
+       "primary": false
+      },
+      {
+       "law": "스토킹방지 및 피해자보호 등에 관한 법률",
+       "article": "제12조",
+       "effective": "2026-08-13",
+       "url": "https://www.law.go.kr/법령/스토킹방지%20및%20피해자보호%20등에%20관한%20법률/제12조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "family",
+      "sexual",
+      "stalking"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "shelter_needed"
+      ]
+     },
+     "urgency": 2,
+     "timing": "입소 때",
+     "where": "1366·상담소·경찰 연계",
+     "documents": "시설별(미확인)",
+     "limits": "시설장이 지자체에 입소 보고(내부 흐름)",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "보호시설 종사자가 입소자 정보를 누설하면 처벌하고, 피해자 의사에 반하는 연계를 하지 못하게 하는 제도예요. 가정폭력·성폭력·스토킹 피해자에게 적용돼요. 시설장이 지자체에 입소를 보고하는 내부 흐름은 있어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "P9",
+     "area": "피신·지원",
+     "path": "가폭·성폭 시설 대상이 아닌 피해자의 거처",
+     "exposure": "머물 곳이 없음",
+     "measure": "범죄피해자 일시적 보호시설, 심리 회복 지원",
+     "basis": [
+      {
+       "law": "범죄피해자 보호법",
+       "article": "제7조 제2항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/범죄피해자보호법",
+       "primary": true
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "shelter_needed"
+      ]
+     },
+     "urgency": 2,
+     "timing": "머물 곳이 없을 때",
+     "where": "경찰·검찰 피해자 지원, 범죄피해자지원센터",
+     "documents": "미확인",
+     "limits": "시설명(통칭 '스마일센터')·기준 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "가정폭력·성폭력 시설 대상이 아닌 범죄피해자도 일시적 보호시설과 심리 회복 지원을 받을 수 있어요. 유형과 관계없이 경찰·검찰 피해자 지원이나 범죄피해자지원센터를 통해 연계돼요. 시설 이름과 이용 기준은 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "A15",
+     "area": "행정",
+     "path": "정보공개청구로 나가는 공공기관 문서",
+     "exposure": "공개 문서에 피해자 인적사항이 섞일 수 있다",
+     "measure": "비공개 사유, 제3자 통지(지체 없이)와 3일 내 비공개 요청, 7일 내 이의신청",
+     "basis": [
+      {
+       "law": "공공기관의 정보공개에 관한 법률",
+       "article": "제21조",
+       "effective": "2023-11-17",
+       "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=251019&efYd=20231117&chrClsCd=010202&ancYnChk=0",
+       "primary": true
+      },
+      {
+       "law": "공공기관의 정보공개에 관한 법률",
+       "article": "제9조 제1항",
+       "effective": "2023-11-17",
+       "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=251019&efYd=20231117&chrClsCd=010202&ancYnChk=0",
+       "primary": false
+      },
+      {
+       "law": "공공기관의 정보공개에 관한 법률",
+       "article": "제11조 제3항",
+       "effective": "2023-11-17",
+       "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=251019&efYd=20231117&chrClsCd=010202&ancYnChk=0",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "mail_old_address",
+       "moved_recently"
+      ]
+     },
+     "urgency": 3,
+     "timing": "제3자 통지를 받으면 3일 안에",
+     "where": "해당 공공기관",
+     "documents": "비공개 요청서(서식 미확인)",
+     "limits": "통지가 없거나 옛 주소로 갈 수 있음. 3일 기한. 제6호 단서 예외 있음",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "정보공개청구로 내가 낸 문서가 공개될 수 있을 때 공공기관은 제3자인 나에게 그 사실을 지체 없이 알려야 해요. 통지를 받으면 3일 안에 비공개를 요청할 수 있고, 공개 결정을 받으면 7일 안에 이의신청을 할 수 있어요. 통지가 없거나 옛 주소로 갈 수 있으니 주의해야 해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J6",
+     "area": "소송·수사",
+     "path": "판결서 인터넷 공개",
+     "exposure": "비실명화 뒤에도 간접 식별정보(동네·직장·학교)가 남을 수 있다",
+     "measure": "공개 전 비실명 처리 의무, 열람 제한 신청",
+     "basis": [
+      {
+       "law": "민사소송법",
+       "article": "제163조의2",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/민사소송법/제163조의2",
+       "primary": true
+      },
+      {
+       "law": "민사판결서 열람 및 복사에 관한 규칙",
+       "article": "제4조",
+       "effective": "2023-01-01",
+       "url": "https://www.law.go.kr/법령/민사판결서열람및복사에관한규칙/제4조",
+       "primary": false
+      },
+      {
+       "law": "형사소송법",
+       "article": "제59조의3",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/형사소송법/제59조의3",
+       "primary": false
+      },
+      {
+       "law": "형사 판결서 등의 열람 및 복사에 관한 규칙",
+       "article": "제4조",
+       "effective": "2019-01-01",
+       "url": "https://www.law.go.kr/법령/형사판결서등의열람및복사에관한규칙/제4조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "lawsuit",
+       "criminal_case"
+      ]
+     },
+     "urgency": 3,
+     "timing": "판결 선고 전후",
+     "where": "판결 법원",
+     "documents": "신청서",
+     "limits": "가사판결서 공개 여부 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "판결서가 인터넷에 공개되기 전에 이름 등 개인정보를 비실명 처리하고, 필요한 경우 열람 제한을 신청하는 제도예요. 유형과 관계없이 적용되지만 가사판결서까지 공개·비실명 처리되는지는 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J22",
+     "area": "소송·수사",
+     "path": "확정 형사기록의 제3자 열람",
+     "exposure": "공익 목적 열람에서 기록 속 주소가 드러날 수 있다",
+     "measure": "검사의 열람 제한(생명·신체·평온, 소송관계인 부동의)",
+     "basis": [
+      {
+       "law": "형사소송법",
+       "article": "제59조의2 제2항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/형사소송법/제59조의2",
+       "primary": true
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [
+       "criminal_case"
+      ],
+      "any": []
+     },
+     "urgency": 3,
+     "timing": "사건 확정 후",
+     "where": "기록 보관 공소청",
+     "documents": "요청서(임의)",
+     "limits": "피해자 통지 절차 미확인",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "사건이 확정된 뒤 제3자가 형사기록 열람을 신청하면 검사가 생명·신체·평온을 해칠 우려를 이유로 열람을 제한할 수 있어요. 유형과 관계없이 기록을 보관하는 공소청에 요청서를 낼 수 있어요. 피해자에게 열람 신청 사실이 통지되는 절차는 확인되지 않았어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J26",
+     "area": "소송·수사",
+     "path": "공무원·상담원 누설, 언론·인터넷 공개",
+     "exposure": "직무상 알게 된 주소의 누설, 보도·게시",
+     "measure": "비밀엄수·보도 금지(형사처벌). 스토킹은 개인정보·위치정보 게시 자체가 스토킹행위",
+     "basis": [
+      {
+       "law": "가정폭력범죄의 처벌 등에 관한 특례법",
+       "article": "제18조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/가정폭력범죄의처벌등에관한특례법/제18조",
+       "primary": true
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제17조의3",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제17조의3",
+       "primary": false
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제2조 제1호",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제2조",
+       "primary": false
+      },
+      {
+       "law": "성폭력범죄의 처벌 등에 관한 특례법",
+       "article": "제24조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/성폭력범죄의처벌등에관한특례법/제24조",
+       "primary": false
+      },
+      {
+       "law": "가정폭력범죄의 처벌 등에 관한 특례법",
+       "article": "제64조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=290603&efYd=20261002",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "family",
+      "stalking",
+      "sexual"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "criminal_case",
+       "protection_order",
+       "posted_online"
+      ]
+     },
+     "urgency": 3,
+     "timing": "누설·공개를 알게 되면",
+     "where": "고소, 감사부서 진정, 스토킹 신고",
+     "documents": "누설 증거",
+     "limits": "사후 처벌 수단. 가폭 제18조 제2항은 가정보호사건만 해당하고 정보통신망이 명시돼 있지 않음. 교제폭력은 일반법",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "사건을 맡은 공무원·상담원이 피해자 주소를 누설하거나 언론이 보도하면 형사처벌하는 제도예요. 가정폭력·스토킹·성폭력 피해자에게 적용되고, 스토킹은 개인정보·위치정보를 게시하는 것 자체가 스토킹행위가 돼요. 이미 새어 나간 뒤의 사후 처벌이라 예방 수단은 아니에요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "P4",
+     "area": "피신·지원",
+     "path": "장기 거처",
+     "exposure": "시설 퇴소 후 옛 거처로 돌아가게 된다",
+     "measure": "가정폭력 피해자 임대주택 우선입주, 주거취약계층 주거지원(범죄피해자·가폭)",
+     "basis": [
+      {
+       "law": "가정폭력방지 및 피해자보호 등에 관한 법률 시행령",
+       "article": "제4조의2",
+       "effective": "2026-07-08",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=288019&efYd=20260708",
+       "primary": true
+      },
+      {
+       "law": "범죄피해자 보호법",
+       "article": "제7조 제1항",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/범죄피해자보호법",
+       "primary": false
+      },
+      {
+       "law": "마이홈포털 주거취약계층 주거지원",
+       "article": "",
+       "effective": "",
+       "url": "https://www.myhome.go.kr/hws/portal/cont/selectHousingSupVulnerableGroupsView.do",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "shelter_needed"
+      ]
+     },
+     "urgency": 3,
+     "timing": "시설 퇴소 전",
+     "where": "행정복지센터, 지방검찰청(공소청 체계 명칭 미확인), 1600-1004",
+     "documents": "미확인",
+     "limits": "스토킹 전용 우선입주 근거 없음. 공공임대 주소도 다른 경로로 노출 가능",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "가정폭력 피해자는 임대주택에 우선 입주할 수 있고, 범죄피해자는 주거취약계층 주거지원을 받을 수 있어요. 행정복지센터나 마이홈 콜센터에서 상담해요. 스토킹 전용 우선입주 근거는 없고, 공공임대 주소도 다른 경로로 노출될 수 있어요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J14",
+     "area": "소송·수사",
+     "path": "수사기관이 잠정조치를 신청하지 않을 때",
+     "exposure": "법원 접근금지 공백",
+     "measure": "스토킹 피해자보호명령·임시보호명령, 국선보조인",
+     "basis": [
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률(법률 제21556호)",
+       "article": "제17조의6",
+       "effective": "2027-04-22",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285471&efYd=20270422",
+       "primary": true
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률(법률 제21556호)",
+       "article": "제17조의5",
+       "effective": "2027-04-22",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285471&efYd=20270422",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "stalking",
+      "dating",
+      "family"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "criminal_case",
+       "protection_order"
+      ]
+     },
+     "urgency": 2,
+     "timing": "2027-04-22 시행 후, 미신청 통지를 받은 날부터 90일 이내",
+     "where": "지방법원(피해자 거주지·현재지 관할 포함)",
+     "documents": "미신청 통지서, 증거",
+     "limits": "2027.4.22. 시행, 지금은 쓸 수 없음. 통지 후 90일 이내. 고지 문제는 J10과 같음",
+     "notify_warning": "시행 후에도 결정과 그 변경 내용이 행위자에게 고지되는 구조는 잠정조치와 같습니다(제17조의6 제9항, 제10조 준용). 고지문의 주소 기재 방식을 먼저 확인하세요.",
+     "status": "pending",
+     "pending_effective": "2027-04-22",
+     "confidence": "확인",
+     "plain": "스토킹 피해자보호명령·임시보호명령과 국선보조인 제도는 2027년 4월 22일 시행 예정이라 지금은 쓸 수 없어요. 수사기관이 잠정조치를 신청하지 않았을 때를 위한 제도이고, 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 대상이 돼요. 시행 전에는 기존 잠정조치 절차를 이용하세요.",
+     "plain_reviewed": false,
+     "note": "2027-04-22 시행 예정, 지금은 쓸 수 없음"
+    }
+   ],
+   "residual": [
+    {
+     "id": "L5",
+     "area": "차량·우편·통신",
+     "path": "피해자가 보내는 내용증명의 발송인 주소",
+     "measure": "제도 없음. 대리인 명의로 발송",
+     "basis": [
+      {
+       "law": "우편법 시행규칙",
+       "article": "제52조 제4항",
+       "effective": "2026-04-01",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=273389&efYd=20260401",
+       "primary": true
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": [
+       "lawsuit",
+       "criminal_case"
+      ]
+     },
+     "urgency": 2,
+     "timing": "내용증명을 보내기 전",
+     "where": "변호사·법률구조공단",
+     "documents": "위임장",
+     "notify_warning": null,
+     "status": "none",
+     "pending_effective": null,
+     "confidence": "부분확인",
+     "plain": "피해자가 내용증명을 보낼 때 발송인 주소를 가리는 제도는 없어요. 변호사나 법률구조공단 같은 대리인 명의로 보내는 것이 대안이에요. 보내기 전에 대리인과 먼저 상담하세요.",
+     "plain_reviewed": false,
+     "support": "혼자 대비하기 어려우면 1366(24시간)이나 법률구조공단 132에 상담하세요. 위험이 급하면 112."
+    }
+   ],
+   "not_applicable": [
+    {
+     "id": "A1",
+     "measure": "열람·교부 제한(제한대상자 지정). 이해관계 초본 신청도 제한(제8항)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A4",
+     "measure": "해제 사유를 법정으로 한정. 주민등록지가 같은 사람 전원의 동의(7일 회신)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A6",
+     "measure": "전입(세대 분리)과 같은 방문에서 제한 신청. 보호시설 입소 가정폭력피해자는 직권말소 제외",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A8",
+     "measure": "교부제한대상자 지정(교부는 재량, 인터넷 발급·전자열람은 기속 금지)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A9",
+     "measure": "공시제한('*' 처리)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A10",
+     "measure": "제한 등록 시 열람 금지(가정법원 허가 시 예외), 증명서는 가림",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "J8",
+     "measure": "부본의 주거·주소·연락처를 가리고 송달(재량)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "J9",
+     "measure": "안전 위협 시 주거 기재 생략(재량)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "J11",
+     "measure": "응급조치, 긴급임시조치, 임시조치(퇴거, 100m, 전기통신, 유치)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "J12",
+     "measure": "퇴거, 100m, 전기통신, 친권행사 제한, 면접교섭 제한, 임시보호명령",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "D8",
+     "measure": "목적 외 요청 금지(과태료 1천만 원), 기관의 상황 판단, 경찰의 본인 의사 확인, 제3자 고지 금지(5년 이하), 본인 통보, 기록 열람",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "P5",
+     "measure": "해바라기센터 통합 지원(위기·통합형 24시간)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    }
+   ],
+   "summary": {
+    "checklist": 25,
+    "residual": 1,
+    "not_applicable": 12,
+    "pending": 1,
+    "urgent": 5,
+    "notify_warnings": 2
+   }
+  }
+ },
+ "turns": 7,
+ "false_refusals": 0,
+ "wall_s": 41.9,
+ "seed": 1
+}
