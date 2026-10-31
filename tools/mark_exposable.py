@@ -75,6 +75,11 @@ EXCERPT: dict[tuple[str, str], list[int]] = {
     ("가족관계의 등록 등에 관한 법률", "제14조"): [8, 9, 10],
     ("가족관계의 등록 등에 관한 법률", "제14조의2"): [3],
     ("주민등록법 시행령", "제47조"): [8],
+    # 2026-10-31 리뷰: 아래 조문의 나머지 문단은 제한 해제·제한조치 배제·기록 열람 허용 경로다
+    # (제한대상자가 소명해 제한조치를 하지 말 것을 신청, 제3자의 보호결정 취소 신청 등).
+    ("주민등록법 시행령", "제47조의2"): [1],
+    ("주민등록법 시행규칙", "제13조의2"): [1],
+    ("민사소송법", "제163조"): [1, 2, 3],
 }
 
 # 문단 시작: ①..⑳ (U+2460..U+2473). 줄 시작 우선, 없으면 공백 선행도 허용.
@@ -93,6 +98,12 @@ def _extract_paragraphs(text: str) -> dict[int, str]:
     marks = list(_PARA_LINE.finditer(text))
     if not marks:
         marks = list(_PARA_ANY.finditer(text))
+    elif marks[0].group(1) != "\u2460":
+        # 제목 줄과 같은 줄에 붙은 ①(예: 민사소송법 제163조 '…제한) ①다음 각호')을 보탠다.
+        first = next((m for m in _PARA_ANY.finditer(text, 0, marks[0].start())
+                      if m.group(1) == "\u2460"), None)
+        if first is not None:
+            marks.insert(0, first)
     out: dict[int, str] = {}
     for i, m in enumerate(marks):
         num = ord(m.group(1)) - 0x2460 + 1

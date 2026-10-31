@@ -13,6 +13,11 @@ import re
 from pathlib import Path
 from typing import Any
 
+try:  # 패키지(app.engine)·단독 모듈(tools 가 sys.path 로 부를 때) 둘 다 지원
+    from .humanize import prepare_items
+except ImportError:  # pragma: no cover
+    from humanize import prepare_items  # type: ignore
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 VICTIM_TYPES: tuple[str, ...] = ("family", "stalking", "dating", "sexual")
@@ -107,7 +112,8 @@ class Engine:
     def __init__(self, knowledge: dict[str, Any]) -> None:
         self.knowledge = knowledge
         self.flags: list[dict[str, Any]] = list(knowledge.get("flags") or [])
-        self.items: list[dict[str, Any]] = list(knowledge.get("items") or [])
+        # 사용자 문구 다듬기(내부 id → 제도 이름, 함께 신청하는 항목의 통지 경고). app/humanize.py
+        self.items: list[dict[str, Any]] = prepare_items(list(knowledge.get("items") or []))
         self.version: str = str(knowledge.get("version", "0"))
 
     def flag_ids(self) -> list[str]:

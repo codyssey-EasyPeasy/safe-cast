@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-31T13:28:59+09:00",
+ "generated_at": "2026-10-31T14:39:18+09:00",
  "model": "qwen3-8b (Qwen/Qwen3-8B-AWQ, vLLM, thinking off)",
  "intake": {
   "n": 20,
@@ -13,8 +13,8 @@
   },
   "victim_type_accuracy": 0.9,
   "latency_s": {
-   "mean": 1.41,
-   "max": 1.98
+   "mean": 1.7,
+   "max": 2.36
   },
   "cases": [
    {
@@ -239,16 +239,58 @@
  },
  "answer": {
   "n": 10,
-  "answerable_answered": "5/5",
-  "answerable_cites_expected": "5/5",
+  "answerable_answered": "4/5",
+  "answerable_cites_expected": "4/5",
   "citation_validity": 1.0,
-  "out_of_context_refusal": "5/5",
-  "guard_refusals": 0,
+  "out_of_context_refusal": "3/5",
+  "guard_refusals": 3,
   "latency_s": {
-   "mean": 2.9,
-   "max": 9.52
+   "mean": 2.89,
+   "max": 5.75
   },
   "note": "답변 본문의 근거 이탈(인용은 맞지만 내용이 근거 밖) 여부는 사람 판정 표본으로 따로 본다(SPEC §8).",
+  "review_checks": "5/5",
+  "review_cases": [
+   {
+    "id": "t1",
+    "grounded": true,
+    "refused_by_guard": false,
+    "citations": [
+     "A6"
+    ],
+    "pass": true
+   },
+   {
+    "id": "t2",
+    "grounded": false,
+    "refused_by_guard": false,
+    "citations": [],
+    "pass": true
+   },
+   {
+    "id": "t3",
+    "grounded": true,
+    "refused_by_guard": false,
+    "citations": [
+     "A1"
+    ],
+    "pass": true
+   },
+   {
+    "id": "m1",
+    "grounded": false,
+    "refused_by_guard": false,
+    "citations": [],
+    "pass": true
+   },
+   {
+    "id": "m2",
+    "grounded": false,
+    "refused_by_guard": false,
+    "citations": [],
+    "pass": true
+   }
+  ],
   "cases": [
    {
     "id": "a1",
@@ -289,14 +331,12 @@
    {
     "id": "a4",
     "answerable": true,
-    "answered": true,
-    "refused_by_guard": false,
+    "answered": false,
+    "refused_by_guard": true,
     "not_found": false,
-    "citations": [
-     "L7"
-    ],
+    "citations": [],
     "citations_in_context": true,
-    "cites_expected": true
+    "cites_expected": false
    },
    {
     "id": "a5",
@@ -314,8 +354,8 @@
     "id": "n1",
     "answerable": false,
     "answered": false,
-    "refused_by_guard": false,
-    "not_found": true,
+    "refused_by_guard": true,
+    "not_found": false,
     "citations": [],
     "citations_in_context": true,
     "cites_expected": null
@@ -354,8 +394,8 @@
     "id": "n5",
     "answerable": false,
     "answered": false,
-    "refused_by_guard": false,
-    "not_found": true,
+    "refused_by_guard": true,
+    "not_found": false,
     "citations": [],
     "citations_in_context": true,
     "cites_expected": null
@@ -367,15 +407,15 @@
   "rewritten": 30,
   "refused": 0,
   "rule_fallback": 0,
-  "forced_masks": 6,
+  "forced_masks": 8,
   "tier1_spans_before": 33,
   "tier1_spans_after": 0,
   "tier1_residual_rate": 0.0,
   "docs_with_tier1_residual": "0/30",
-  "gold_span_text_left_rate": 0.0877,
+  "gold_span_text_left_rate": 0.1053,
   "latency_s": {
-   "mean": 2.61,
-   "max": 4.3
+   "mean": 3.26,
+   "max": 4.76
   },
   "cases": [
    {
@@ -568,7 +608,7 @@
     "tier1_before": 1,
     "tier1_after": 0,
     "gold_spans": 3,
-    "gold_left": 0
+    "gold_left": 1
    },
    {
     "id": "doc25",

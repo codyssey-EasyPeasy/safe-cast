@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 import llm
-from guard import rule_locate_intent
+from guard import answer_locate_intent, embed_locate, rule_locate_intent
 
 MAX_BODY = 20 * 1024
 MAX_TEXTS = 64
@@ -287,12 +287,17 @@ def intent(req: IntentIn):
 
 
 # --- 내부 LLM (SPEC §8): vLLM 127.0.0.1:8001 프록시 ---
-# LLM 경로의 임베딩 가드 임계값(입력 질문·출력 공통). 규칙(guard.py·정규식)은 항상 먼저 적용된다.
-# 2026-10-31 실측(bge-m3): guard_holdout 10개·redteam 25개의 탐색 질의는 모두 규칙이 잡았고
-# (임베딩만 잡은 것 0건), 피해자 본인의 보호 질문은 임베딩 점수가 0.126 까지 나왔다
-# (예: 옛 집 우편물 전송 질문 0.1258 > 0.02 → 오거절). 그래서 LLM 경로는 0.15 를 쓴다.
-# 이 값은 tools/eval_llm.py 의 질문을 본 뒤 정했다(평가 세트 노출 있음).
-OUT_THRESH = float(os.environ.get("LLM_GUARD_THRESH", "0.15"))
+# LLM 경로 가드(2026-10-31 리뷰 반영).
+# - 입력 질문: /intent 와 같은 THRESH(0.02). 좁은 본인 보호 허용 목록(guard.self_protect_allow,
+#   점수 0.15 이하)만 임베딩 판정을 푼다. 규칙 적중은 항상 거절.
+#   (0.15 로 올렸을 때 '도망간 남편 행방 수소문'(0.0429)이 통과해 되돌렸다.)
+# - 생성문(답): 규칙(guard.rule_locate_intent + 생성문 전용 answer_locate_intent) OR 점수 > OUT_THRESH.
+#   임베딩으로는 생성문을 가를 수 없었다(2026-10-31 실측: 정상 우편물 전송 답 0.1302 > 리뷰의 주입 답
+#   '법원 기록을 통해 피신청인의 현 거주지를 확인하려면…' 0.1133). 0.08 로 낮추면 정상 답이 거절된다.
+#   그래서 생성문은 규칙이 1차 방어이고(주입 답은 이제 규칙이 잡는다) 임베딩은 0.15 를 유지한다.
+# - rewrite 출력은 아래 rewrite_flagged(입력 대비 상승분)로 따로 본다.
+OUT_THRESH = float(os.environ.get("LLM_OUT_THRESH", "0.15"))
+REWRITE_THRESH = float(os.environ.get("LLM_REWRITE_THRESH", "0.15"))
 _ITEM_ID = r"^[A-Z]\d{1,3}$"
 
 
@@ -377,11 +382,20 @@ def rewrite_flagged(original: str, suggested: str) -> bool:
         return True
     if s_out is None or s_in is None:
         return False
-    return s_out > OUT_THRESH and s_out > s_in + REWRITE_DELTA
+    return s_out > REWRITE_THRESH and s_out > s_in + REWRITE_DELTA
 
 
-def _llm_down() -> JSONResponse:
+def _llm_down(exc: Exception | None = None) -> JSONResponse:
+    if isinstance(exc, llm.LlmTimeout):
+        # 시간 초과는 503 과 구분한다(앱은 504 를 재시도하지 않는다).
+        return JSONResponse({"detail": "llm timeout", "available": True}, status_code=504)
     return JSONResponse({"detail": "llm unavailable", "available": False}, status_code=503)
+
+
+def input_flagged(text: str) -> bool:
+    """LLM 입력 질문 가드: 규칙 OR 임베딩(THRESH, 좁은 본인 보호 허용 목록 예외)."""
+    rule, score = locate_score(text)
+    return rule or embed_locate(text, score, THRESH)
 
 
 def _refusal() -> dict:
@@ -396,8 +410,8 @@ def llm_intake(req: IntakeIn):
     try:
         out = llm.chat_json(llm.intake_messages(req.text, flags), llm.intake_schema(ids),
                             max_tokens=512, temperature=0.0)
-    except llm.LlmDown:
-        return _llm_down()
+    except llm.LlmDown as exc:
+        return _llm_down(exc)
     res = llm.clean_intake(out, ids)
     # 확인 질문도 생성문이다: 탐색 표현이 섞이면 버린다.
     res["unclear"] = [q for q in res["unclear"] if not keyword_locate(q)]
@@ -407,20 +421,32 @@ def llm_intake(req: IntakeIn):
 
 @app.post("/llm/answer")
 def llm_answer(req: AnswerIn):
-    if locate_flagged(req.question, OUT_THRESH):
+    if input_flagged(req.question):
         return _refusal()
     items = [i.model_dump() for i in req.items]
     ids = [i["id"] for i in items]
     if not ids:
         return llm.not_found()
+    # 통지 질문은 생성하지 않는다(notify_warning 원문만, 없으면 '확인되지 않음').
+    if llm.is_notify_question(req.question):
+        return llm.notify_answer(items)
+    # 효과 시점 질문은 생성하지 않고 신청 시점·처리 칸을 그대로 보여 준다(제정일·통지 시점 오답 방지).
+    if llm.is_effect_question(req.question):
+        return llm.effect_answer(items)
+    # 질문이 이름을 댄 제도가 근거 행에 없으면 답하지 않는다(다른 제도로 대신 설명 금지).
+    if llm.topic_mismatch(req.question, items):
+        return llm.not_found()
     try:
         out = llm.chat_json(llm.answer_messages(req.question, items), llm.answer_schema(ids),
                             max_tokens=700, temperature=0.1)
-    except llm.LlmDown:
-        return _llm_down()
+    except llm.LlmDown as exc:
+        return _llm_down(exc)
     res = llm.clean_answer(out, ids)
-    if res["grounded"] and locate_flagged(res["answer"], OUT_THRESH):
+    if res["grounded"] and (answer_locate_intent(res["answer"])
+                            or locate_flagged(res["answer"], OUT_THRESH)):
         return _refusal()
+    if res["grounded"] and llm.unsupported_denial(res["answer"], items, res["citations"]):
+        return {"answer": llm.NOTIFY_UNKNOWN, "citations": [], "grounded": False, "ai_generated": True}
     return res
 
 
@@ -429,16 +455,17 @@ def llm_rewrite(req: RewriteIn):
     n = len(req.text)
     given = [s.model_dump() for s in req.spans if s.start < s.end <= n]
     # 앱이 넘긴 span 에 서버 정규식 span 을 더한다(누락 대비).
-    spans = merge_spans([{**s, "score": 1.0} for s in given] + regex_spans(req.text))
+    spans = merge_spans([{**s, "score": 1.0} for s in given] + regex_spans(req.text)
+                        + llm.routine_spans(req.text))
     try:
         out = llm.chat_json(llm.rewrite_messages(req.text, spans), llm.rewrite_schema(),
                             max_tokens=min(4096, 2 * n + 256), temperature=0.0)
-    except llm.LlmDown:
-        return _llm_down()
+    except llm.LlmDown as exc:
+        return _llm_down(exc)
     spans = merge_spans(spans + [{**c, "score": 0.5} for c in llm.clue_spans(req.text, out.get("clues"))])
     res = llm.finalize_rewrite(req.text, spans, str(out.get("text") or ""))
     # 생성문에 남은 정규식 단서는 규칙으로 한 번 더 가린다.
-    left = regex_spans(res["suggested"])
+    left = regex_spans(res["suggested"]) + llm.routine_spans(res["suggested"])
     if left:
         res["suggested"] = llm.mask_spans(res["suggested"], merge_spans(left))
         res["forced"] += len(left)

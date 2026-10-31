@@ -85,7 +85,8 @@ def test_stalking_measures_apply_to_family_and_dating():
 def test_a1_note_when_same_registration_address():
     e = Engine(load_knowledge())
     a1 = [c for c in e.diagnose("family", ["same_registration_address"])["checklist"] if c["id"] == "A1"][0]
-    assert "A6" in a1["note"]
+    # 내부 id(A6)는 사용자 문구에서 제도 이름으로 바뀐다(app/humanize.py).
+    assert "A6" not in a1["note"] and "분리" in a1["note"]
     a1 = [c for c in e.diagnose("family", [])["checklist"] if c["id"] == "A1"][0]
     assert "note" not in a1
     assert "conditional_notes" not in a1
@@ -114,3 +115,39 @@ def test_plain_has_no_dual_use_phrases():
         for field in ("plain", "measure", "limits", "exposure"):
             for b in bad:
                 assert b not in (it.get(field) or ""), (it["id"], field, b)
+
+
+def test_user_fields_have_no_internal_ids():
+    import re
+
+    pat = re.compile(r"(?<![A-Za-z0-9])[AJSLDP]\d{1,3}(?![0-9])")
+    e = Engine(load_knowledge())
+    for it in e.items:
+        for k in ("path", "exposure", "measure", "timing", "where", "documents", "limits",
+                  "notify_warning", "plain"):
+            assert not pat.search(it.get(k) or ""), (it["id"], k)
+
+
+def test_a6_inherits_a1_notify_warning():
+    e = Engine(load_knowledge())
+    by = {it["id"]: it for it in e.items}
+    assert "서면으로 통지" in by["A6"]["notify_warning"]
+    assert by["A6"]["notify_inherited_from"] == "A1"
+
+
+def test_exposable_articles_have_no_restriction_lifting_routes():
+    """검색에 노출되는 조문(발췌 우선)에 제한 해제·배제·제3자 취소 경로 문단이 없어야 한다."""
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parent.parent / "data" / "laws" / "articles.jsonl"
+    bad = ("제한조치를 하지 말 것을", "결정을 취소할 수 있다", "법 제29조제9항에 따른 신청")
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        if not r.get("exposable"):
+            continue
+        text = r.get("excerpt") or r.get("text") or ""
+        for b in bad:
+            assert b not in text, (r["law"], r["article"], b)

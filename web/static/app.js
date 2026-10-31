@@ -55,6 +55,8 @@
   var lastText = '';
   var llmOn = false;
   var LLM_DOWN_MSG = '지금은 이 기능을 쓸 수 없습니다. 체크 항목으로 계속 진행할 수 있습니다.';
+  var REWRITE_MAX = 1500; // app/main.py REWRITE_MAX_CHARS 와 같게
+  var intakePending = false; // '말로 설명하기'로 미리 고른 뒤 사용자가 확인하기 전까지 true
 
   function $(id) { return document.getElementById(id); }
 
@@ -76,14 +78,24 @@
     return a;
   }
 
-  /* 결과마다 붙는 짧은 연결 줄 */
+  /* 결과마다 붙는 짧은 연결 줄(SPEC §7: 1366·132, 위험이 급하면 112) */
   function helpLine() {
     var p = el('p', 'help-line');
     p.appendChild(document.createTextNode('혼자 하기 어려우면 '));
     p.appendChild(telLink('1366'));
-    p.appendChild(document.createTextNode(' · '));
+    p.appendChild(document.createTextNode('(24시간) · '));
     p.appendChild(telLink('132'));
+    p.appendChild(document.createTextNode(' · 위험이 급하면 '));
+    p.appendChild(telLink('112'));
     return p;
+  }
+
+  /* 화면 읽기 프로그램에 짧게 알린다 */
+  function announce(msg) {
+    var lr = $('live-region');
+    if (!lr) return;
+    lr.textContent = '';
+    setTimeout(function () { lr.textContent = msg; }, 30);
   }
 
   function postJSON(url, payload) {
@@ -97,7 +109,11 @@
         e.unavailable = true;
         throw e;
       }
-      if (!res.ok) throw new Error(url + ' http ' + res.status);
+      if (!res.ok) {
+        var err = new Error(url + ' http ' + res.status);
+        err.status = res.status;
+        throw err;
+      }
       return res.json();
     });
   }
@@ -190,6 +206,14 @@
       if (firstRadio) firstRadio.focus();
       return;
     }
+    if (intakePending) {
+      var cf = $('auto-confirm');
+      if (!cf || !cf.checked) {
+        setStatus('diagnose-status', '자동으로 고른 항목을 먼저 확인해 주세요.');
+        if (cf) cf.focus();
+        return;
+      }
+    }
     var flags = [];
     var checked = form.querySelectorAll('input[name="flags"]:checked');
     for (var i = 0; i < checked.length; i++) flags.push(checked[i].value);
@@ -238,6 +262,7 @@
   function buildCard(item) {
     var card = document.createElement('article');
     card.className = 'card';
+    if (item.id) card.id = 'card-' + item.id;
     if (item.status === 'pending') card.classList.add('card-pending');
 
     var head = document.createElement('div');
@@ -294,9 +319,7 @@
       var ackLabel = el('label', 'notify-ack');
       var ack = document.createElement('input');
       ack.type = 'checkbox';
-      ack.required = true;
       ack.setAttribute('aria-controls', howtoId);
-      ack.setAttribute('aria-expanded', 'false');
       ackLabel.appendChild(ack);
       ackLabel.appendChild(el('span', null, '상대에게 알려질 수 있다는 점을 확인했습니다'));
       warn.appendChild(ackLabel);
@@ -304,6 +327,17 @@
       gate = { id: howtoId, ack: ack };
     }
 
+    if (item.timing) card.appendChild(row('시기', item.timing));
+
+    function detailsBlock(lab, val) {
+      var det = document.createElement('details');
+      det.appendChild(el('summary', null, lab));
+      det.appendChild(el('p', null, val));
+      return det;
+    }
+
+    // 통지 경고가 있으면 쉬운 설명(신청 방법이 섞여 있다)과 신청처·서류는 경고를 확인한 뒤에만 펼친다.
+    var howto = el('div', 'howto');
     if (item.plain) {
       var plain = document.createElement('div');
       plain.className = 'plain-box';
@@ -313,67 +347,62 @@
       var pt = document.createElement('p');
       pt.textContent = item.plain;
       plain.appendChild(pt);
-      card.appendChild(plain);
+      if (gate) howto.appendChild(plain); else card.appendChild(plain);
     }
-
-    if (item.path) card.appendChild(row('경로', item.path));
-    if (item.exposure) card.appendChild(row('노출', item.exposure));
-    if (item.timing) card.appendChild(row('시기', item.timing));
-
-    if (Array.isArray(item.basis) && item.basis.length) {
-      var chips = document.createElement('div');
-      chips.className = 'chips';
-      for (var bi = 0; bi < item.basis.length; bi++) {
-        var b = item.basis[bi];
-        var txt = ((b.law || '') + ' ' + (b.article || '')).trim();
-        if (!txt) txt = '근거';
-        if (b.effective) txt += ' (시행 ' + b.effective + ')';
-
-        var url = safeUrl(b.url);
-        var chipEl;
-        if (url) {
-          chipEl = document.createElement('a');
-          chipEl.href = url;
-          chipEl.target = '_blank';
-          chipEl.rel = 'noopener noreferrer';
-        } else {
-          chipEl = document.createElement('span');
-        }
-        chipEl.className = 'chip';
-        chipEl.textContent = txt;
-        chips.appendChild(chipEl);
-      }
-      card.appendChild(chips);
-    }
-
-    function detailsBlock(lab, val) {
-      var det = document.createElement('details');
-      det.appendChild(el('summary', null, lab));
-      det.appendChild(el('p', null, val));
-      return det;
-    }
-
-    // 신청 방법(신청처·서류)은 통지 경고를 확인한 뒤에만 펼친다.
-    var howto = el('div', 'howto');
     if (item.where) howto.appendChild(detailsBlock('어디서 신청하나요', item.where));
     if (item.documents) howto.appendChild(detailsBlock('필요한 서류', item.documents));
     if (howto.childNodes.length) {
       if (gate) {
         howto.id = gate.id;
         howto.hidden = true;
-        var locked = el('p', 'howto-locked', '위 경고를 확인하면 신청 방법이 보입니다.');
+        var locked = el('p', 'howto-locked', '위 경고를 확인하면 쉬운 설명과 신청 방법이 보입니다.');
         card.appendChild(locked);
         (function (ack, box, lockedEl) {
           ack.addEventListener('change', function () {
             box.hidden = !ack.checked;
             lockedEl.hidden = ack.checked;
-            ack.setAttribute('aria-expanded', ack.checked ? 'true' : 'false');
+            announce(ack.checked ? '쉬운 설명과 신청 방법이 펼쳐졌습니다.' : '신청 방법을 다시 접었습니다.');
           });
         })(gate.ack, howto, locked);
       }
       card.appendChild(howto);
     }
     if (item.limits) card.appendChild(detailsBlock('한계', item.limits));
+
+    // 경로·노출·근거 조문은 '근거·자세히' 안으로(첫 화면 부담 줄이기).
+    var hasBasis = Array.isArray(item.basis) && item.basis.length;
+    if (item.path || item.exposure || hasBasis) {
+      var more = document.createElement('details');
+      more.className = 'more-detail';
+      more.appendChild(el('summary', null, '근거·자세히'));
+      if (item.path) more.appendChild(row('경로', item.path));
+      if (item.exposure) more.appendChild(row('노출', item.exposure));
+      if (hasBasis) {
+        var chips = document.createElement('div');
+        chips.className = 'chips';
+        for (var bi = 0; bi < item.basis.length; bi++) {
+          var b = item.basis[bi];
+          var txt = ((b.law || '') + ' ' + (b.article || '')).trim();
+          if (!txt) txt = '근거';
+          if (b.effective) txt += ' (시행 ' + b.effective + ')';
+          var url = safeUrl(b.url);
+          var chipEl;
+          if (url) {
+            chipEl = document.createElement('a');
+            chipEl.href = url;
+            chipEl.target = '_blank';
+            chipEl.rel = 'noopener noreferrer';
+          } else {
+            chipEl = document.createElement('span');
+          }
+          chipEl.className = 'chip';
+          chipEl.textContent = txt;
+          chips.appendChild(chipEl);
+        }
+        more.appendChild(chips);
+      }
+      card.appendChild(more);
+    }
 
     card.appendChild(helpLine());
     if (llmOn && item.id) card.appendChild(buildAskBox(item.id));
@@ -438,15 +467,23 @@
           }
           var box = el('div', 'answer-box');
           var head = el('div', 'card-meta');
-          head.appendChild(badge('ai-badge', 'AI 생성'));
-          head.appendChild(el('span', 'meta', '지식표와 조문만 근거로 만든 답입니다. 틀릴 수 있으니 중요한 결정 전에는 꼭 확인해 주세요.'));
+          if (d && d.ai_generated === false) {
+            head.appendChild(badge('src-badge', '안내문 원문'));
+            head.appendChild(el('span', 'meta', d.source === 'effect'
+              ? '시점에 관한 질문은 AI가 만들지 않고 안내문의 신청 시점·처리 칸을 그대로 보여 드립니다.'
+              : '알려지는지에 관한 질문은 AI가 만들지 않고 안내문의 통지 경고를 그대로 보여 드립니다.'));
+          } else {
+            head.appendChild(badge('ai-badge', 'AI 생성'));
+            head.appendChild(el('span', 'meta', '안내문과 조문만 근거로 만든 답입니다. 틀릴 수 있으니 중요한 결정 전에는 꼭 확인해 주세요.'));
+          }
           box.appendChild(head);
           box.appendChild(el('p', 'answer-text', (d && d.answer) || ''));
-          var cites = (d && Array.isArray(d.citations)) ? d.citations : [];
-          if (cites.length) {
-            var cl = el('p', 'meta', '참고한 항목: ' + cites.join(', '));
-            box.appendChild(cl);
+          var srcs = (d && Array.isArray(d.sources)) ? d.sources : [];
+          var labels = [];
+          for (var si = 0; si < srcs.length; si++) {
+            if (srcs[si] && typeof srcs[si].label === 'string' && srcs[si].label) labels.push(srcs[si].label);
           }
+          if (labels.length) box.appendChild(el('p', 'meta', '참고: ' + labels.join(' / ')));
           box.appendChild(helpLine());
           out.appendChild(box);
         })
@@ -458,6 +495,7 @@
           } else {
             out.appendChild(el('p', 'notice', '답을 받지 못했습니다. 잠시 뒤 다시 시도해 주세요.'));
           }
+          out.appendChild(helpLine());
         })
         .then(function () { btn.disabled = false; });
     }
@@ -466,6 +504,27 @@
       if (e.key === 'Enter') { e.preventDefault(); ask(); }
     });
     return wrap;
+  }
+
+  // 잔여 위험 카드: SPEC §7 — '이 기록에는 주소가 남을 수 있으니 등록·신청 전에 고려하세요' 수준의
+  // 사전 안내만. 조회 주체·요건·방법을 담을 수 있는 경로·설명 문단은 그리지 않는다.
+  function buildResidualCard(it) {
+    var card = document.createElement('article');
+    card.className = 'card residual';
+    if (it.id) card.id = 'card-' + it.id;
+    var head = document.createElement('div');
+    head.className = 'card-head';
+    if (it.urgency === 1) head.appendChild(badge('urgency-1', URGENCY_LABELS[1]));
+    var t = document.createElement('h3');
+    t.className = 'card-title';
+    t.textContent = it.path || '주소가 남을 수 있는 기록';
+    head.appendChild(t);
+    card.appendChild(head);
+    card.appendChild(el('p', null, '이 기록에는 주소가 남을 수 있으니 등록·신청 전에 고려하세요. 이 경로를 막는 제도는 없습니다.'));
+    if (it.timing) card.appendChild(row('대비', it.timing));
+    if (it.support) card.appendChild(el('p', 'card-note', it.support));
+    if (llmOn && it.id) card.appendChild(buildAskBox(it.id));
+    return card;
   }
 
   function renderDiagnose(data) {
@@ -498,55 +557,65 @@
     root.appendChild(printBtn);
 
     var checklist = Array.isArray(data.checklist) ? data.checklist : [];
-    if (checklist.length) {
-      var h1 = document.createElement('h2');
-      h1.textContent = '급한 것부터 할 일';
+    var residual = Array.isArray(data.residual) ? data.residual : [];
+    var TOP_MAX = 5;
+    var top = [];
+    var rest = [];
+    for (var ci = 0; ci < checklist.length; ci++) {
+      var c = checklist[ci];
+      if (c.urgency === 1 && c.status !== 'pending' && top.length < TOP_MAX) top.push(c);
+      else rest.push(c);
+    }
+    // '지금 먼저' 잔여 위험(예: 가해자가 먼저 낸 소송 — 다음 서면 송달 전에 대응)은 위쪽 묶음에 끼운다.
+    var urgentRes = [];
+    var otherRes = [];
+    for (var ri = 0; ri < residual.length; ri++) {
+      if (residual[ri] && residual[ri].urgency === 1) urgentRes.push(residual[ri]);
+      else otherRes.push(residual[ri]);
+    }
+
+    if (top.length || urgentRes.length) {
+      var h1 = el('h2', null, '지금 먼저 할 일');
       root.appendChild(h1);
-      for (var i = 0; i < checklist.length; i++) root.appendChild(buildCard(checklist[i]));
-    } else {
+      var ol = el('ol', 'now-list');
+      var all = top.concat(urgentRes);
+      for (var ti = 0; ti < all.length; ti++) {
+        var li0 = document.createElement('li');
+        var a0 = document.createElement('a');
+        a0.href = '#card-' + all[ti].id;
+        var isRes = urgentRes.indexOf(all[ti]) !== -1;
+        a0.textContent = isRes ? (all[ti].path || all[ti].measure || '') + ' — 미리 대비' : (all[ti].measure || all[ti].id || '');
+        li0.appendChild(a0);
+        ol.appendChild(li0);
+      }
+      root.appendChild(ol);
+      root.appendChild(helpLine());
+      for (var t2 = 0; t2 < top.length; t2++) root.appendChild(buildCard(top[t2]));
+      for (var t3 = 0; t3 < urgentRes.length; t3++) root.appendChild(buildResidualCard(urgentRes[t3]));
+    }
+
+    if (rest.length) {
+      var moreBox = document.createElement('details');
+      moreBox.className = 'more-block';
+      if (!top.length) moreBox.open = true;
+      moreBox.appendChild(el('summary', null, (top.length ? '다른 보호 제도 ' : '보호 제도 ') + rest.length + '건 더 보기'));
+      for (var k2 = 0; k2 < rest.length; k2++) moreBox.appendChild(buildCard(rest[k2]));
+      root.appendChild(moreBox);
+    }
+    if (!checklist.length) {
       var empty = document.createElement('p');
       empty.textContent = '고른 상황에 맞는 제도를 찾지 못했습니다. 항목을 바꿔 다시 확인해 보세요.';
       root.appendChild(empty);
     }
 
-    var residual = Array.isArray(data.residual) ? data.residual : [];
-    if (residual.length) {
+    if (otherRes.length) {
       var h2 = document.createElement('h2');
       h2.textContent = '제도로 막을 수 없는 경로 — 미리 대비해 주세요';
       root.appendChild(h2);
       var rintro = el('p', 'lead', '아래 기록에는 주소가 남을 수 있습니다. 등록·신청하기 전에 한 번 더 생각해 주세요.');
       root.appendChild(rintro);
       root.appendChild(helpLine());
-      for (var r = 0; r < residual.length; r++) {
-        var it = residual[r] || {};
-        var card = document.createElement('article');
-        card.className = 'card residual';
-        var t = document.createElement('h3');
-        t.className = 'card-title';
-        t.textContent = it.measure || it.path || it.id || '잔여 위험';
-        card.appendChild(t);
-        if (it.plain) {
-          var pbox = document.createElement('div');
-          pbox.className = 'plain-box';
-          if (!it.plain_reviewed) {
-            pbox.appendChild(badge('ai-badge', 'AI 생성(검수 전)'));
-          }
-          var pp = document.createElement('p');
-          pp.textContent = it.plain;
-          pbox.appendChild(pp);
-          card.appendChild(pbox);
-        }
-        if (it.timing) card.appendChild(row('대비', it.timing));
-        if (it.path) card.appendChild(row('경로', it.path));
-        if (it.support) {
-          var sn = document.createElement('p');
-          sn.className = 'card-note';
-          sn.textContent = it.support;
-          card.appendChild(sn);
-        }
-        if (llmOn && it.id) card.appendChild(buildAskBox(it.id));
-        root.appendChild(card);
-      }
+      for (var r = 0; r < otherRes.length; r++) root.appendChild(buildResidualCard(otherRes[r] || {}));
     }
 
     var na = Array.isArray(data.not_applicable) ? data.not_applicable : [];
@@ -856,8 +925,8 @@
       setStatus('doc-status', '서류 내용을 먼저 붙여 넣어 주세요.');
       return;
     }
-    if (text.length > 4000) {
-      setStatus('doc-status', '4000자 이하로 나누어 바꿔 주세요.');
+    if (text.length > REWRITE_MAX) {
+      setStatus('doc-status', REWRITE_MAX + '자 이하로 나누어 바꿔 주세요. (지금 ' + text.length + '자)');
       return;
     }
     if (text !== lastText) runTier1();
@@ -914,6 +983,10 @@
         if (e && e.unavailable) {
           setStatus('doc-status', LLM_DOWN_MSG);
           setLlm(false);
+        } else if (e && e.status === 504) {
+          setStatus('doc-status', '시간이 너무 오래 걸려 멈췄습니다. 글을 더 짧게 나누어 다시 해 주세요.');
+        } else if (e && e.status === 429) {
+          setStatus('doc-status', '다른 요청을 처리하고 있습니다. 잠시 뒤 다시 해 주세요.');
         } else {
           setStatus('doc-status', '문장을 바꾸지 못했습니다. 잠시 뒤 다시 시도해 주세요.');
         }
@@ -952,29 +1025,80 @@
       .then(function () { btn.disabled = false; });
   }
 
-  // 체크만 미리 해 둔다. 이미 사용자가 고른 것은 풀지 않고, 절대 자동 제출하지 않는다.
+  function flagLabel(box) {
+    var sp = box.parentNode ? box.parentNode.querySelector('span') : null;
+    return sp ? sp.textContent : box.value;
+  }
+
+  function syncConfirmGate() {
+    var submit = $('diagnose-submit');
+    var cf = $('auto-confirm');
+    if (!submit) return;
+    submit.disabled = intakePending && !(cf && cf.checked);
+  }
+
+  // 체크만 미리 해 둔다. 사용자가 이미 고른 피해 유형·항목은 바꾸지 않고, 절대 자동 제출하지 않는다.
+  // 고른 항목은 안내 상자에 하나씩 보여 주고 각각 뺄 수 있다. '확인했습니다'를 체크해야 제출된다.
   function applyIntake(d) {
     var form = $('diagnose-form');
     var prev = form.querySelectorAll('.auto-picked');
     for (var i = 0; i < prev.length; i++) prev[i].classList.remove('auto-picked');
 
+    var pickedList = $('auto-picked-list');
+    pickedList.textContent = '';
+    var sugg = $('auto-victim');
+    sugg.textContent = '';
     var picked = 0;
+
     if (typeof d.victim_type === 'string') {
-      var radio = form.querySelector('input[name="victim_type"][value="' + d.victim_type.replace(/[^a-z]/g, '') + '"]');
-      if (radio) {
+      var vt = d.victim_type.replace(/[^a-z]/g, '');
+      var radio = form.querySelector('input[name="victim_type"][value="' + vt + '"]');
+      var current = form.querySelector('input[name="victim_type"]:checked');
+      if (radio && !current) {
         radio.checked = true;
         radio.parentNode.classList.add('auto-picked');
+        sugg.appendChild(document.createTextNode('피해 유형: ' + (VICTIM_LABELS[vt] || vt) + ' (자동으로 골랐습니다. 다르면 위에서 바꿔 주세요.)'));
         picked++;
+      } else if (radio && current && current !== radio) {
+        // 사용자가 이미 고른 유형은 덮어쓰지 않고 제안만 한다.
+        sugg.appendChild(document.createTextNode('지금 고른 피해 유형은 ' + (VICTIM_LABELS[current.value] || current.value) +
+          '입니다. 적은 내용으로는 ' + (VICTIM_LABELS[vt] || vt) + '에 가까워 보입니다. '));
+        var sw = el('button', 'small-btn', VICTIM_LABELS[vt] + '(으)로 바꾸기');
+        sw.type = 'button';
+        sw.addEventListener('click', function () {
+          radio.checked = true;
+          sugg.textContent = '피해 유형을 ' + (VICTIM_LABELS[vt] || vt) + '(으)로 바꿨습니다.';
+        });
+        sugg.appendChild(sw);
       }
     }
     var flags = Array.isArray(d.flags) ? d.flags : [];
     var boxes = form.querySelectorAll('input[name="flags"]');
     for (var j = 0; j < boxes.length; j++) {
-      if (flags.indexOf(boxes[j].value) !== -1) {
-        boxes[j].checked = true;
-        boxes[j].parentNode.classList.add('auto-picked');
-        picked++;
+      var box = boxes[j];
+      if (flags.indexOf(box.value) === -1) continue;
+      if (!box.checked) {
+        box.checked = true;
+        box.parentNode.classList.add('auto-picked');
       }
+      picked++;
+      (function (b) {
+        var li = el('li', 'auto-picked-item');
+        li.appendChild(el('span', null, flagLabel(b)));
+        var rm = el('button', 'small-btn', '빼기');
+        rm.type = 'button';
+        rm.setAttribute('aria-label', flagLabel(b) + ' 빼기');
+        rm.addEventListener('click', function () {
+          b.checked = false;
+          b.parentNode.classList.remove('auto-picked');
+          li.classList.add('removed');
+          rm.disabled = true;
+          rm.textContent = '뺐습니다';
+          announce(flagLabel(b) + ' 항목을 뺐습니다.');
+        });
+        li.appendChild(rm);
+        pickedList.appendChild(li);
+      })(box);
     }
 
     var ul = $('auto-unclear');
@@ -983,9 +1107,13 @@
     for (var k = 0; k < unclear.length; k++) {
       ul.appendChild(el('li', null, '확인이 필요합니다: ' + unclear[k]));
     }
+    var cf = $('auto-confirm');
+    cf.checked = false;
+    intakePending = true;
+    syncConfirmGate();
     var notice = $('auto-notice');
     notice.hidden = false;
-    setStatus('intake-status', picked ? ('항목 ' + picked + '개를 골랐습니다. 아래에서 확인해 주세요.') : '맞는 항목을 고르지 못했습니다. 아래에서 직접 골라 주세요.');
+    setStatus('intake-status', picked ? ('항목 ' + picked + '개를 골랐습니다. 아래 목록을 확인해 주세요.') : '맞는 항목을 고르지 못했습니다. 아래에서 직접 골라 주세요.');
     notice.focus();
   }
 
@@ -1093,6 +1221,12 @@
     $('quick-exit').addEventListener('click', quickExit);
     $('doc-rewrite').addEventListener('click', runRewrite);
     $('intake-btn').addEventListener('click', runIntake);
+    $('auto-confirm').addEventListener('change', syncConfirmGate);
+    // 인쇄할 때는 접어 둔 '더 보기'·'근거·자세히'를 모두 펼친다.
+    window.addEventListener('beforeprint', function () {
+      var ds = document.querySelectorAll('#diagnose-results details');
+      for (var i = 0; i < ds.length; i++) ds[i].open = true;
+    });
     initSafety();
     loadFeatures();
 

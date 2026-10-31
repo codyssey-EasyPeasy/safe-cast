@@ -89,13 +89,23 @@ class RewriteSpan(BaseModel):
     label: str = Field(default="", max_length=20)
 
 
+# 문장 바꾸기 입력 상한. GPU 생성 시간 초과(LLM_TIMEOUT 60초) 안에 여유 있게 끝나는 길이.
+# 2026-10-31 실측(GPU /llm/rewrite 직접, 합성 서류 이어 붙임, 1회씩): 500자 22.5초·1000자 22.1초·
+# 1500자 38.9초·2000자 42.0초. 4000자는 60초 초과 → 503(재시도 포함 120초)이었다.
+REWRITE_MAX_CHARS = 1500
+
+
 class RewriteRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    text: str = Field(min_length=1, max_length=4000)
+    text: str = Field(min_length=1, max_length=REWRITE_MAX_CHARS)
     spans: list[RewriteSpan] = Field(default_factory=list, max_length=60)
 
 
 LLM_UNAVAILABLE = "지금은 이 기능을 쓸 수 없습니다. 체크 항목으로 계속 진행할 수 있습니다."
+LLM_TIMEOUT_MSG = "시간이 너무 오래 걸려 멈췄습니다. 글을 더 짧게 나누어 다시 해 주세요."
+LLM_BUSY_MSG = "다른 요청을 처리하고 있습니다. 잠시 뒤 다시 해 주세요."
+# 문장 바꾸기 동시 처리 상한: 전체 2건, 접속 주소당 1건(긴 생성이 GPU 를 오래 붙잡는다).
+REWRITE_GLOBAL_LIMIT = 2
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -147,6 +157,7 @@ def create_app(
     items_by_id = {it.get("id"): it for it in engine.items if it.get("id")}
     known_flags = set(engine.flag_ids())
     probe = _llm.FeatureProbe()
+    rewrite_busy: dict[str, int] = {}
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -246,8 +257,13 @@ def create_app(
             return {"available": False}
 
     # --- 내부 LLM 기능(SPEC §8). 실패하면 503 → 화면은 체크박스 방식으로 동작. ---
-    def _llm_down() -> HTTPException:
-        probe.mark_down()
+    def _llm_down(e: _llm.LLMUnavailable) -> HTTPException:
+        # 요청 하나의 실패(시간 초과·형식 오류)로 모든 사용자의 LLM 기능을 끄지 않는다.
+        # GPU 에 닿지 않은 경우(연결 실패)만 기능 표시를 내린다.
+        if e.timeout:
+            return HTTPException(status_code=504, detail=LLM_TIMEOUT_MSG)
+        if e.down:
+            probe.mark_down()
         return HTTPException(status_code=503, detail=LLM_UNAVAILABLE)
 
     async def _llm_gate(request: Request) -> tuple[httpx.AsyncClient, str]:
@@ -267,7 +283,7 @@ def create_app(
         req: IntakeRequest, request: Request, _: None = Depends(_require_access_code)
     ):
         client, url = await _llm_gate(request)
-        if await _retrieval.intent(req.text, client, url, thresh=_llm.llm_guard_thresh()):
+        if await _retrieval.intent(req.text, client, url):
             return {"refused": True, "message": REFUSAL_MESSAGE}
         try:
             out = await _llm.intake(
@@ -277,8 +293,8 @@ def create_app(
                 known_flags=known_flags,
                 victim_types=VICTIM_TYPES,
             )
-        except _llm.LLMUnavailable:
-            raise _llm_down()
+        except _llm.LLMUnavailable as e:
+            raise _llm_down(e)
         return {"refused": False, **out}
 
     @app.post("/api/answer")
@@ -286,7 +302,7 @@ def create_app(
         req: AnswerRequest, request: Request, _: None = Depends(_require_access_code)
     ):
         client, url = await _llm_gate(request)
-        if await _retrieval.intent(req.question, client, url, thresh=_llm.llm_guard_thresh()):
+        if await _retrieval.intent(req.question, client, url):
             return {"refused": True, "message": REFUSAL_MESSAGE}
         try:
             out = await _llm.answer(
@@ -297,8 +313,8 @@ def create_app(
                 items_by_id=items_by_id,
                 articles=retriever.articles,
             )
-        except _llm.LLMUnavailable:
-            raise _llm_down()
+        except _llm.LLMUnavailable as e:
+            raise _llm_down(e)
         if out.get("refused"):
             return {"refused": True, "message": REFUSAL_MESSAGE}
         return {"refused": False, **out}
@@ -308,6 +324,10 @@ def create_app(
         req: RewriteRequest, request: Request, _: None = Depends(_require_access_code)
     ):
         client, url = await _llm_gate(request)
+        who = request.client.host if request.client else "-"
+        if rewrite_busy.get(who, 0) >= 1 or sum(rewrite_busy.values()) >= REWRITE_GLOBAL_LIMIT:
+            raise HTTPException(status_code=429, detail=LLM_BUSY_MSG)
+        rewrite_busy[who] = rewrite_busy.get(who, 0) + 1
         try:
             out = await _llm.rewrite(
                 req.text,
@@ -315,8 +335,12 @@ def create_app(
                 client=client,
                 gpu_url=url,
             )
-        except _llm.LLMUnavailable:
-            raise _llm_down()
+        except _llm.LLMUnavailable as e:
+            raise _llm_down(e)
+        finally:
+            rewrite_busy[who] -= 1
+            if rewrite_busy[who] <= 0:
+                rewrite_busy.pop(who, None)
         if out.get("refused"):
             return {"refused": True, "message": REFUSAL_MESSAGE}
         return {"refused": False, **out}

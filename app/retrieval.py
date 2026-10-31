@@ -21,7 +21,7 @@ from typing import Any
 
 import httpx
 
-from .guard import rule_locate_intent
+from .guard import ALLOW_CEIL, rule_locate_intent, self_protect_allow
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -318,22 +318,32 @@ class Retriever:
 
 
 async def intent(
-    q: str, client: httpx.AsyncClient, gpu_url: str, thresh: float | None = None
+    q: str,
+    client: httpx.AsyncClient,
+    gpu_url: str,
+    out_thresh: float | None = None,
 ) -> bool:
-    """의도 분류(fail-closed). GPU 결과·로컬 규칙을 OR 로 결합한다.
+    """의도 분류(fail-closed 규칙). GPU 결과·로컬 규칙을 OR 로 결합한다.
 
-    `thresh` 를 주면 GPU 의 locate_intent(서버 기본 임계값 0.02) 대신
-    `rule OR score > thresh` 로 판정한다(내부 LLM 경로 전용, app/llm.py LLM_GUARD_THRESH).
+    - 입력(기본, `out_thresh=None`): 모든 엔드포인트(/api/search·/api/intake·/api/answer)가 같은
+      판정을 쓴다. GPU 규칙 OR 임베딩 점수 > 서버 임계값(0.02). 단, 좁은 본인 보호 허용 목록
+      (`guard.self_protect_allow`)에 들고 점수가 `guard.ALLOW_CEIL`(0.15) 이하이면 임베딩 판정만 푼다.
+    - 출력(`out_thresh` 지정): 생성문 검사. GPU 규칙 OR 점수 > out_thresh. 허용 목록은 쓰지 않는다.
     """
     gpu_locate = False
     try:
         r = await client.post(f"{gpu_url}/intent", json={"q": q}, timeout=10.0)
         r.raise_for_status()
         data = r.json()
-        if thresh is None:
-            gpu_locate = bool(data.get("locate_intent", False))
+        rule = bool(data.get("rule", False))
+        score = float(data.get("score", 0.0))
+        if out_thresh is None:
+            embed = bool(data.get("locate_intent", False)) and not rule
+            if embed and score <= ALLOW_CEIL and self_protect_allow(q):
+                embed = False
+            gpu_locate = rule or embed
         else:
-            gpu_locate = bool(data.get("rule", False)) or float(data.get("score", 0.0)) > thresh
+            gpu_locate = rule or score > out_thresh
     except (httpx.HTTPError, ValueError, KeyError, TypeError):
         gpu_locate = False
     return gpu_locate or local_locate_intent(q) or rule_locate_intent(q)

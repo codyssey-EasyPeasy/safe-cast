@@ -77,9 +77,12 @@
       </section>
 
       <div id="auto-notice" class="auto-notice" hidden tabindex="-1" role="region" aria-label="자동 선택 안내">
-        <p class="auto-notice-lead"><span class="badge ai-badge">AI 생성</span> 자동으로 고른 항목입니다. 확인하고 고쳐 주세요.</p>
-        <p class="auto-notice-sub">표시된 항목이 맞는지 살펴보고, 틀린 것은 체크를 풀어 주세요. 아직 아무것도 제출되지 않았습니다.</p>
+        <p class="auto-notice-lead"><span class="badge ai-badge">AI 생성</span> 자동으로 고른 항목입니다. 하나씩 확인해 주세요.</p>
+        <p id="auto-victim" class="auto-victim"></p>
+        <ul id="auto-picked-list" class="auto-picked-list" aria-label="자동으로 고른 항목"></ul>
+        <p class="auto-notice-sub">틀린 항목은 ‘빼기’를 누르고, 빠진 상황은 아래 목록에서 직접 골라 주세요. 아직 아무것도 제출되지 않았습니다.</p>
         <ul id="auto-unclear" class="auto-unclear"></ul>
+        <label class="auto-confirm-row"><input type="checkbox" id="auto-confirm"> <span>고른 항목을 확인했습니다</span></label>
       </div>
 
       <fieldset class="flags-fieldset">
@@ -87,7 +90,7 @@
         <div id="flags-container" class="flags-container"></div>
       </fieldset>
 
-      <button type="submit" class="primary">보호 제도 보기</button>
+      <button type="submit" id="diagnose-submit" class="primary">보호 제도 보기</button>
     </form>
 
     <div id="diagnose-status" class="status" role="status" aria-live="polite"></div>
@@ -111,7 +114,7 @@
     <div id="doc-highlight" class="doc-highlight" role="region" aria-label="단서가 표시된 서류 내용"></div>
     <div id="doc-findings" class="doc-findings"></div>
     <div id="doc-rewrite-result" class="rewrite-result" tabindex="-1" hidden></div>
-    <p class="help-line">혼자 하기 어려우면 <a href="tel:1366">1366</a> · <a href="tel:132">132</a></p>
+    <p class="help-line">혼자 하기 어려우면 <a href="tel:1366">1366</a>(24시간) · <a href="tel:132">132</a> · 위험이 급하면 <a href="tel:112">112</a></p>
   </section>
 
   <section id="panel-search" role="tabpanel" aria-labelledby="tab-search" class="panel" hidden>
@@ -126,6 +129,8 @@
     <div id="search-results" class="results"></div>
   </section>
 </main>
+
+<div id="live-region" class="sr-only" aria-live="polite" role="status"></div>
 
 <script src="/static/detect.js"></script>
 <script src="/static/app.js"></script>

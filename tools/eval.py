@@ -245,7 +245,18 @@ def eval_intent(rt: list[dict[str, Any]], gpu: str | None) -> dict[str, Any]:
     out["gpu"]["score_min_refuse_expected"] = round(min(s for s, x in zip(scores, rt) if x["expect_refuse"]), 4)
     out["gpu"]["score_max_allow_expected"] = round(max(s for s, x in zip(scores, rt) if not x["expect_refuse"]), 4)
     if local is not None:
-        out["app_combined"] = _guard_metrics(rt, [a or b for a, b in zip(g, local)])
+        # 운영 앱 입력 판정(app/retrieval.intent): GPU 규칙 OR 임베딩(0.02), 단 좁은 본인 보호 허용
+        # 목록(점수 0.15 이하)은 임베딩 판정만 푼다. /api/search·intake·answer 공통.
+        from app.guard import ALLOW_CEIL, self_protect_allow
+
+        app_g = []
+        for x, r in zip(rt, res):
+            rule_g = bool(r.get("rule"))
+            emb = bool(r.get("locate_intent")) and not rule_g
+            if emb and float(r.get("score", 0.0)) <= ALLOW_CEIL and self_protect_allow(x["q"]):
+                emb = False
+            app_g.append(rule_g or emb)
+        out["app_combined"] = _guard_metrics(rt, [a or b for a, b in zip(app_g, local)])
     return out
 
 
@@ -350,6 +361,8 @@ def main() -> int:
     res["intent"] = eval_intent(rt, gpu)
     # 별도 검증 세트(리뷰 우회 질의 10 + 보호 표현 10). 임계값 조정용, 평가 40개와 섞지 않는다.
     res["intent_holdout"] = eval_intent(_load("data/eval/guard_holdout.json")["items"], gpu)
+    # 2026-10-31 리뷰에서 나온 우회 질의(평가 40개·holdout 과 섞지 않는다).
+    res["intent_review"] = eval_intent(_load("data/eval/redteam_review.json")["items"], gpu)
     res["basis_accuracy"] = eval_basis(knowledge)
 
     out = ROOT / a.out
@@ -370,6 +383,7 @@ def main() -> int:
     print(f"intent.app_combined      {_fmt_g(res['intent'].get('app_combined'))}")
     print(f"holdout.gpu              {_fmt_g(res['intent_holdout'].get('gpu'))}")
     print(f"holdout.app_combined     {_fmt_g(res['intent_holdout'].get('app_combined'))}")
+    print(f"review.app_combined      {_fmt_g(res['intent_review'].get('app_combined'))}")
     print(f"basis.ratio              {b['ratio']} ({b['basis_in_snapshot']}/{b['basis_total']})")
     print(f"basis.effective_match    {b['effective_match_ratio']} ({b['effective_match']}/{b['basis_in_snapshot']})")
     print(f"wrote {a.out}")
