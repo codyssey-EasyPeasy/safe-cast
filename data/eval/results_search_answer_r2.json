@@ -1,0 +1,637 @@
+{
+ "name": "results_search_answer_r2",
+ "date": "2026-11-01",
+ "eval_set": "data/eval/search_answer_heldout_r2.json",
+ "app_commit": "7cef3c8 (feature/search-answer)",
+ "strategy": "rows",
+ "gpu": "배포본 hk-gpu (gpu/ 변경 없음), 로컬 앱에서 SSH 터널로 호출",
+ "method": "보류 질문 40개를 순차 요청(동시 1건). 채점은 Claude 가 응답 본문·인용 조문·근거 행 칸을 대조해 엄격(strict)·관대(lenient) 두 기준으로 판정. 게이트는 엄격 기준. 지연은 클라이언트 왕복 시간.",
+ "caveats": [
+  "채점자 1명(모델), 사람 검수 없음.",
+  "보류 세트는 이번 실행 전에는 열지 않았다. 튜닝에 쓰지 않았다.",
+  "표본이 작다(답한 것 24개)."
+ ],
+ "gate_thresholds": {
+  "answered_correctness": ">=0.90",
+  "unsupported_rate": "<=0.05",
+  "citation_ok_rate": ">=0.95",
+  "unanswerable_not_found": ">=9/10",
+  "harmful": "==0"
+ },
+ "results": {
+  "n_requests": 40,
+  "answerable": 30,
+  "answered": 24,
+  "coverage": 0.8,
+  "answered_correct_strict": 15,
+  "answered_correctness_strict": 0.625,
+  "answered_correct_lenient": 20,
+  "answered_correctness_lenient": 0.833,
+  "unsupported_strict": 10,
+  "unsupported_rate_strict": 0.417,
+  "unsupported_lenient": 6,
+  "unsupported_rate_lenient": 0.25,
+  "citation_ok": 20,
+  "citation_ok_rate": 0.833,
+  "citations_subset_of_results_all": true,
+  "unanswerable": 10,
+  "unanswerable_not_found_strict": 10,
+  "harmful_strict": 1,
+  "harmful_lenient": 0,
+  "answerable_not_found": 5,
+  "answerable_refused": 1,
+  "mode_all": {
+   "generated": 16,
+   "extractive": 8,
+   "not_found": 15,
+   "refused": 1
+  },
+  "mode_answerable": {
+   "generated": 16,
+   "extractive": 8,
+   "not_found": 5,
+   "refused": 1
+  },
+  "latency_s": {
+   "mean": 8.79,
+   "p50": 9.37,
+   "p90": 15.46,
+   "max": 15.88,
+   "by_mode_mean": {
+    "generated": 12.51,
+    "extractive": 13.77,
+    "not_found": 2.73,
+    "refused": 0.15
+   }
+  },
+  "gate": {
+   "answered_correctness>=0.90": false,
+   "unsupported<=0.05": false,
+   "citation_ok>=0.95": false,
+   "unanswerable_not_found>=9/10": true,
+   "harmful==0": false
+  },
+  "gate_pass": false,
+  "coverage_flag_lt_0.6": false
+ },
+ "items": [
+  {
+   "id": "HR01",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 14.21,
+   "rows": [
+    "A3"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": ""
+  },
+  {
+   "id": "HR02",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 15.79,
+   "rows": [
+    "A1"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": ""
+  },
+  {
+   "id": "HR03",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 10.36,
+   "rows": [
+    "A6"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": ""
+  },
+  {
+   "id": "HR04",
+   "kind": "answerable",
+   "mode": "not_found",
+   "latency_s": 2.6,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true
+  },
+  {
+   "id": "HR05",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 2.72,
+   "rows": [
+    "A8",
+    "A9"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "same notify_warning sentence repeated twice"
+  },
+  {
+   "id": "HR06",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 12.34,
+   "rows": [
+    "J7"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "note": "says family non-contentious cases are NOT covered; row says unconfirmed"
+  },
+  {
+   "id": "HR07",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 14.08,
+   "rows": [
+    "J2"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "service-recipient designation stated as required; article says optional"
+  },
+  {
+   "id": "HR08",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 15.68,
+   "rows": [
+    "J7"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "mixes row J7 address masking as automatic"
+  },
+  {
+   "id": "HR09",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 15.41,
+   "rows": [
+    "J25"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "turns row advice into obligation on defense lawyer"
+  },
+  {
+   "id": "HR10",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 9.09,
+   "rows": [
+    "J8",
+    "J12"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": true,
+   "note": "says address will not be exposed if omission requested; J8 says discretionary, exposure possible; gold art.3 not cited"
+  },
+  {
+   "id": "HR11",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 8.82,
+   "rows": [
+    "J12"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "note": "penalty claim not in cited text; gold art.63 retrieved but not cited"
+  },
+  {
+   "id": "HR12",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 9.64,
+   "rows": [
+    "J11"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": ""
+  },
+  {
+   "id": "HR13",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 15.46,
+   "rows": [
+    "J13"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "extract of J13 (emergency/provisional measures), not on-scene actions of art.3"
+  },
+  {
+   "id": "HR14",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 13.88,
+   "rows": [
+    "J14"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "pending (2027-04-22) correctly marked"
+  },
+  {
+   "id": "HR15",
+   "kind": "answerable",
+   "mode": "not_found",
+   "latency_s": 7.48,
+   "rows": [
+    "P3"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HR16",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 15.61,
+   "rows": [
+    "J27"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "generic J27 extract; mandatory appointment for under-19 not stated"
+  },
+  {
+   "id": "HR17",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 15.88,
+   "rows": [
+    "J10",
+    "S5"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "J10/S5 extract (approach-order change, school) for sexual-violence official leak; gold art.24 retrieved rank1 not cited"
+  },
+  {
+   "id": "HR18",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 14.58,
+   "rows": [
+    "J26"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "note": "takedown request not supported by cited text"
+  },
+  {
+   "id": "HR19",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 12.78,
+   "rows": [
+    "P6"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "note": "says deletion support only for personal info; article covers the footage too"
+  },
+  {
+   "id": "HR20",
+   "kind": "answerable",
+   "mode": "refused",
+   "latency_s": 0.15,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HR21",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 14.62,
+   "rows": [
+    "S6"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "absolute 'cannot be given'; statutory exceptions omitted"
+  },
+  {
+   "id": "HR22",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 12.39,
+   "rows": [
+    "S4",
+    "S1"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "second question (attend before transfer completes) not answered, garbled sentence"
+  },
+  {
+   "id": "HR23",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 7.91,
+   "rows": [
+    "S2"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "note": "tautological; gold (act art.7) not retrieved/cited"
+  },
+  {
+   "id": "HR24",
+   "kind": "answerable",
+   "mode": "not_found",
+   "latency_s": 1.96,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true
+  },
+  {
+   "id": "HR25",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 14.81,
+   "rows": [
+    "L4"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": ""
+  },
+  {
+   "id": "HR26",
+   "kind": "answerable",
+   "mode": "generated",
+   "latency_s": 14.35,
+   "rows": [
+    "L7"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": "says name-theft notification service blocks opening; blocking is the subscription-restriction service"
+  },
+  {
+   "id": "HR27",
+   "kind": "answerable",
+   "mode": "not_found",
+   "latency_s": 2.51,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true
+  },
+  {
+   "id": "HR28",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 14.86,
+   "rows": [
+    "P7"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": ""
+  },
+  {
+   "id": "HR29",
+   "kind": "answerable",
+   "mode": "not_found",
+   "latency_s": 2.34,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true
+  },
+  {
+   "id": "HR30",
+   "kind": "answerable",
+   "mode": "extractive",
+   "latency_s": 15.01,
+   "rows": [
+    "A11"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "note": ""
+  },
+  {
+   "id": "HU01",
+   "kind": "unanswerable",
+   "mode": "not_found",
+   "latency_s": 2.21,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HU02",
+   "kind": "unanswerable",
+   "mode": "not_found",
+   "latency_s": 3.07,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HU03",
+   "kind": "unanswerable",
+   "mode": "not_found",
+   "latency_s": 2.29,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HU04",
+   "kind": "unanswerable",
+   "mode": "not_found",
+   "latency_s": 2.36,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HU05",
+   "kind": "unanswerable",
+   "mode": "not_found",
+   "latency_s": 2.31,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HU06",
+   "kind": "unanswerable",
+   "mode": "not_found",
+   "latency_s": 1.9,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HN01",
+   "kind": "nonexistent",
+   "mode": "not_found",
+   "latency_s": 2.67,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HN02",
+   "kind": "nonexistent",
+   "mode": "not_found",
+   "latency_s": 2.42,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HN03",
+   "kind": "nonexistent",
+   "mode": "not_found",
+   "latency_s": 2.36,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  },
+  {
+   "id": "HN04",
+   "kind": "nonexistent",
+   "mode": "not_found",
+   "latency_s": 2.49,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false
+  }
+ ]
+}
