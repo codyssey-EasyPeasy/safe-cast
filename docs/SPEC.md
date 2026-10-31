@@ -241,6 +241,7 @@ answer·intake 확인 질문·rewrite 에 모두 쓴다. 걸리면 answer 는 �
   - `ai_generated` 는 `/api/answer` 와 같은 뜻: 생성문이면 true, 발췌(`extractive`)·통지 질문 답은 false. 배지는 `mode` 로 고른다.
   - `mode: "not_found"` 면 `answer` 는 '제공된 자료에서는 확인되지 않습니다 … 1366·132' 안내, `citations: []`.
   - `mode: "unavailable"`: LLM 이 꺼져 있거나(`LLM_FEATURES=0`) GPU 생성이 실패·시간 초과. **503 대신 200** 으로 `answer: null`, `message`(안내 문구)와 검색 결과를 그대로 준다 → 화면은 검색 결과만 보여 주면 된다.
+  - **시행 전 조문**: 인용 조문의 `effective`(YYYY-MM-DD)가 오늘(KST)보다 뒤면 답 끝에 고정 안내 '※ 시행 전 조문: 법령 조문(시행일 시행) — 아직 시행되지 않아 지금은 이 조문으로 신청할 수 없습니다.' 를 붙인다(두 방식, 생성·발췌 모두, 가드 통과 뒤). `articles` 방식은 그 조문의 `measure` 앞에 '[시행 전: … 지금은 적용되지 않음]' 을 붙여 모델에도 알리고, 앱 발췌의 조문 제목 줄에도 '(시행일 시행 예정, 시행 전)' 을 단다. 2026-11-01 품질 실측에서 스토킹 피해자보호명령(2027-04-22 시행)을 두 방식 모두 지금 신청할 수 있다고 답한 데 대한 수정.
   - `rows`·`sources` 는 `rows` 방식에서만: 근거로 쓴 지식표 행 id(내부용)와 제도 이름 표시(`/api/answer` 의 `sources` 와 같음). 화면에는 `citations` 를 쓰고 `rows` 는 보이지 않는다.
 - **응답(거절·다시 쓰기)**: 타인 소재 탐색 → `{"refused": true, "tier": "third_party_locate", "message", "alternatives", "results": [], "fallback": false}`(검색·생성 안 함). 초성·줄임말 → `{"refused": false, "rephrase": true, "tier": "rephrase", "message", "results": []}`. 생성문이 출력 가드에 걸리면 `/api/answer` 와 같은 거절(`refused: true`, 보호 대안)이고 **검색 결과도 내보내지 않는다**(`results: []`).
 - **두 방식**(같은 가드 뒤):

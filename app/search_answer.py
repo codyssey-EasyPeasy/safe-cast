@@ -15,7 +15,9 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import httpx
 
@@ -33,6 +35,33 @@ _EXTRACT_CHARS = 400
 _EXTRACT_K = 2
 _TITLE_RE = re.compile(r"^\s*제\d+조(?:의\d+)?\s*\(([^)]{1,60})\)")
 EXTRACT_LEAD = "관련 조문은 다음과 같습니다."
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_KST = ZoneInfo("Asia/Seoul")
+
+
+def _today() -> str:
+    return datetime.now(_KST).date().isoformat()
+
+
+def pending_since(a: dict[str, Any], today: str | None = None) -> str:
+    """시행일이 오늘(KST)보다 뒤인 조문이면 그 시행일, 아니면 ''(형식이 다르면 판단하지 않는다)."""
+    eff = str(a.get("effective") or "").strip()
+    if not _DATE_RE.match(eff):
+        return ""
+    return eff if eff > (today or _today()) else ""
+
+
+def pending_note(cited: list[dict[str, Any]], today: str | None = None) -> str:
+    """인용 조문 중 시행 전 조문이 있으면 답 끝에 붙일 고정 안내(생성문이 현행처럼 말해도 바로잡는다)."""
+    today = today or _today()
+    parts = []
+    for a in cited:
+        eff = pending_since(a, today)
+        if eff:
+            parts.append(f"{article_label(a)}({eff} 시행)")
+    if not parts:
+        return ""
+    return "※ 시행 전 조문: " + ", ".join(parts) + " — 아직 시행되지 않아 지금은 이 조문으로 신청할 수 없습니다."
 
 
 def article_key(law: str, article: str) -> tuple[str, str]:
@@ -149,6 +178,9 @@ def build_article_items(results: list[dict[str, Any]]) -> tuple[list[dict[str, A
         m = _TITLE_RE.match(a.get("text") or "")
         label = article_label(a)
         measure = f"{label}({m.group(1)})" if m else label
+        eff = pending_since(a)
+        if eff:
+            measure = f"[시행 전: {eff} 시행, 지금은 적용되지 않음] {measure}"
         entry = {"id": sid, "measure": _llm._clip(measure, 400), "plain": text, "articles": []}
         size = len(json.dumps(entry, ensure_ascii=False).encode("utf-8"))
         if used + size > _llm.CONTEXT_BUDGET_BYTES:
@@ -162,7 +194,8 @@ def build_article_items(results: list[dict[str, Any]]) -> tuple[list[dict[str, A
 def _article_extract(cited: list[dict[str, Any]]) -> str:
     lines = [EXTRACT_LEAD]
     for a in cited[:_EXTRACT_K]:
-        lines.append(f"■ {article_label(a)}")
+        eff = pending_since(a)
+        lines.append(f"■ {article_label(a)}" + (f" ({eff} 시행 예정, 시행 전)" if eff else ""))
         lines.append(_llm._clip(_llm.strip_amend_notes(a.get("text") or ""), _EXTRACT_CHARS))
     return "\n".join(lines)
 
@@ -233,6 +266,20 @@ async def synthesize(
     if not results:
         return _not_found()
     if strategy == "articles":
-        return await answer_articles(question, results, client=client, gpu_url=gpu_url)
-    return await answer_rows(question, results, client=client, gpu_url=gpu_url,
-                             items_by_id=items_by_id, row_index=row_index)
+        out = await answer_articles(question, results, client=client, gpu_url=gpu_url)
+    else:
+        out = await answer_rows(question, results, client=client, gpu_url=gpu_url,
+                                items_by_id=items_by_id, row_index=row_index)
+    return _mark_pending(out, results)
+
+
+def _mark_pending(out: dict[str, Any], results: list[dict[str, Any]]) -> dict[str, Any]:
+    """근거 답의 인용에 시행 전 조문이 있으면 고정 안내를 덧붙인다(가드 통과 뒤의 앱 고정문)."""
+    if out.get("refused") or not out.get("grounded") or not isinstance(out.get("answer"), str):
+        return out
+    keys = {(c.get("law"), c.get("article")) for c in out.get("citations") or []}
+    cited = [a for a in results if (a.get("law"), a.get("article")) in keys]
+    note = pending_note(cited)
+    if not note:
+        return out
+    return {**out, "answer": f"{out['answer']}\n\n{note}"}

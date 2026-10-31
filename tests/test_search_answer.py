@@ -388,3 +388,57 @@ def test_bodies_not_logged(make_client, sgpu):
     joined = "\n".join(h.messages)
     assert marker not in joined
     assert "POST /api/search_answer 200" in joined
+
+
+# --- 시행 전 조문(2026-11-01 검토: 시행일이 미래인 조문을 현행처럼 안내) ----------------
+def test_pending_since_and_note():
+    a = {"law": "스토킹처벌법", "article": "제17조의5", "effective": "2027-04-22"}
+    assert sa.pending_since(a, "2026-11-01") == "2027-04-22"
+    assert sa.pending_since(a, "2027-04-22") == ""  # 시행일 당일부터 현행
+    assert sa.pending_since({**a, "effective": "x"}, "2026-11-01") == ""
+    assert sa.pending_since({**a, "effective": ""}, "2026-11-01") == ""
+    note = sa.pending_note([a, {"law": "민법", "article": "제1조", "effective": "2020-01-01"}], "2026-11-01")
+    assert "스토킹처벌법 제17조의5(2027-04-22 시행)" in note and "민법" not in note
+    assert sa.pending_note([{**a, "effective": "2020-01-01"}], "2026-11-01") == ""
+
+
+@pytest.mark.parametrize("strategy", ["rows", "articles"])
+def test_pending_cited_article_gets_note(make_client, sgpu, monkeypatch, strategy):
+    # 모든 시험 조문의 시행일보다 앞인 '오늘' → 인용 조문은 전부 시행 전.
+    monkeypatch.setattr(sa, "_today", lambda: "2000-01-01")
+    with make_client(httpx.MockTransport(sgpu)) as c:
+        d = _ask(c, strategy=strategy).json()
+    assert d["grounded"] is True and d["citations"]
+    assert "※ 시행 전 조문:" in d["answer"] and "지금은 이 조문으로 신청할 수 없습니다" in d["answer"]
+    for cite in d["citations"]:
+        assert f"{cite['law']} {cite['article']}(" in d["answer"]
+    if strategy == "articles":
+        (sent,) = sgpu.llm_calls("answer")
+        assert all(x["measure"].startswith("[시행 전:") for x in sent["items"])
+
+
+@pytest.mark.parametrize("strategy", ["rows", "articles"])
+def test_in_force_articles_have_no_note(make_client, sgpu, monkeypatch, strategy):
+    monkeypatch.setattr(sa, "_today", lambda: "2099-01-01")
+    with make_client(httpx.MockTransport(sgpu)) as c:
+        d = _ask(c, strategy=strategy).json()
+    assert d["grounded"] is True and "시행 전" not in d["answer"]
+    if strategy == "articles":
+        (sent,) = sgpu.llm_calls("answer")
+        assert not any("시행 전" in x["measure"] for x in sent["items"])
+
+
+def test_pending_note_not_added_to_not_found_or_refusal(make_client, sgpu, monkeypatch):
+    monkeypatch.setattr(sa, "_today", lambda: "2000-01-01")
+    sgpu.answer_out = {"answer": "x", "citations": [], "grounded": False, "mode": "generated"}
+    with make_client(httpx.MockTransport(sgpu)) as c:
+        d = _ask(c, strategy="articles").json()
+    assert d["mode"] == "not_found" and "시행 전" not in d["answer"]
+
+
+def test_articles_extractive_marks_pending(make_client, sgpu, monkeypatch):
+    monkeypatch.setattr(sa, "_today", lambda: "2000-01-01")
+    sgpu.answer_out = {"answer": "발췌", "citations": ["Z1"], "grounded": True, "mode": "extractive"}
+    with make_client(httpx.MockTransport(sgpu)) as c:
+        d = _ask(c, strategy="articles").json()
+    assert d["mode"] == "extractive" and "시행 예정, 시행 전)" in d["answer"]
