@@ -192,6 +192,7 @@ answer·intake 확인 질문·rewrite 에 모두 쓴다. 걸리면 answer 는 �
 | `/api/search` q | 500자 | `app/main.py` |
 | `/api/intake` text | 2000자 (+ 이력 §11.3) | `app/main.py` |
 | `/api/answer` question / item_ids | 500자 / 1~8개 (`^[A-Z][0-9]{1,3}$`) | `app/main.py` |
+| `/api/search_answer` q | 500자 (+ 이력 §11.3), `strategy` 는 `rows`·`articles` 밖이면 422 | `app/main.py` (§11.11) |
 | `/api/doccheck` text | 20000자 | `app/main.py` |
 | `/api/rewrite` text / spans | 1500자 / 60개 | `app/main.py` (1500자 = 실측 38.9초, 60초 제한 안) |
 | `/api/rewrite` 동시 처리 | 접속 주소당 1건, 전체 2건, 넘으면 429 | `app/main.py` |
@@ -216,6 +217,36 @@ answer·intake 확인 질문·rewrite 에 모두 쓴다. 걸리면 answer 는 �
 - **NER 조각 분할** (`gpu/server.py chunk_text`): GLiNER 는 앞쪽 약 700자만 본다. `/ner` 는 글을 700자 조각(이웃과 100자 겹침, 가능하면 공백·줄바꿈에서 자름)으로 나눠 돌리고, 위치를 원문 기준으로 되돌려 `merge_spans` 로 합친다. 정규식 단서는 전처럼 전체 글에서 찾는다. 배포본 실측: 700자 뒤 합성 단서 0/8 → 8/8(P0-05).
 - **CUDA OOM → 503**: `RuntimeError` 처리기가 CUDA 메모리 부족(`torch.cuda.OutOfMemoryError` 또는 'out of memory')이면 캐시를 비우고 `503 {"detail":"gpu busy"}` 를 돌려준다(앱의 LLM 호출은 503 이면 1회 재시도, `/api/doccheck` 는 `available:false`). 다른 `RuntimeError` 는 그대로 500. 본문 4KB(`EMPTY_CACHE_BYTES`) 넘는 요청 뒤에는 `torch.cuda.empty_cache()`. `gpu/start.sh` 가 `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` 로 기동한다. 재기동 뒤 GPU 서버 프로세스 5,686~5,790 MiB(OOM 직후 8,566).
 - 남은 것: `tools/eval*.py` 는 GPU 를 직접 부를 때 토큰을 보내지 않는다(운영 GPU 에서 401).
+
+### 11.11 검색 조문 종합 답변 `POST /api/search_answer` (2026-11-01, 브랜치 `feature/search-answer`)
+검색으로 고른 조문 5개만 근거로 질문에 답한다. 화면(`web/`) 변경은 없다 — 아래는 프런트 담당을 위한 계약이다.
+구현 `app/search_answer.py`, 엔드포인트 `app/main.py`, 시험 `tests/test_search_answer.py`(모의 GPU).
+
+- **요청**: `POST /api/search_answer?strategy=rows|articles` (생략 시 `rows`), 본문 `{"q": "...", "history"?: [{role, text}]}`.
+  `q` 1~500자, 이력은 `/api/answer` 와 같은 상한(§11.3: 6턴·턴당 500자·합 3000자, `role` 은 user·assistant). 모르는 필드·잘못된 `strategy` 는 422(입력을 되비추지 않음). 접근 코드는 다른 API 와 같다.
+- **흐름**: 입력 가드(`/api/search` 와 같은 2단 판정, 이력의 사용자 턴 포함) → 조문 검색 상위 5개(`/api/search` 와 같은 `Retriever.search`) → 종합 답변 → 출력 가드(`/api/answer` 와 같음: 생성문 규칙 `answer_locate_intent` OR 임베딩 > `LLM_OUT_THRESH`, 근거 없는 '알려지지 않아요' 는 '확인되지 않음' 으로 바꿈). 외부 LLM 호출 없음(GPU 내부 `/llm/answer` 만).
+- **응답(정상)**:
+  ```json
+  {"refused": false, "tier": "neutral|ambiguous|self_protect",
+   "strategy": "rows", "fallback": false,
+   "results": [{"law","article","effective","text","url","score"}],
+   "answer": "…", "mode": "generated|regenerated|extractive|not_found|unavailable",
+   "grounded": true, "ai_generated": true,
+   "citations": [{"law": "…", "article": "제29조", "url": "https://www.law.go.kr/…"}],
+   "protective"?: {"message", "alternatives", "contacts"},
+   "rows"?: ["A1"], "sources"?: [{"id", "label"}], "message"?: "…"}
+  ```
+  - `results` 는 `/api/search` 의 결과와 같은 모양(조문 5개 이하). `citations` 는 **반드시 `results` 안의 조문**만, 검색 순위 순. 인용이 검색 집합 밖이면 답하지 않고 `not_found`.
+  - `fallback: true` 는 임베딩 검색이 안 돼 키워드(BM25) 검색으로 고른 결과다. 답은 그대로 내지만 화면에 '키워드 검색 결과' 표시를 권한다.
+  - `ai_generated` 는 `/api/answer` 와 같은 뜻: 생성문이면 true, 발췌(`extractive`)·통지 질문 답은 false. 배지는 `mode` 로 고른다.
+  - `mode: "not_found"` 면 `answer` 는 '제공된 자료에서는 확인되지 않습니다 … 1366·132' 안내, `citations: []`.
+  - `mode: "unavailable"`: LLM 이 꺼져 있거나(`LLM_FEATURES=0`) GPU 생성이 실패·시간 초과. **503 대신 200** 으로 `answer: null`, `message`(안내 문구)와 검색 결과를 그대로 준다 → 화면은 검색 결과만 보여 주면 된다.
+  - `rows`·`sources` 는 `rows` 방식에서만: 근거로 쓴 지식표 행 id(내부용)와 제도 이름 표시(`/api/answer` 의 `sources` 와 같음). 화면에는 `citations` 를 쓰고 `rows` 는 보이지 않는다.
+- **응답(거절·다시 쓰기)**: 타인 소재 탐색 → `{"refused": true, "tier": "third_party_locate", "message", "alternatives", "results": [], "fallback": false}`(검색·생성 안 함). 초성·줄임말 → `{"refused": false, "rephrase": true, "tier": "rephrase", "message", "results": []}`. 생성문이 출력 가드에 걸리면 `/api/answer` 와 같은 거절(`refused: true`, 보호 대안)이고 **검색 결과도 내보내지 않는다**(`results: []`).
+- **두 방식**(같은 가드 뒤):
+  - `rows`(기본): 검색 조문을 `basis` 로 인용하는 지식표 행을 역색인(시작 때 한 번, `(법령, 조 단위 조문)` → 행 id)으로 찾아, 검색 순위가 높은 조문의 행부터 최대 5개를 기존 `llm.answer` 에 그대로 넘긴다. 조문 컨텍스트는 검색된 조문만 넘긴다. 통지·효과 시점 질문은 `/api/answer` 처럼 생성하지 않고 지식표 칸으로 답한다. 이어지는 행이 하나도 없으면 GPU 를 부르지 않고 `not_found`(실데이터: 노출 가능 조문 131건 모두 1개 이상 행에 이어진다).
+  - `articles`: 검색 조문 자체를 GPU `/llm/answer` 의 items 로 보낸다(**gpu/ 변경 없음**). 조문마다 합성 id `Z1`…`Z5`(GPU `ItemIn.id` 정규식 `^[A-Z]\d{1,3}$` 통과, 지식표 id 첫 글자 A·D·J·L·P·S 와 겹치지 않게 `Z`), `measure` = '법령 조문(조 제목)', `plain` = 조문 본문(개정 부기 제거, 800자). 돌아온 인용 id 는 조문으로 되짚고, 본문의 `[Z1]` 표시는 지운다. GPU 가 발췌(`extractive`)로 떨어지면 행 칸 이름('막는 제도' 등)이 붙은 GPU 발췌 대신 앱이 인용 조문 원문 발췌(최대 2개·400자)로 다시 만든다. 조문에는 통지 경고·신청 시점 칸이 없으므로 통지 질문은 '확인되지 않음 · 1366/132', 효과 시점 질문은 `not_found`(생성 안 함).
+- **한계**: `articles` 방식은 GPU 쪽 시스템 지시문이 지식표 행 칸(막는 제도·쉬운 설명)을 전제로 쓰여 있어, 조문 본문이 '쉬운 설명' 칸 이름으로 들어간다. GPU `topic_mismatch`·검증기는 그대로 돈다(질문이 이름을 댄 제도가 조 제목·본문에 없으면 `not_found`). 이를 조문 전용 지시문으로 바꾸려면 gpu/ 변경·재기동이 필요해 하지 않았다. 배포본 실측 품질(정답률·지연)은 아직 없다(모의 GPU 시험만).
 
 ### 11.9 아직 남은 것 (2026-10-31 18시)
 - 다턴 시뮬레이션 v3(배포 `fc84eb4`)의 정상 질문 거절 23건 중 7건은 `2418ad9` 로 해소(같은 23문장 재전송 실측, 커밋 메시지). 16건이 남았다는 것은 커밋 메시지뿐인 중간 값이다(결과 파일 없음). **현행 값은 보정 뒤 배포본(`cf8d149`+`6672867`)으로 v3 사용자 대화를 다시 돌린 18건/14대화**다(`data/eval/notice_calibration_summary.md`; 방법이 달라 16과 직접 비교하지 않는다). 남은 유형: 아이 학교·위치 추적 의심 물건·'같이 산 적 없다'는 부정 답.

@@ -29,6 +29,7 @@ from . import humanize as _hz
 from . import llm as _llm
 from . import offsets as _offsets
 from . import retrieval as _retrieval
+from . import search_answer as _sa
 from .engine import VICTIM_LABEL, VICTIM_TYPES, Engine, load_knowledge
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -142,6 +143,11 @@ class AnswerRequest(_WithHistory):
     )
 
 
+class SearchAnswerRequest(_WithHistory):
+    model_config = ConfigDict(extra="forbid")
+    q: str = Field(min_length=1, max_length=500)
+
+
 class RewriteSpan(BaseModel):
     model_config = ConfigDict(extra="forbid")
     start: int = Field(ge=0, le=4000)
@@ -219,6 +225,8 @@ def create_app(
     probe = _llm.FeatureProbe()
     rewrite_busy: dict[str, int] = {}
     item_names = _hz.name_map(list(items_by_id.values()))
+    # 검색 조문 → 그 조문을 근거로 드는 지식표 행(검색 조문 종합 답변 'rows' 방식).
+    row_index = _sa.build_row_index(engine.items)
 
     def _alternatives(text: str) -> list[dict[str, str]]:
         """질문 낱말에 맞는 보호 제도 2~3개(이름·막는 제도). 지식표에 없는 id 는 건너뛴다."""
@@ -454,6 +462,48 @@ def create_app(
         res = {"refused": False, "tier": a["tier"], **out}
         if _guard.needs_notice(a["tier"]):
             res["protective"] = _framing(req.question, str(out.get("answer") or ""))
+        return res
+
+    @app.post("/api/search_answer")
+    async def search_answer_endpoint(
+        req: SearchAnswerRequest,
+        request: Request,
+        strategy: Literal["rows", "articles"] = "rows",
+        _: None = Depends(_require_access_code),
+    ):
+        """검색 조문 종합 답변: /api/search 와 같은 입력 가드 → 조문 5개 검색 → 그 조문만 근거로 답.
+
+        LLM 을 쓸 수 없으면(꺼짐·GPU 실패) 503 대신 검색 결과만 주고 answer=null·mode='unavailable'.
+        """
+        client: httpx.AsyncClient = request.app.state.client
+        url: str = request.app.state.gpu_url
+        a = await _assess(client, url, req.q, req.user_turns())
+        if a["tier"] == _guard.THIRD_PARTY:
+            return {**_refusal(req.q), "results": [], "fallback": False}
+        if a["tier"] == _guard.REPHRASE:
+            return {**_rephrase(), "results": [], "fallback": False}
+        results, fallback = await retriever.search(req.q, client, url, top_k=_sa.TOP_K)
+        base = {"refused": False, "tier": a["tier"], "strategy": strategy,
+                "results": results, "fallback": fallback}
+        if _llm.llm_disabled_by_env():
+            out = {"answer": None, "citations": [], "grounded": False, "ai_generated": False,
+                   "mode": "unavailable", "message": LLM_UNAVAILABLE}
+        else:
+            try:
+                out = await _sa.synthesize(strategy, req.q, results, client=client, gpu_url=url,
+                                           items_by_id=items_by_id, row_index=row_index)
+            except _llm.LLMUnavailable as e:
+                if e.down:
+                    probe.mark_down()
+                out = {"answer": None, "citations": [], "grounded": False, "ai_generated": False,
+                       "mode": "unavailable",
+                       "message": LLM_TIMEOUT_MSG if e.timeout else LLM_UNAVAILABLE}
+        if out.get("refused"):
+            # 생성문 가드에 걸리면 /api/answer 와 같이 거절 + 보호 대안. 검색 결과도 내보내지 않는다.
+            return {**_refusal(req.q), "message": REFUSAL_MESSAGE, "results": [], "fallback": fallback}
+        res = {**base, **out}
+        if _guard.needs_notice(a["tier"]):
+            res["protective"] = _framing(req.q, str(out.get("answer") or ""))
         return res
 
     @app.post("/api/rewrite")

@@ -380,6 +380,11 @@ def effect_answer(ids: list[str], items_by_id: dict[str, dict[str, Any]]) -> dic
 ANSWER_MODES = ("generated", "regenerated", "extractive", "not_found")
 
 
+async def generated_text_blocked(text: str, client: httpx.AsyncClient, gpu_url: str) -> bool:
+    """생성문 출력 가드(answer·search_answer 공용): 생성문 전용 규칙 OR 임베딩 > out_thresh."""
+    return answer_locate_intent(text) or await intent(text, client, gpu_url, out_thresh=out_thresh())
+
+
 def _with_sources(out: dict[str, Any], items_by_id: dict[str, dict[str, Any]]) -> dict[str, Any]:
     names = _hz.name_map(list(items_by_id.values()))
     out["sources"] = [
@@ -436,7 +441,7 @@ async def answer(
     # (지식표 문구는 주소·기록 낱말이 많아 임베딩 가드가 정상 발췌를 거절할 수 있다).
     if mode != "extractive":
         # 출력 가드: 생성문에 탐색 의도 표현이 섞이면 내보내지 않는다.
-        if answer_locate_intent(text) or await intent(text, client, gpu_url, out_thresh=out_thresh()):
+        if await generated_text_blocked(text, client, gpu_url):
             return {"refused": True, "mode": "refused"}
 
         # 근거 없는 '상대에게 알려지지 않아요' 는 위험한 오답이다: 인용 행에 명시가 없으면 버린다.
