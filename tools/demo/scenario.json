@@ -60,7 +60,7 @@
   },
 
   "steps": [
-    { "id": "intro",    "maxSec": 12, "dwellMs": 4000, "caption": "숨은집 지킴이 — 첫 화면: 안전 안내와 긴급 연락처, 오른쪽 위 ‘빠른 나가기’" },
+    { "id": "intro",    "maxSec": 12, "dwellMs": 4000, "caption": "보안 예보 — 첫 화면: 안전 안내와 긴급 연락처, 오른쪽 위 ‘빠른 나가기’" },
     { "id": "intake",   "maxSec": 22, "dwellMs": 2000,  "caption": "말로 설명하기 — 상황을 적으면 AI가 해당 항목을 미리 골라 줍니다 (합성 문장)" },
     { "id": "confirm",  "maxSec": 12, "dwellMs": 2500, "caption": "자동 선택은 제출되지 않습니다 — 직접 고치고 ‘확인했습니다’를 체크해야 진행" },
     { "id": "diagnose", "maxSec": 16, "dwellMs": 4000, "caption": "진단 결과 — 급한 것부터 ‘지금 먼저 할 일’, 상대에게 알려질 수 있는 제도는 경고 확인 뒤 펼침" },

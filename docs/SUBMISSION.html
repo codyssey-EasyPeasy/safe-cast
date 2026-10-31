@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>숨은집 지킴이 제출 문서</title>
+<title>보안 예보 제출 문서</title>
 <!-- Pretendard 에 없는 원문자(ⓐ~ⓖ) 등은 Noto Sans KR 로 대체 -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;800&display=swap">
 <style>
@@ -86,7 +86,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
   <div class="cover">
     <div>
       <div class="req" style="color:var(--sub)">코디세이 AI 해커톤 2026 · 주제 02 AI 기반 정보보호 서비스 · 주최 이노베이션아카데미</div>
-      <h1>숨은집 지킴이</h1>
+      <h1>보안 예보</h1>
       <p class="sub" style="font-size:10pt">피해자의 새 주소가 새는 경로를 진단하고, 막는 제도를 근거와 함께 안내하는 피해자 본인용 AI 자가 점검 도구</p>
       <p style="margin-top:8px"><b>EasyPeasy 팀</b> · 정세영(백엔드 및 AI) · 김시현(기획 및 법령조사, 프런트엔드) · 김대웅(평가·보안 및 PT 자료 제작)</p>
     </div>
@@ -149,7 +149,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     <tr><td>다루지 않음</td><td>다른 사람의 주소·위치를 <b>찾으려는</b> 사람</td><td>2단 가드로 거절하고, 대신 보호 제도와 1366·132·112 를 안내</td></tr>
   </table>
   <p class="src">처음엔 상담사용으로 기획했다가 피해자 본인이 직접 쓰도록 바꿈(커밋 <code>a9028c5</code>, <code>docs/SPEC.md</code> §7). 회원가입·로그인 없음.</p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>1 / 10 · ⓐ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>1 / 10 · ⓐ</span></div>
 </section>
 
 <!-- ───────────── 2쪽 ⓑ ───────────── -->
@@ -189,7 +189,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     <figure><img src="screens/v3-02-intake-prefill-confirm.png" alt="말로 설명하기 후 항목 미리 선택과 확인"><figcaption><b>기능 3</b> AI 가 미리 고른 항목(점선) — 본인이 확인해야 제출</figcaption></figure>
   </div>
   <p class="src">화면: 배포본을 합성 입력으로 촬영(<code>docs/evidence/README.md</code>)</p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>2 / 10 · ⓑ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>2 / 10 · ⓑ</span></div>
 </section>
 
 <!-- ───────────── 3쪽 ⓑ ───────────── -->
@@ -216,7 +216,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     <div class="card amber"><b>법률정보 안내</b><br><span style="font-size:8.2pt">법률상담이 아님을 고지. 모든 결과에 112·1366(24시간)·132</span></div>
   </div>
   <p class="src">출처: <code>docs/OVERVIEW.md</code> 6·7절, <code>web/static/app.js</code>, <code>app/main.py</code></p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>3 / 10 · ⓑ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>3 / 10 · ⓑ</span></div>
 </section>
 
 <!-- ───────────── 4쪽 ⓒ ───────────── -->
@@ -272,7 +272,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
   <h3>우리가 만든 API</h3>
   <p style="font-size:8.4pt"><b>운영 API</b>(FastAPI, <code>app/main.py</code>): <code>/api/diagnose</code> 규칙 · <code>/api/search</code> 임베딩·재순위 · <code>/api/doccheck</code> GLiNER · <code>/api/intake</code> · <code>/api/answer</code> · <code>/api/rewrite</code> Qwen · <code>/api/flags</code> · <code>/api/features</code> · <code>/api/health</code><br>
   <b>추론 API</b>(FastAPI, <code>gpu/server.py</code>): <code>/embed</code> · <code>/rerank</code> · <code>/ner</code> · <code>/intent</code> · <code>/llm/intake</code> · <code>/llm/answer</code> · <code>/llm/rewrite</code> · <code>/health</code></p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>4 / 10 · ⓒ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>4 / 10 · ⓒ</span></div>
 </section>
 
 <!-- ───────────── 5쪽 ⓒ ───────────── -->
@@ -332,7 +332,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     </table>
     <figure><img src="evidence/charts/redteam-asr.svg" alt="레드팀 공격 성공률 차트"><figcaption>레드팀 121개 공격, 서비스 전체 경로 성공률 5.4% → <b>2.7%</b>(현재 배포본 재실행도 2.7%). 공격 문장은 비공개 — <code>docs/redteam-summary.md</code></figcaption></figure>
   </div>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>5 / 10 · ⓒ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>5 / 10 · ⓒ</span></div>
 </section>
 
 <!-- ───────────── 6쪽 ⓓ ───────────── -->
@@ -392,7 +392,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     <div class="card"><h3>개발 환경</h3>
       <p style="font-size:8.4pt">개발 기기 Linux(Ubuntu 24.04) · Python 3.12 · uv · Node.js 22 · Claude Code. GPU 없이 화면 전체를 띄우는 <b>모의 GPU 서버</b> 제공(<code>tools/mock_gpu.py</code>, <code>docs/LOCAL_DEV.md</code>).</p></div>
   </div>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>6 / 10 · ⓓ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>6 / 10 · ⓓ</span></div>
 </section>
 
 <!-- ───────────── 7쪽 ⓔ ───────────── -->
@@ -426,7 +426,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     <tr><td>23:27~23:33</td><td>GPU API 공유 토큰, 위치 단위(UTF-16) 변환, GPU 메모리 가드, 배포 실측</td><td><code>642e5e1</code> <code>586c8b5</code></td></tr>
   </table>
   <p class="src">출처: <code>git log --reverse --format='%h %ad %s'</code></p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>7 / 10 · ⓔ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>7 / 10 · ⓔ</span></div>
 </section>
 
 <!-- ───────────── 8쪽 ⓕ ───────────── -->
@@ -468,7 +468,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     <tr><td>개인 보유 개발 도구(LLM 호출 중계 등)</td><td>개발 중 위 외부 API 호출에 쓴 팀원 개인 도구. 저장소 코드에 포함되지 않음</td><td>해당 없음(개인 도구)</td></tr>
   </table>
   <p class="src" style="margin-top:1.5mm">서비스 실행 중 외부로 나가는 것은 빠른 나가기의 Google '날씨' 검색 이동(입력 전송 없음)과 112·1366·132 전화 연결 링크뿐. 공공데이터포털 법제처 API 는 이용 조건만 확인하고 쓰지 않음.</p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>8 / 10 · ⓕ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>8 / 10 · ⓕ</span></div>
 </section>
 
 <!-- ───────────── 9쪽 ⓖ ───────────── -->
@@ -507,7 +507,7 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
     </ul></div>
   </div>
   <p class="src">출처: <code>README.md</code> 한계 절, <code>data/eval/notice_calibration_summary.md</code>, <code>data/eval/results.json</code></p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>9 / 10 · ⓖ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>9 / 10 · ⓖ</span></div>
 </section>
 
 <!-- ───────────── 10쪽 ⓖ ───────────── -->
@@ -555,10 +555,10 @@ svg text{font-family:Pretendard,"Noto Sans KR","NanumGothic",sans-serif}
 
   <div class="card navy mt">
     <h3>정리</h3>
-    <p style="font-size:9pt">숨은집 지킴이는 <b>막는 제도는 있는데 몰라서·늦어서·순서를 틀려서</b> 새는 주소를 줄이려는 도구입니다. 판단은 결정적 규칙이, 설명과 정리는 자체 호스팅 LLM 이, 검증과 거절은 두 겹의 가드가 맡습니다. 모든 수치는 합성 데이터 기준이며, 공개 전 남은 위험을 이 문서에 그대로 적었습니다.</p>
+    <p style="font-size:9pt">보안 예보는 <b>막는 제도는 있는데 몰라서·늦어서·순서를 틀려서</b> 새는 주소를 줄이려는 도구입니다. 판단은 결정적 규칙이, 설명과 정리는 자체 호스팅 LLM 이, 검증과 거절은 두 겹의 가드가 맡습니다. 모든 수치는 합성 데이터 기준이며, 공개 전 남은 위험을 이 문서에 그대로 적었습니다.</p>
   </div>
   <p class="src mt">관련 문서: <code>README.md</code> · <code>docs/OVERVIEW.md</code> · <code>docs/SPEC.md</code> §11 · <code>docs/architecture.md</code> · <code>docs/EVIDENCE.md</code> · <code>docs/COST_LATENCY.md</code> · <code>docs/TEST_RESULTS.md</code> · <code>docs/redteam-summary.md</code> · <code>data/README.md</code> · <code>THIRD_PARTY_NOTICES.md</code> · <code>research/2026-10-31-정보조사.md</code>. 라이선스: 코드 MIT, 데이터·문서 CC BY 4.0. 법률정보 안내이며 법률상담이 아닙니다. 긴급 112 · 1366 · 132.</p>
-  <div class="pno"><span>숨은집 지킴이 · 제출 문서</span><span>10 / 10 · ⓖ</span></div>
+  <div class="pno"><span>보안 예보 · 제출 문서</span><span>10 / 10 · ⓖ</span></div>
 </section>
 
 </body>

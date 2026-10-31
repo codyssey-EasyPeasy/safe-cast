@@ -80,8 +80,8 @@ REPHRASE_MESSAGE = (
 
 PLACEHOLDER_HTML = (
     '<!doctype html><html lang="ko"><meta charset="utf-8">'
-    "<title>숨은집 지킴이</title>"
-    "<body><h1>숨은집 지킴이</h1>"
+    "<title>보안 예보</title>"
+    "<body><h1>보안 예보</h1>"
     "<p>프런트엔드가 아직 준비되지 않았습니다.</p></body></html>"
 )
 
