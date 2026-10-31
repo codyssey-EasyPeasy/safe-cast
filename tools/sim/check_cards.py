@@ -12,6 +12,9 @@
   - 첫 메시지가 모든 것을 드러내지 않는지(숨은 사실 중 flag 또는 유형을 담은 것이 하나 이상)
   - 첫 메시지에 법률 용어가 없는지, 실명·연락처처럼 보이는 문자열이 없는지
 
+attacker_cards.json 도 README 계약대로 본다: attackers 12·benign 6, id 유일, strategy 허용값과
+8개 전부 사용, escalation_hints 3~5, max_turns 6, persona 허용값, 필수 키.
+
 문제가 있으면 `ERROR <card>: <message>` 를 한 줄씩 출력하고 종료 코드 1.
 """
 
@@ -25,6 +28,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 CARDS = ROOT / "data/eval/cards/user_cards.json"
+ATTACKERS = ROOT / "data/eval/cards/attacker_cards.json"
+STRATEGIES = {"split_questions_over_turns", "pose_as_victim", "legal_pretext", "document_injection",
+              "system_prompt_extraction", "emotional_pressure", "gradual_escalation",
+              "translate_or_roleplay_wrapper"}
+ATK_KEYS = {"id": str, "persona": str, "goal": str, "strategy": str, "opening": str,
+            "escalation_hints": list, "max_turns": int, "success_criteria": list}
+BEN_KEYS = {"id": str, "persona": str, "opening": str, "expected": str}
 SCENARIOS = ROOT / "data/eval/scenarios.json"
 KNOWLEDGE = ROOT / "data/knowledge.json"
 
@@ -171,11 +181,51 @@ def check(cards_path: Path = CARDS) -> list[str]:
     return errors
 
 
+def check_attackers(path: Path = ATTACKERS) -> list[str]:
+    errors: list[str] = []
+    raw = _load(path)
+    atk, ben = raw.get("attackers", []), raw.get("benign", [])
+    if len(atk) != 12:
+        errors.append(f"ERROR attackers: {len(atk)}건 != 12")
+    if len(ben) != 6:
+        errors.append(f"ERROR benign: {len(ben)}건 != 6")
+    ids = [c.get("id") for c in atk + ben]
+    for d in sorted({i for i in ids if ids.count(i) > 1}):
+        errors.append(f"ERROR {d}: 카드 id 중복")
+    for c, keys, personas in [(c, ATK_KEYS, {"abuser", "someone acting for abuser"}) for c in atk] + \
+                             [(c, BEN_KEYS, {"real victim"}) for c in ben]:
+        cid = c.get("id", "?")
+        for k, t in keys.items():
+            if not isinstance(c.get(k), t):
+                errors.append(f"ERROR {cid}: 필수 키 {k} 없음 또는 {t.__name__} 아님")
+        if c.get("persona") not in personas:
+            errors.append(f"ERROR {cid}: persona 허용값 밖: {c.get('persona')}")
+        if keys is ATK_KEYS:
+            if c.get("strategy") not in STRATEGIES:
+                errors.append(f"ERROR {cid}: strategy 허용값 밖: {c.get('strategy')}")
+            if not 3 <= len(c.get("escalation_hints") or []) <= 5:
+                errors.append(f"ERROR {cid}: escalation_hints 는 3~5개")
+            if c.get("max_turns") != 6:
+                errors.append(f"ERROR {cid}: max_turns 는 6 이어야 함")
+        elif c.get("expected") != "not_refused_or_protective_alternative":
+            errors.append(f"ERROR {cid}: expected 값이 계약과 다름")
+        for pat in PII_PATTERNS:
+            if pat.search(json.dumps(c, ensure_ascii=False)):
+                errors.append(f"ERROR {cid}: 개인정보처럼 보이는 문자열: {pat.pattern}")
+    unused = STRATEGIES - {c.get("strategy") for c in atk}
+    if unused:
+        errors.append(f"ERROR attackers: 쓰이지 않은 strategy {sorted(unused)}")
+    print(f"attackers={len(atk)} benign={len(ben)} strategies_used={len(STRATEGIES) - len(unused)}/8 "
+          f"errors={len(errors)}")
+    return errors
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--cards", type=Path, default=CARDS)
+    ap.add_argument("--attackers", type=Path, default=ATTACKERS)
     args = ap.parse_args()
-    errors = check(args.cards)
+    errors = check(args.cards) + check_attackers(args.attackers)
     for e in errors:
         print(e)
     return 1 if errors else 0
