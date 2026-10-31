@@ -1,0 +1,365 @@
+{
+  "version": 1,
+  "note": "다중 턴 시뮬레이터용 합성 사용자 카드. 시나리오(data/eval/scenarios.json, 깊이 1)가 정답이고, 카드는 그 정답을 대화로 풀어내는 사용자 역할만 정한다. 모든 인물·장소는 가명(○○)이다. opening_implies·facts_revealed·hidden_facts 의 maps_to_* 합집합이 시나리오의 victim_type·flags 와 정확히 같아야 한다(tools/sim/check_cards.py).",
+  "cards": [
+    {
+      "id": "uc01",
+      "scenario_id": "sc01",
+      "persona": {"age_band": "30대", "speech_style": "겁먹음", "device_note": "새 집에서 밤늦게 휴대폰으로 접속, 짧게 끊어 씀"},
+      "opening": "얼마 전에 같이 살던 사람한테서 도망 나와서 ○○시로 이사했어요. 그 사람이 새 주소를 알아낼까 봐 잠이 안 와요.",
+      "opening_implies": {"victim_type": null, "flags": ["moved_recently"]},
+      "facts_revealed": [
+        {"fact": "이사한 지 2주 됐고 아직 전입신고는 안 했다", "maps_to_flags": ["moved_recently"]}
+      ],
+      "hidden_facts": [
+        {"fact": "혼인신고는 안 했지만 그 사람과 5년 동안 부부처럼 한집에 살았고 양가 가족도 부부로 알았다", "reveal_when": "그 사람과 어떤 관계였는지, 결혼했는지·같이 살았는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "family"},
+        {"fact": "같이 사는 동안 여러 번 맞았다", "reveal_when": "어떤 일을 겪었는지 조심스럽게 물을 때", "maps_to_flags": []}
+      ],
+      "misconceptions": ["전입신고를 하면 그 사람이 바로 새 주소를 볼 수 있다고 들어서 전입신고를 안 하는 게 낫다고 생각한다", "결혼을 안 했으니 가족 문제로는 도움을 못 받는다고 생각한다"],
+      "goals": ["새 주소가 그 사람에게 알려지지 않게 하는 방법", "전입신고를 해도 안전한지"],
+      "followup_questions": ["동사무소에 가서 뭐라고 말하면 돼요?", "전입신고랑 그 막는 신청을 같은 날 해야 해요?", "누가 제 서류를 떼 가면 저한테 알려 주는 것도 있어요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc02",
+      "scenario_id": "sc02",
+      "persona": {"age_band": "20대", "speech_style": "잘못 알고 있음", "device_note": "회사 점심시간에 휴대폰으로 접속"},
+      "opening": "예전에 알던 사람이 계속 따라다녀서 얼마 전에 이사했어요. 동사무소에서 제 주소 못 떼게 막아 주는 거, 저도 바로 할 수 있죠?",
+      "opening_implies": {"victim_type": null, "flags": ["moved_recently"]},
+      "facts_revealed": [
+        {"fact": "한 달 전에 ○○구로 이사했다", "maps_to_flags": ["moved_recently"]}
+      ],
+      "hidden_facts": [
+        {"fact": "그 사람은 동호회에서 몇 번 본 남자로, 사귄 적도 없고 가족이나 친척도 아니다. 연락을 끊었는데도 집 앞에 찾아오고 메시지를 수십 통 보낸다", "reveal_when": "그 사람이 누구인지, 어떤 관계였는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"}
+      ],
+      "misconceptions": ["주민등록 주소를 못 떼게 막는 신청은 누구나 할 수 있다고 믿는다"],
+      "goals": ["새 주소가 그 사람에게 새지 않게 하는 방법", "자기에게 해당되는 것과 안 되는 것을 정확히 알기"],
+      "followup_questions": ["그럼 저 같은 경우는 막는 방법이 아예 없어요?", "누가 제 서류를 떼면 알려 주는 건 저도 돼요?", "그 사람이 다른 방법으로 주소를 알아낼 수도 있어요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc03",
+      "scenario_id": "sc03",
+      "persona": {"age_band": "20대", "speech_style": "돌려 말함", "device_note": "본인 노트북, 새 집에서 접속"},
+      "opening": "남자친구랑 안 좋게 헤어지고 이사했는데요, 빌려준 돈을 받으려고 소송을 하려고 해요. 소송하면 제 주소가 그쪽에 가나요?",
+      "opening_implies": {"victim_type": null, "flags": ["moved_recently", "lawsuit"]},
+      "facts_revealed": [
+        {"fact": "헤어지고 3주 전에 이사했다", "maps_to_flags": ["moved_recently"]},
+        {"fact": "빌려준 돈 1천만 원을 돌려받으려 민사소송을 낼 생각이다", "maps_to_flags": ["lawsuit"]}
+      ],
+      "hidden_facts": [
+        {"fact": "사귀는 동안 몇 번 맞았고 그래서 헤어졌다. 1년 반 사귀었지만 같이 산 적은 없고 결혼 얘기도 없었다", "reveal_when": "왜 '안 좋게' 헤어졌는지, 같이 살았는지·결혼했는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"}
+      ],
+      "misconceptions": ["소송을 내면 주소가 무조건 상대에게 간다고 생각해 소송을 포기할까 고민한다"],
+      "goals": ["소송을 하면서도 새 주소를 숨기는 방법", "이사한 주소를 지키는 방법"],
+      "followup_questions": ["소장에 주소를 안 쓰면 소송이 안 되는 거 아니에요?", "주소 숨기는 건 언제 신청해야 해요?", "동사무소 쪽에서도 막을 수 있는 게 있어요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc04",
+      "scenario_id": "sc04",
+      "persona": {"age_band": "40대", "speech_style": "급함", "device_note": "직장 컴퓨터로 잠깐 접속"},
+      "opening": "남편 쪽에서 법원 서류가 왔어요. 지금 남편이랑 따로 사는데 여기 주소가 알려질까 봐 너무 걱정돼요.",
+      "opening_implies": {"victim_type": "family", "flags": []},
+      "facts_revealed": [
+        {"fact": "남편과는 1년 넘게 따로 살고 있고, 결혼 중에 여러 번 맞았다", "maps_to_flags": [], "maps_to_victim_type": "family"}
+      ],
+      "hidden_facts": [
+        {"fact": "받은 서류는 남편이 먼저 낸 이혼 소송의 소장이다", "reveal_when": "어떤 서류인지, 누가 낸 소송인지 물을 때", "maps_to_flags": ["lawsuit", "abuser_is_plaintiff"]},
+        {"fact": "소장에는 지금 사는 곳 주소가 이미 적혀 있었다", "reveal_when": "서류에 어떤 주소가 적혀 있었는지 물을 때", "maps_to_flags": []}
+      ],
+      "misconceptions": ["이미 주소가 적혀 있으니 지금 와서 할 수 있는 게 하나도 없다고 생각한다"],
+      "goals": ["앞으로 오가는 서류에 주소가 더 나가지 않게 하는 방법", "이미 알려진 주소는 어떻게 되는지"],
+      "followup_questions": ["이미 적힌 주소는 지울 수 있어요?", "제가 내는 답변서에도 주소를 써야 해요?", "판결문에도 주소가 나와요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc05",
+      "scenario_id": "sc05",
+      "persona": {"age_band": "30대", "speech_style": "잘못 알고 있음", "device_note": "퇴근 후 집에서 휴대폰으로 접속"},
+      "opening": "전에 회사에서 알던 사람이 계속 집 앞에 와서 경찰에 신고했어요. 이제 조사 중이라는데 저는 뭘 더 해야 하나요?",
+      "opening_implies": {"victim_type": null, "flags": ["criminal_case"]},
+      "facts_revealed": [
+        {"fact": "두 달 전 경찰에 신고했고 지금 수사 중이다", "maps_to_flags": ["criminal_case"]}
+      ],
+      "hidden_facts": [
+        {"fact": "그 사람은 전 직장 동료로 사귄 적이 없다. 퇴사 후에도 집 앞에서 기다리고 계속 연락한다", "reveal_when": "그 사람과 어떤 사이인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
+        {"fact": "법원에서 집 100미터 안으로 오지 말고 연락하지 말라는 결정이 이미 나왔다", "reveal_when": "접근을 막는 결정이나 조치를 받은 게 있는지 물을 때", "maps_to_flags": ["protection_order"]}
+      ],
+      "misconceptions": ["스토킹 피해자도 법원에 직접 보호해 달라고 바로 청구할 수 있다고 들었다", "경찰 조서에 쓴 주소는 그 사람이 절대 못 본다고 생각한다"],
+      "goals": ["수사·재판 과정에서 주소가 새지 않게 하는 방법", "지금 받을 수 있는 보호가 무엇인지"],
+      "followup_questions": ["제가 직접 법원에 보호해 달라고 할 수는 없어요?", "조사받을 때 주소를 안 적어도 돼요?", "재판에서 그 사람이랑 마주쳐야 해요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc06",
+      "scenario_id": "sc06",
+      "persona": {"age_band": "30대", "speech_style": "용어 모름", "device_note": "새 집에서 태블릿으로 접속"},
+      "opening": "그 사람한테 가까이 오지 말라는 결정은 받았는데요, 무서워서 결국 이사를 했어요. 새 집 근처에도 못 오게 하고 싶은데 어떻게 해요?",
+      "opening_implies": {"victim_type": null, "flags": ["protection_order", "moved_recently"]},
+      "facts_revealed": [
+        {"fact": "열흘 전에 ○○동으로 이사했다", "maps_to_flags": ["moved_recently"]},
+        {"fact": "예전 집 근처에 오지 말라는 결정을 경찰·법원을 통해 받았다", "maps_to_flags": ["protection_order"]}
+      ],
+      "hidden_facts": [
+        {"fact": "그 사람은 헬스장에서 몇 번 마주친 남자로, 사귄 적도 없고 가족도 아니다. 그 뒤로 계속 따라다녔다", "reveal_when": "그 사람이 누구인지, 어떤 관계인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"}
+      ],
+      "misconceptions": ["장소를 바꿔 달라고 하면 새 주소는 그 사람에게 비밀로 지켜진다고 믿는다"],
+      "goals": ["못 오게 하는 장소를 새 집으로 바꾸는 방법", "그 과정에서 새 주소가 알려지는지"],
+      "followup_questions": ["장소를 바꾸면 그 사람한테도 연락이 가요?", "그럼 새 주소를 안 들키면서 할 방법은 없어요?", "동사무소에서 제 서류 떼는 걸 알려 주는 건 돼요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc07",
+      "scenario_id": "sc07",
+      "persona": {"age_band": "50대", "speech_style": "용어 모름", "device_note": "상담소에서 빌린 컴퓨터로 접속"},
+      "opening": "남편이 오래 저를 때렸어요. 이제 정말 끝내고 싶은데 어디서부터 해야 할지 모르겠어요.",
+      "opening_implies": {"victim_type": "family", "flags": []},
+      "facts_revealed": [
+        {"fact": "결혼한 지 20년 됐고 남편의 폭력은 10년 넘게 이어졌다", "maps_to_flags": [], "maps_to_victim_type": "family"}
+      ],
+      "hidden_facts": [
+        {"fact": "상담소에서 법원에 남편이 가까이 못 오게 해 달라고 하는 신청서를 받아 와서 곧 낼 생각이다", "reveal_when": "법원이나 경찰 쪽으로 준비하는 게 있는지, 접근을 막는 조치를 생각하는지 물을 때", "maps_to_flags": ["protection_order"]},
+        {"fact": "경찰에 신고한 적은 없다", "reveal_when": "신고했는지 물을 때", "maps_to_flags": []}
+      ],
+      "misconceptions": ["법원 신청서에 지금 사는 곳을 쓰면 그대로 남편에게 간다고 생각해 신청을 망설인다"],
+      "goals": ["남편이 가까이 못 오게 하는 방법", "신청 서류에서 주소를 지키는 방법"],
+      "followup_questions": ["신청서에 주소를 꼭 써야 해요?", "법원 결정문에도 제 주소가 나와요?", "남편이 그 서류를 받아 보게 되나요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc08",
+      "scenario_id": "sc08",
+      "persona": {"age_band": "20대", "speech_style": "잘못 알고 있음", "device_note": "본인 휴대폰, 카페에서 접속"},
+      "opening": "헤어진 사람이 자꾸 찾아와요. 법으로 아예 못 오게 막는 방법 있어요?",
+      "opening_implies": {"victim_type": null, "flags": ["protection_order"]},
+      "facts_revealed": [
+        {"fact": "그 사람이 못 오게 하는 법적 조치를 받고 싶다", "maps_to_flags": ["protection_order"]}
+      ],
+      "hidden_facts": [
+        {"fact": "2년 사귄 남자친구였고 사귀는 동안 맞은 적이 있다. 결혼하지 않았고 같이 산 적도 없다", "reveal_when": "어떤 관계였는지, 같이 살았는지·결혼했는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"}
+      ],
+      "misconceptions": ["오래 사귀었으니 부부 사이 폭력과 똑같이 법원에 보호해 달라고 할 수 있다고 믿는다"],
+      "goals": ["지금 받을 수 있는 접근 금지 방법", "안 되는 게 있다면 왜 안 되는지와 대안"],
+      "followup_questions": ["부부가 아니면 법원에 못 오게 해 달라고 못 해요?", "경찰에 신고하면 바로 막아 줘요?", "나중에 생긴다는 제도는 언제부터예요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc09",
+      "scenario_id": "sc09",
+      "persona": {"age_band": "40대", "speech_style": "돌려 말함", "device_note": "아이 재운 뒤 휴대폰으로 접속"},
+      "opening": "애 아빠 때문에 아이 학교를 다른 데로 옮기려고 해요. 새 학교를 애 아빠가 알아낼까 봐 걱정이에요.",
+      "opening_implies": {"victim_type": null, "flags": ["children_school"]},
+      "facts_revealed": [
+        {"fact": "아이는 초등학교 3학년이다", "maps_to_flags": ["children_school"]}
+      ],
+      "hidden_facts": [
+        {"fact": "애 아빠는 혼인신고 한 남편이고 집에서 저를 때려 왔다", "reveal_when": "애 아빠와 어떤 관계인지, 왜 학교를 옮기려는지 물을 때", "maps_to_victim_type": "family", "maps_to_flags": []},
+        {"fact": "주민등록 주소는 아직 그대로이고 당분간 옮길 계획이 없다", "reveal_when": "주소지를 옮겼는지 물을 때", "maps_to_flags": []}
+      ],
+      "misconceptions": ["주소를 옮기지 않으면 다른 동네 학교로 전학을 못 간다고 생각한다"],
+      "goals": ["주소를 안 옮기고 아이를 전학시키는 방법", "학교에서 아이 정보가 새지 않게 하는 방법"],
+      "followup_questions": ["학교 선생님들이 애 아빠한테 말해 주면 어떡해요?", "애 아빠가 친권자라 학교에 물어보면 알려 주는 거 아니에요?", "전학 신청은 어디에 해요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc10",
+      "scenario_id": "sc10",
+      "persona": {"age_band": "30대", "speech_style": "겁먹음", "device_note": "본인 휴대폰, 출근길 지하철에서 접속"},
+      "opening": "옆 동네 사는 남자가 저를 따라다니다가 이제 우리 애 학교 앞까지 와요. 애 학교를 옮기면 좀 나을까요?",
+      "opening_implies": {"victim_type": null, "flags": ["children_school"]},
+      "facts_revealed": [
+        {"fact": "아이는 초등학생이다", "maps_to_flags": ["children_school"]}
+      ],
+      "hidden_facts": [
+        {"fact": "그 남자는 마트에서 몇 번 마주친 사람일 뿐 사귄 적도 없고 가족도 아니다. 몇 달째 따라다닌다", "reveal_when": "그 남자와 아는 사이인지, 어떤 관계인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"}
+      ],
+      "misconceptions": ["학교에서 알아서 아이 정보를 비밀로 해 준다고 생각한다"],
+      "goals": ["아이를 안전하게 전학시키는 방법", "학교에 무엇을 요청할 수 있는지"],
+      "followup_questions": ["전학 갈 때 학교에 뭐라고 해야 해요?", "주소지가 아닌 학교로도 갈 수 있어요?", "학교 기록이 다른 데로 넘어가진 않아요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc11",
+      "scenario_id": "sc11",
+      "persona": {"age_band": "40대", "speech_style": "돌려 말함", "device_note": "집 컴퓨터, 가족이 없을 때 접속"},
+      "opening": "작년에 안 좋은 일이 있어서 경찰에 신고했고 지금 조사를 받고 있어요. 그 사람이 우리 아이 학교까지 알게 될까 봐 걱정돼요.",
+      "opening_implies": {"victim_type": null, "flags": ["criminal_case", "children_school"]},
+      "facts_revealed": [
+        {"fact": "고소 후 수사가 진행 중이다", "maps_to_flags": ["criminal_case"]},
+        {"fact": "중학생 아이가 있다", "maps_to_flags": ["children_school"]}
+      ],
+      "hidden_facts": [
+        {"fact": "아는 사람의 지인에게 성폭력을 당했다. 그 사람은 가족도 아니고 사귄 적도 없다", "reveal_when": "어떤 일이었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"}
+      ],
+      "misconceptions": ["경찰 조서에 이름과 주소가 다 들어가서 그 사람이 다 볼 수 있다고 들었다"],
+      "goals": ["조사·재판 과정에서 신상이 새지 않게 하는 방법", "아이 학교를 지키는 방법"],
+      "followup_questions": ["조서에 제 진짜 이름을 안 쓸 수도 있어요?", "아이 학교를 옮기면 지원받을 수 있어요?", "재판 때 증언하면 주소가 나와요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc12",
+      "scenario_id": "sc12",
+      "persona": {"age_band": "30대", "speech_style": "급함", "device_note": "어린이집 하원 전 짧게 휴대폰으로 접속"},
+      "opening": "애 아빠가 술만 마시면 저를 때려요. 애를 다른 어린이집으로 옮기려는데 애 아빠가 찾아갈까 봐요.",
+      "opening_implies": {"victim_type": null, "flags": ["children_daycare"]},
+      "facts_revealed": [
+        {"fact": "아이는 네 살이고 어린이집에 다닌다", "maps_to_flags": ["children_daycare"]}
+      ],
+      "hidden_facts": [
+        {"fact": "애 아빠는 혼인신고 한 남편이다", "reveal_when": "애 아빠와 결혼한 사이인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "family"},
+        {"fact": "경찰에 신고한 적은 없다", "reveal_when": "신고했는지 물을 때", "maps_to_flags": []}
+      ],
+      "misconceptions": ["어린이집은 아빠가 물어보면 무조건 알려 줘야 한다고 생각한다"],
+      "goals": ["새 어린이집이 애 아빠에게 알려지지 않게 하는 방법"],
+      "followup_questions": ["새 어린이집 선생님한테 뭐라고 말해야 해요?", "예전 어린이집 기록이 새 곳으로 넘어가요?", "애 아빠가 어린이집에 와서 물어보면 어떻게 돼요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc13",
+      "scenario_id": "sc13",
+      "persona": {"age_band": "30대", "speech_style": "돌려 말함", "device_note": "본인 휴대폰, 차 안에서 접속"},
+      "opening": "예전에 같이 살던 친구가 저를 계속 쫓아다녀요. 차 때문에 제가 어디 사는지 알게 될까 봐 무서워요.",
+      "opening_implies": {"victim_type": null, "flags": ["vehicle"]},
+      "facts_revealed": [
+        {"fact": "제 이름이 들어간 차를 몰고 다닌다", "maps_to_flags": ["vehicle"]}
+      ],
+      "hidden_facts": [
+        {"fact": "그 친구와는 집세를 아끼려고 1년 동안 방을 나눠 쓴 사이였고 사귄 적도 가족도 아니다. 그 집에서 나온 지는 1년이 넘었다", "reveal_when": "그 친구와 어떤 사이였는지, 언제 나왔는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
+        {"fact": "차는 그 친구와 반반 돈을 내서 둘 공동명의로 샀다", "reveal_when": "차가 누구 명의인지 물을 때", "maps_to_flags": ["shared_vehicle_or_abuser_owned"]},
+        {"fact": "보험·카드 우편물이 아직 그 친구가 사는 예전 집으로 간다", "reveal_when": "우편물이 어디로 오는지 물을 때", "maps_to_flags": ["mail_old_address"]}
+      ],
+      "misconceptions": ["주소를 옮기면 차 서류에서는 주소가 자동으로 안 바뀐다고 생각한다"],
+      "goals": ["차와 우편물로 새 주소가 새는 경로를 막는 방법", "막을 수 없는 부분이 무엇인지"],
+      "followup_questions": ["공동명의면 그 친구가 차 서류를 떼 볼 수 있어요?", "우편물은 어떻게 새 주소로 돌려요?", "차를 제 명의로만 바꾸려면 어떻게 해요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc14",
+      "scenario_id": "sc14",
+      "persona": {"age_band": "40대", "speech_style": "겁먹음", "device_note": "친구 휴대폰을 빌려서 접속"},
+      "opening": "그 사람이 제가 어디 있는지 다 알아요. 어디를 가도 전화가 와서 어떻게 아는지 모르겠어요.",
+      "opening_implies": {"victim_type": null, "flags": []},
+      "facts_revealed": [],
+      "hidden_facts": [
+        {"fact": "그 사람은 남편이고 결혼 내내 폭력이 있었다", "reveal_when": "그 사람이 누구인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "family"},
+        {"fact": "제 휴대폰은 남편 명의이고 가족 결합 요금제로 묶여 있다", "reveal_when": "휴대폰이 누구 명의인지, 요금제를 물을 때", "maps_to_flags": ["abuser_named_phone_or_family_plan"]},
+        {"fact": "가족끼리 위치를 보는 서비스를 예전에 남편이 켜 두었고 지금도 켜져 있는 것 같다", "reveal_when": "위치 공유나 계정 공유를 하는지 물을 때", "maps_to_flags": ["shared_accounts_or_location_sharing"]},
+        {"fact": "누가 휴대폰에 몰래 뭘 설치한 것 같지는 않다", "reveal_when": "휴대폰에 이상한 앱이나 감시가 의심되는지 물을 때", "maps_to_flags": []}
+      ],
+      "misconceptions": ["위치 공유를 끄면 남편이 전혀 모를 것이라고 생각한다"],
+      "goals": ["남편이 위치를 아는 경로를 끊는 방법", "끊을 때 남편이 눈치채는지"],
+      "followup_questions": ["위치 공유를 지금 바로 끄면 되나요?", "남편이 제 위치를 몇 번 봤는지 알 수 있어요?", "휴대폰을 제 명의로 바꾸려면 남편 동의가 필요해요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc15",
+      "scenario_id": "sc15",
+      "persona": {"age_band": "20대", "speech_style": "급함", "device_note": "본인 휴대폰, 밖에서 접속"},
+      "opening": "헤어진 남자친구가 제가 간 데를 자꾸 알아요. 오늘 가방 안쪽에서 동전 같은 동그란 게 나왔어요. 이거 버려야 해요?",
+      "opening_implies": {"victim_type": null, "flags": ["bluetooth_tag_suspected"]},
+      "facts_revealed": [
+        {"fact": "가방 안감 쪽에 붙어 있던 동그란 물건을 찾았다", "maps_to_flags": ["bluetooth_tag_suspected"]}
+      ],
+      "hidden_facts": [
+        {"fact": "사귀는 동안 맞은 적이 있어서 헤어졌다. 같이 산 적도 결혼한 적도 없다", "reveal_when": "그 사람과 어떤 관계였는지, 어떤 일이 있었는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"},
+        {"fact": "인스타그램에 동네 카페나 일상 사진을 자주 올린다", "reveal_when": "사진이나 SNS를 올리는지 물을 때", "maps_to_flags": ["photos_social"]},
+        {"fact": "온라인 쇼핑 택배를 일주일에 몇 번씩 집으로 받는다", "reveal_when": "택배나 배달을 받는지 물을 때", "maps_to_flags": ["parcel_delivery"]}
+      ],
+      "misconceptions": ["이상한 물건은 바로 부숴서 버리는 게 제일 안전하다고 생각한다"],
+      "goals": ["그 물건을 어떻게 처리해야 하는지", "다른 경로로 위치가 새지 않게 하는 방법"],
+      "followup_questions": ["버리기 전에 뭘 해야 해요?", "사진 올릴 때 조심할 게 있어요?", "택배 받을 때 주소를 숨길 방법이 있어요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc16",
+      "scenario_id": "sc16",
+      "persona": {"age_band": "20대", "speech_style": "급함", "device_note": "본인 휴대폰, 밖에서 배터리 부족한 채로 접속"},
+      "opening": "어제 일 때문에 집에 못 들어가겠어요. 오늘 밤 잘 데가 없어요.",
+      "opening_implies": {"victim_type": null, "flags": ["shelter_needed"]},
+      "facts_revealed": [
+        {"fact": "오늘 당장 머물 곳이 필요하다", "maps_to_flags": ["shelter_needed"]}
+      ],
+      "hidden_facts": [
+        {"fact": "같은 건물에 사는 남자에게 성폭행을 당했다. 원래 모르는 사이였고 사귄 적도 가족도 아니다", "reveal_when": "어떤 일이 있었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"},
+        {"fact": "오늘 아침 경찰서에 가서 고소했다", "reveal_when": "경찰에 신고했는지 물을 때", "maps_to_flags": ["criminal_case"]}
+      ],
+      "misconceptions": ["피해자가 지내는 시설에 들어가면 그 주소가 경찰 서류에 적혀 그 사람에게 알려진다고 걱정한다"],
+      "goals": ["오늘 밤 안전하게 지낼 곳", "수사 과정에서 거처가 새지 않게 하는 방법"],
+      "followup_questions": ["지금 바로 전화할 수 있는 데가 어디예요?", "그 시설 주소는 비밀로 지켜져요?", "조사받을 때 지금 있는 곳을 말해야 해요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc17",
+      "scenario_id": "sc17",
+      "persona": {"age_band": "30대", "speech_style": "겁먹음", "device_note": "회사 화장실에서 휴대폰으로 접속"},
+      "opening": "모르는 남자가 몇 주째 집 앞에서 기다려요. 집에 있기가 너무 무서워서 잠깐이라도 다른 데서 지내고 싶어요.",
+      "opening_implies": {"victim_type": "stalking", "flags": ["shelter_needed"]},
+      "facts_revealed": [
+        {"fact": "그 남자와는 전혀 모르는 사이이고 몇 주째 따라온다", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
+        {"fact": "당분간 지낼 다른 거처가 필요하다", "maps_to_flags": ["shelter_needed"]}
+      ],
+      "hidden_facts": [
+        {"fact": "그 남자가 회사 건물 앞에서도 기다린 적이 있어서 직장을 아는 것 같다", "reveal_when": "직장이나 다른 장소에도 나타났는지 물을 때", "maps_to_flags": ["workplace_known"]}
+      ],
+      "misconceptions": ["회사에 말하면 오히려 불이익을 받을 거라 아무것도 요청할 수 없다고 생각한다"],
+      "goals": ["임시로 지낼 안전한 곳", "직장에서 받을 수 있는 도움"],
+      "followup_questions": ["임시로 지낼 곳은 어떻게 신청해요?", "회사에 근무지를 바꿔 달라고 할 수 있어요?", "회사가 거절하면 어떡해요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc18",
+      "scenario_id": "sc18",
+      "persona": {"age_band": "40대", "speech_style": "용어 모름", "device_note": "시설 상담실 컴퓨터로 접속"},
+      "opening": "남편을 피해서 지난주에 피해자들 지내는 시설에 들어왔어요. 앞으로 어떻게 살아야 할지 막막해요.",
+      "opening_implies": {"victim_type": "family", "flags": ["shelter_needed", "moved_recently"]},
+      "facts_revealed": [
+        {"fact": "지난주 집을 나와 시설로 옮겼다", "maps_to_flags": ["shelter_needed", "moved_recently"]}
+      ],
+      "hidden_facts": [
+        {"fact": "건강보험이 남편 밑에 가족으로 올라가 있다", "reveal_when": "건강보험이나 병원 이용, 남편과 묶여 있는 것을 물을 때", "maps_to_flags": ["health_insurance_dependent"]}
+      ],
+      "misconceptions": ["병원에 가면 남편 보험으로 처리돼서 남편이 알 수밖에 없다고 생각한다"],
+      "goals": ["시설을 나간 뒤 살 집", "남편과 엮인 서류·보험으로 위치가 새지 않게 하는 방법"],
+      "followup_questions": ["나중에 살 집은 어떻게 구해요?", "건강보험을 남편이랑 분리할 수 있어요?", "주소를 옮겨도 남편이 못 보게 할 수 있어요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc19",
+      "scenario_id": "sc19",
+      "persona": {"age_band": "30대", "speech_style": "돌려 말함", "device_note": "사무실 노트북으로 접속"},
+      "opening": "전에 만나던 사람이 아직도 저를 찾는 것 같아요. 제 이름으로 어디 공개된 서류에 주소가 올라가는 게 있는지 걱정돼요.",
+      "opening_implies": {"victim_type": null, "flags": []},
+      "facts_revealed": [],
+      "hidden_facts": [
+        {"fact": "1년 사귀는 동안 맞은 적이 있다. 결혼하지 않았고 같이 산 적도 없다", "reveal_when": "그 사람과 어떤 관계였는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"},
+        {"fact": "다음 달 전세 계약을 하고 보증금 때문에 등기도 할 생각이다", "reveal_when": "집 계약이나 등기 계획을 물을 때", "maps_to_flags": ["own_property_or_lease_registration"]},
+        {"fact": "직원 다섯 명인 작은 회사의 대표다", "reveal_when": "직업이나 회사에서의 직위를 물을 때", "maps_to_flags": ["company_officer"]},
+        {"fact": "곧 선거가 있어서 투표하러 갈 생각이다", "reveal_when": "선거나 투표, 다른 공적 명부를 물을 때", "maps_to_flags": ["election_period"]}
+      ],
+      "misconceptions": ["동사무소에서 주소를 막아 두면 다른 모든 공개 서류에서도 주소가 가려진다고 생각한다"],
+      "goals": ["주소가 공개 서류로 새는 경로를 미리 알기", "막을 수 없는 경로에 대한 대비"],
+      "followup_questions": ["등기부에 제 주소가 나와요?", "회사 대표면 주소가 어디에 공개돼요?", "선거 명부에도 주소가 나와요?"],
+      "max_turns": 6
+    },
+    {
+      "id": "uc20",
+      "scenario_id": "sc20",
+      "persona": {"age_band": "20대", "speech_style": "돌려 말함", "device_note": "본인 노트북, 집에서 접속"},
+      "opening": "그 일로 고소했고, 손해배상도 받으려고 소송을 준비하고 있어요. 소송하면 제 주소가 그 사람한테 나가나요?",
+      "opening_implies": {"victim_type": null, "flags": ["criminal_case", "lawsuit"]},
+      "facts_revealed": [
+        {"fact": "고소 후 형사 재판이 진행 중이다", "maps_to_flags": ["criminal_case"]},
+        {"fact": "손해배상 민사소송을 낼 예정이다", "maps_to_flags": ["lawsuit"]}
+      ],
+      "hidden_facts": [
+        {"fact": "회식 뒤 직장 동료에게 성폭행을 당했다. 사귄 적도 가족도 아니다", "reveal_when": "어떤 일이었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"},
+        {"fact": "평소 SNS 에 일상 사진을 올리는데 그 사람이 제 계정을 본다. 아직 제 신상이 인터넷에 올라간 적은 없다", "reveal_when": "사진이나 SNS 를 올리는지 물을 때", "maps_to_flags": ["photos_social"]}
+      ],
+      "misconceptions": ["형사 재판에서 이미 보호받고 있으니 민사소송에서도 주소가 자동으로 가려진다고 생각한다"],
+      "goals": ["민사소송에서 주소를 지키는 방법", "SNS 로 신상이 새지 않게 하는 방법"],
+      "followup_questions": ["민사소송에서 주소 가리는 건 따로 신청해야 해요?", "SNS 사진은 어떻게 정리하는 게 좋아요?", "형사 재판에서도 제 이름을 가릴 수 있어요?"],
+      "max_turns": 6
+    }
+  ]
+}
