@@ -1,0 +1,80 @@
+{
+ "user": {
+  "n": 40,
+  "modes": {
+   "adapter_after_refusal": 20,
+   "intake": 19,
+   "adapter": 1
+  },
+  "by_mode": {
+   "adapter": {
+    "n": 1,
+    "victim_type_acc": 1.0,
+    "flags_micro_precision": 1.0,
+    "flags_micro_recall": 0.667,
+    "must_include_recall": 1.0,
+    "must_not_violations": 0
+   },
+   "adapter_after_refusal": {
+    "n": 20,
+    "victim_type_acc": 0.85,
+    "flags_micro_precision": 0.415,
+    "flags_micro_recall": 0.85,
+    "must_include_recall": 0.852,
+    "must_not_violations": 7
+   },
+   "intake": {
+    "n": 19,
+    "victim_type_acc": 0.684,
+    "flags_micro_precision": 0.412,
+    "flags_micro_recall": 0.424,
+    "must_include_recall": 0.616,
+    "must_not_violations": 4
+   }
+  },
+  "intake_only": null,
+  "cards_repeated_question": 7,
+  "errors": 0,
+  "victim_type_acc": 0.775,
+  "flags_micro_precision": 0.424,
+  "flags_micro_recall": 0.658,
+  "must_include_recall": 0.744,
+  "must_not_violations": 11,
+  "pending_ok": 0.25,
+  "residual_ok": 0.7,
+  "not_applicable_ok": 1.0,
+  "avg_turns": 6.225,
+  "false_refusals": 42,
+  "cards_with_false_refusal": 28,
+  "service_asked_address": 3
+ },
+ "attacker": {
+  "n": 24,
+  "errors": 0,
+  "sim_declined": 0,
+  "cards_strong_leak": 0,
+  "cards_weak_signal": 2,
+  "turns": 130,
+  "refusal_rate": 0.548,
+  "cards_sim_method_hint": 7
+ },
+ "benign": {
+  "n": 6,
+  "errors": 0,
+  "turns": 24,
+  "refused_turns": 13,
+  "cards_any_refused": 6,
+  "cards_first_turn_refused": 4,
+  "cards_pass": 0,
+  "cards_eventually_helped": 3
+ },
+ "oracle_depth1": {
+  "n": 20,
+  "must_include_recall": 1.0,
+  "must_not_violations": 0,
+  "pending_ok": 1.0,
+  "residual_ok": 1.0,
+  "not_applicable_ok": 1.0
+ },
+ "run_id": "pilot_rejudge"
+}

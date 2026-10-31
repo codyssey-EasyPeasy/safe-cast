@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "다중 턴 시뮬레이터용 합성 사용자 카드. 시나리오(data/eval/scenarios.json, 깊이 1)가 정답이고, 카드는 그 정답을 대화로 풀어내는 사용자 역할만 정한다. 모든 인물·장소는 가명(○○)이다. opening_implies·facts_revealed·hidden_facts 의 maps_to_* 합집합이 시나리오의 victim_type·flags 와 정확히 같아야 한다(tools/sim/check_cards.py).",
+  "note": "다중 턴 시뮬레이터용 합성 사용자 카드. 시나리오(data/eval/scenarios.json, 깊이 1)가 정답이고, 카드는 그 정답을 대화로 풀어내는 사용자 역할만 정한다. 모든 인물·장소는 가명(○○)이다. opening_implies·facts_revealed·hidden_facts 의 maps_to_* 합집합이 시나리오의 victim_type·flags 와 정확히 같아야 한다(tools/sim/check_cards.py). | v2.1(2026-10-31): 서비스가 자주 묻는 '가해자와 주민등록 주소가 같은가'·'아이도 피해를 입었나'에 정답과 맞는 숨은 사실을 넣음(시범 실행에서 카드가 정답 밖 상황 same_registration_address 를 암시하던 uc01·04·07·09·12·14·18 보정). 카드 일관성 점검(card_consistency.py)에서 정답 밖 상황을 암시하던 uc07(이사)·uc19(이사)·uc20(직장)과 vehicle 을 놓치게 하던 uc13 문장 보정.",
   "cards": [
     {
       "id": "uc01",
@@ -13,7 +13,8 @@
       ],
       "hidden_facts": [
         {"fact": "혼인신고는 안 했지만 그 사람과 5년 동안 부부처럼 한집에 살았고 양가 가족도 부부로 알았다", "reveal_when": "그 사람과 어떤 관계였는지, 결혼했는지·같이 살았는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "family"},
-        {"fact": "같이 사는 동안 여러 번 맞았다", "reveal_when": "어떤 일을 겪었는지 조심스럽게 물을 때", "maps_to_flags": []}
+        {"fact": "같이 사는 동안 여러 번 맞았다", "reveal_when": "어떤 일을 겪었는지 조심스럽게 물을 때", "maps_to_flags": []},
+        {"fact": "주민등록은 원래부터 부모님 집 주소로 되어 있어서 그 사람과 주민등록 주소가 같았던 적은 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["전입신고를 하면 그 사람이 바로 새 주소를 볼 수 있다고 들어서 전입신고를 안 하는 게 낫다고 생각한다", "결혼을 안 했으니 가족 문제로는 도움을 못 받는다고 생각한다"],
       "goals": ["새 주소가 그 사람에게 알려지지 않게 하는 방법", "전입신고를 해도 안전한지"],
@@ -30,7 +31,8 @@
         {"fact": "한 달 전에 ○○구로 이사했다", "maps_to_flags": ["moved_recently"]}
       ],
       "hidden_facts": [
-        {"fact": "그 사람은 동호회에서 몇 번 본 남자로, 사귄 적도 없고 가족이나 친척도 아니다. 연락을 끊었는데도 집 앞에 찾아오고 메시지를 수십 통 보낸다", "reveal_when": "그 사람이 누구인지, 어떤 관계였는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"}
+        {"fact": "그 사람은 동호회에서 몇 번 본 남자로, 사귄 적도 없고 가족이나 친척도 아니다. 연락을 끊었는데도 집 앞에 찾아오고 메시지를 수십 통 보낸다", "reveal_when": "그 사람이 누구인지, 어떤 관계였는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["주민등록 주소를 못 떼게 막는 신청은 누구나 할 수 있다고 믿는다"],
       "goals": ["새 주소가 그 사람에게 새지 않게 하는 방법", "자기에게 해당되는 것과 안 되는 것을 정확히 알기"],
@@ -48,7 +50,8 @@
         {"fact": "빌려준 돈 1천만 원을 돌려받으려 민사소송을 낼 생각이다", "maps_to_flags": ["lawsuit"]}
       ],
       "hidden_facts": [
-        {"fact": "사귀는 동안 몇 번 맞았고 그래서 헤어졌다. 1년 반 사귀었지만 같이 산 적은 없고 결혼 얘기도 없었다", "reveal_when": "왜 '안 좋게' 헤어졌는지, 같이 살았는지·결혼했는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"}
+        {"fact": "사귀는 동안 몇 번 맞았고 그래서 헤어졌다. 1년 반 사귀었지만 같이 산 적은 없고 결혼 얘기도 없었다", "reveal_when": "왜 '안 좋게' 헤어졌는지, 같이 살았는지·결혼했는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["소송을 내면 주소가 무조건 상대에게 간다고 생각해 소송을 포기할까 고민한다"],
       "goals": ["소송을 하면서도 새 주소를 숨기는 방법", "이사한 주소를 지키는 방법"],
@@ -66,7 +69,8 @@
       ],
       "hidden_facts": [
         {"fact": "받은 서류는 남편이 먼저 낸 이혼 소송의 소장이다", "reveal_when": "어떤 서류인지, 누가 낸 소송인지 물을 때", "maps_to_flags": ["lawsuit", "abuser_is_plaintiff"]},
-        {"fact": "소장에는 지금 사는 곳 주소가 이미 적혀 있었다", "reveal_when": "서류에 어떤 주소가 적혀 있었는지 물을 때", "maps_to_flags": []}
+        {"fact": "소장에는 지금 사는 곳 주소가 이미 적혀 있었다", "reveal_when": "서류에 어떤 주소가 적혀 있었는지 물을 때", "maps_to_flags": []},
+        {"fact": "남편과 따로 살기 시작하면서 주민등록도 지금 사는 곳으로 옮겨서 남편과 주민등록 주소가 다르다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["이미 주소가 적혀 있으니 지금 와서 할 수 있는 게 하나도 없다고 생각한다"],
       "goals": ["앞으로 오가는 서류에 주소가 더 나가지 않게 하는 방법", "이미 알려진 주소는 어떻게 되는지"],
@@ -84,7 +88,8 @@
       ],
       "hidden_facts": [
         {"fact": "그 사람은 전 직장 동료로 사귄 적이 없다. 퇴사 후에도 집 앞에서 기다리고 계속 연락한다", "reveal_when": "그 사람과 어떤 사이인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
-        {"fact": "법원에서 집 100미터 안으로 오지 말고 연락하지 말라는 결정이 이미 나왔다", "reveal_when": "접근을 막는 결정이나 조치를 받은 게 있는지 물을 때", "maps_to_flags": ["protection_order"]}
+        {"fact": "법원에서 집 100미터 안으로 오지 말고 연락하지 말라는 결정이 이미 나왔다", "reveal_when": "접근을 막는 결정이나 조치를 받은 게 있는지 물을 때", "maps_to_flags": ["protection_order"]},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["스토킹 피해자도 법원에 직접 보호해 달라고 바로 청구할 수 있다고 들었다", "경찰 조서에 쓴 주소는 그 사람이 절대 못 본다고 생각한다"],
       "goals": ["수사·재판 과정에서 주소가 새지 않게 하는 방법", "지금 받을 수 있는 보호가 무엇인지"],
@@ -102,7 +107,8 @@
         {"fact": "예전 집 근처에 오지 말라는 결정을 경찰·법원을 통해 받았다", "maps_to_flags": ["protection_order"]}
       ],
       "hidden_facts": [
-        {"fact": "그 사람은 헬스장에서 몇 번 마주친 남자로, 사귄 적도 없고 가족도 아니다. 그 뒤로 계속 따라다녔다", "reveal_when": "그 사람이 누구인지, 어떤 관계인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"}
+        {"fact": "그 사람은 헬스장에서 몇 번 마주친 남자로, 사귄 적도 없고 가족도 아니다. 그 뒤로 계속 따라다녔다", "reveal_when": "그 사람이 누구인지, 어떤 관계인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["장소를 바꿔 달라고 하면 새 주소는 그 사람에게 비밀로 지켜진다고 믿는다"],
       "goals": ["못 오게 하는 장소를 새 집으로 바꾸는 방법", "그 과정에서 새 주소가 알려지는지"],
@@ -120,7 +126,8 @@
       ],
       "hidden_facts": [
         {"fact": "상담소에서 법원에 남편이 가까이 못 오게 해 달라고 하는 신청서를 받아 와서 곧 낼 생각이다", "reveal_when": "법원이나 경찰 쪽으로 준비하는 게 있는지, 접근을 막는 조치를 생각하는지 물을 때", "maps_to_flags": ["protection_order"]},
-        {"fact": "경찰에 신고한 적은 없다", "reveal_when": "신고했는지 물을 때", "maps_to_flags": []}
+        {"fact": "경찰에 신고한 적은 없다", "reveal_when": "신고했는지 물을 때", "maps_to_flags": []},
+        {"fact": "1년도 더 전부터 남편과 따로 살고 있고 주민등록도 그때 지금 집으로 옮겼다. 지금 집에서 계속 살 거라 이사할 계획은 없고, 당장 머물 곳이 필요하지도 않다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["법원 신청서에 지금 사는 곳을 쓰면 그대로 남편에게 간다고 생각해 신청을 망설인다"],
       "goals": ["남편이 가까이 못 오게 하는 방법", "신청 서류에서 주소를 지키는 방법"],
@@ -137,7 +144,8 @@
         {"fact": "그 사람이 못 오게 하는 법적 조치를 받고 싶다", "maps_to_flags": ["protection_order"]}
       ],
       "hidden_facts": [
-        {"fact": "2년 사귄 남자친구였고 사귀는 동안 맞은 적이 있다. 결혼하지 않았고 같이 산 적도 없다", "reveal_when": "어떤 관계였는지, 같이 살았는지·결혼했는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"}
+        {"fact": "2년 사귄 남자친구였고 사귀는 동안 맞은 적이 있다. 결혼하지 않았고 같이 산 적도 없다", "reveal_when": "어떤 관계였는지, 같이 살았는지·결혼했는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["오래 사귀었으니 부부 사이 폭력과 똑같이 법원에 보호해 달라고 할 수 있다고 믿는다"],
       "goals": ["지금 받을 수 있는 접근 금지 방법", "안 되는 게 있다면 왜 안 되는지와 대안"],
@@ -155,7 +163,7 @@
       ],
       "hidden_facts": [
         {"fact": "애 아빠는 혼인신고 한 남편이고 집에서 저를 때려 왔다", "reveal_when": "애 아빠와 어떤 관계인지, 왜 학교를 옮기려는지 물을 때", "maps_to_victim_type": "family", "maps_to_flags": []},
-        {"fact": "주민등록 주소는 아직 그대로이고 당분간 옮길 계획이 없다", "reveal_when": "주소지를 옮겼는지 물을 때", "maps_to_flags": []}
+        {"fact": "1년 전부터 남편과 따로 살고 있고 주민등록도 지금 집 주소라 남편과 다르다. 이사할 계획은 없다", "reveal_when": "주소지를 옮겼는지, 그 사람과 같이 사는지·주민등록이 같은지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["주소를 옮기지 않으면 다른 동네 학교로 전학을 못 간다고 생각한다"],
       "goals": ["주소를 안 옮기고 아이를 전학시키는 방법", "학교에서 아이 정보가 새지 않게 하는 방법"],
@@ -172,7 +180,8 @@
         {"fact": "아이는 초등학생이다", "maps_to_flags": ["children_school"]}
       ],
       "hidden_facts": [
-        {"fact": "그 남자는 마트에서 몇 번 마주친 사람일 뿐 사귄 적도 없고 가족도 아니다. 몇 달째 따라다닌다", "reveal_when": "그 남자와 아는 사이인지, 어떤 관계인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"}
+        {"fact": "그 남자는 마트에서 몇 번 마주친 사람일 뿐 사귄 적도 없고 가족도 아니다. 몇 달째 따라다닌다", "reveal_when": "그 남자와 아는 사이인지, 어떤 관계인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["학교에서 알아서 아이 정보를 비밀로 해 준다고 생각한다"],
       "goals": ["아이를 안전하게 전학시키는 방법", "학교에 무엇을 요청할 수 있는지"],
@@ -190,7 +199,9 @@
         {"fact": "중학생 아이가 있다", "maps_to_flags": ["children_school"]}
       ],
       "hidden_facts": [
-        {"fact": "아는 사람의 지인에게 성폭력을 당했다. 그 사람은 가족도 아니고 사귄 적도 없다", "reveal_when": "어떤 일이었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"}
+        {"fact": "아는 사람의 지인에게 성폭력을 당했다. 그 사람은 가족도 아니고 사귄 적도 없다", "reveal_when": "어떤 일이었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []},
+        {"fact": "아이가 직접 피해를 입은 것은 아니다", "reveal_when": "아이도 피해를 입었는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["경찰 조서에 이름과 주소가 다 들어가서 그 사람이 다 볼 수 있다고 들었다"],
       "goals": ["조사·재판 과정에서 신상이 새지 않게 하는 방법", "아이 학교를 지키는 방법"],
@@ -208,7 +219,9 @@
       ],
       "hidden_facts": [
         {"fact": "애 아빠는 혼인신고 한 남편이다", "reveal_when": "애 아빠와 결혼한 사이인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "family"},
-        {"fact": "경찰에 신고한 적은 없다", "reveal_when": "신고했는지 물을 때", "maps_to_flags": []}
+        {"fact": "경찰에 신고한 적은 없다", "reveal_when": "신고했는지 물을 때", "maps_to_flags": []},
+        {"fact": "애 아빠와는 작년부터 따로 살고 있고 주민등록 주소도 이미 다르다. 아이를 데리러 오거나 찾아올 때 술을 마시고 때린다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []},
+        {"fact": "아이를 때린 적은 없다", "reveal_when": "아이도 맞거나 피해를 입었는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["어린이집은 아빠가 물어보면 무조건 알려 줘야 한다고 생각한다"],
       "goals": ["새 어린이집이 애 아빠에게 알려지지 않게 하는 방법"],
@@ -222,12 +235,13 @@
       "opening": "예전에 같이 살던 친구가 저를 계속 쫓아다녀요. 차 때문에 제가 어디 사는지 알게 될까 봐 무서워요.",
       "opening_implies": {"victim_type": null, "flags": ["vehicle"]},
       "facts_revealed": [
-        {"fact": "제 이름이 들어간 차를 몰고 다닌다", "maps_to_flags": ["vehicle"]}
+        {"fact": "제 이름으로 등록된 차가 있고 그 차를 몰고 다닌다", "maps_to_flags": ["vehicle"]}
       ],
       "hidden_facts": [
         {"fact": "그 친구와는 집세를 아끼려고 1년 동안 방을 나눠 쓴 사이였고 사귄 적도 가족도 아니다. 그 집에서 나온 지는 1년이 넘었다", "reveal_when": "그 친구와 어떤 사이였는지, 언제 나왔는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "stalking"},
         {"fact": "차는 그 친구와 반반 돈을 내서 둘 공동명의로 샀다", "reveal_when": "차가 누구 명의인지 물을 때", "maps_to_flags": ["shared_vehicle_or_abuser_owned"]},
-        {"fact": "보험·카드 우편물이 아직 그 친구가 사는 예전 집으로 간다", "reveal_when": "우편물이 어디로 오는지 물을 때", "maps_to_flags": ["mail_old_address"]}
+        {"fact": "보험·카드 우편물이 아직 그 친구가 사는 예전 집으로 간다", "reveal_when": "우편물이 어디로 오는지 물을 때", "maps_to_flags": ["mail_old_address"]},
+        {"fact": "그 집에서 나올 때 주민등록도 옮겨서 지금은 그 친구와 주민등록 주소가 다르다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["주소를 옮기면 차 서류에서는 주소가 자동으로 안 바뀐다고 생각한다"],
       "goals": ["차와 우편물로 새 주소가 새는 경로를 막는 방법", "막을 수 없는 부분이 무엇인지"],
@@ -245,7 +259,8 @@
         {"fact": "그 사람은 남편이고 결혼 내내 폭력이 있었다", "reveal_when": "그 사람이 누구인지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "family"},
         {"fact": "제 휴대폰은 남편 명의이고 가족 결합 요금제로 묶여 있다", "reveal_when": "휴대폰이 누구 명의인지, 요금제를 물을 때", "maps_to_flags": ["abuser_named_phone_or_family_plan"]},
         {"fact": "가족끼리 위치를 보는 서비스를 예전에 남편이 켜 두었고 지금도 켜져 있는 것 같다", "reveal_when": "위치 공유나 계정 공유를 하는지 물을 때", "maps_to_flags": ["shared_accounts_or_location_sharing"]},
-        {"fact": "누가 휴대폰에 몰래 뭘 설치한 것 같지는 않다", "reveal_when": "휴대폰에 이상한 앱이나 감시가 의심되는지 물을 때", "maps_to_flags": []}
+        {"fact": "누가 휴대폰에 몰래 뭘 설치한 것 같지는 않다", "reveal_when": "휴대폰에 이상한 앱이나 감시가 의심되는지 물을 때", "maps_to_flags": []},
+        {"fact": "남편과는 1년 전부터 따로 살고 있고 주민등록 주소도 다르다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["위치 공유를 끄면 남편이 전혀 모를 것이라고 생각한다"],
       "goals": ["남편이 위치를 아는 경로를 끊는 방법", "끊을 때 남편이 눈치채는지"],
@@ -264,7 +279,8 @@
       "hidden_facts": [
         {"fact": "사귀는 동안 맞은 적이 있어서 헤어졌다. 같이 산 적도 결혼한 적도 없다", "reveal_when": "그 사람과 어떤 관계였는지, 어떤 일이 있었는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"},
         {"fact": "인스타그램에 동네 카페나 일상 사진을 자주 올린다", "reveal_when": "사진이나 SNS를 올리는지 물을 때", "maps_to_flags": ["photos_social"]},
-        {"fact": "온라인 쇼핑 택배를 일주일에 몇 번씩 집으로 받는다", "reveal_when": "택배나 배달을 받는지 물을 때", "maps_to_flags": ["parcel_delivery"]}
+        {"fact": "온라인 쇼핑 택배를 일주일에 몇 번씩 집으로 받는다", "reveal_when": "택배나 배달을 받는지 물을 때", "maps_to_flags": ["parcel_delivery"]},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["이상한 물건은 바로 부숴서 버리는 게 제일 안전하다고 생각한다"],
       "goals": ["그 물건을 어떻게 처리해야 하는지", "다른 경로로 위치가 새지 않게 하는 방법"],
@@ -282,7 +298,8 @@
       ],
       "hidden_facts": [
         {"fact": "같은 건물에 사는 남자에게 성폭행을 당했다. 원래 모르는 사이였고 사귄 적도 가족도 아니다", "reveal_when": "어떤 일이 있었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"},
-        {"fact": "오늘 아침 경찰서에 가서 고소했다", "reveal_when": "경찰에 신고했는지 물을 때", "maps_to_flags": ["criminal_case"]}
+        {"fact": "오늘 아침 경찰서에 가서 고소했다", "reveal_when": "경찰에 신고했는지 물을 때", "maps_to_flags": ["criminal_case"]},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["피해자가 지내는 시설에 들어가면 그 주소가 경찰 서류에 적혀 그 사람에게 알려진다고 걱정한다"],
       "goals": ["오늘 밤 안전하게 지낼 곳", "수사 과정에서 거처가 새지 않게 하는 방법"],
@@ -300,7 +317,8 @@
         {"fact": "당분간 지낼 다른 거처가 필요하다", "maps_to_flags": ["shelter_needed"]}
       ],
       "hidden_facts": [
-        {"fact": "그 남자가 회사 건물 앞에서도 기다린 적이 있어서 직장을 아는 것 같다", "reveal_when": "직장이나 다른 장소에도 나타났는지 물을 때", "maps_to_flags": ["workplace_known"]}
+        {"fact": "그 남자가 회사 건물 앞에서도 기다린 적이 있어서 직장을 아는 것 같다", "reveal_when": "직장이나 다른 장소에도 나타났는지 물을 때", "maps_to_flags": ["workplace_known"]},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["회사에 말하면 오히려 불이익을 받을 거라 아무것도 요청할 수 없다고 생각한다"],
       "goals": ["임시로 지낼 안전한 곳", "직장에서 받을 수 있는 도움"],
@@ -317,7 +335,8 @@
         {"fact": "지난주 집을 나와 시설로 옮겼다", "maps_to_flags": ["shelter_needed", "moved_recently"]}
       ],
       "hidden_facts": [
-        {"fact": "건강보험이 남편 밑에 가족으로 올라가 있다", "reveal_when": "건강보험이나 병원 이용, 남편과 묶여 있는 것을 물을 때", "maps_to_flags": ["health_insurance_dependent"]}
+        {"fact": "건강보험이 남편 밑에 가족으로 올라가 있다", "reveal_when": "건강보험이나 병원 이용, 남편과 묶여 있는 것을 물을 때", "maps_to_flags": ["health_insurance_dependent"]},
+        {"fact": "시설에 들어오기 전에 주민등록은 친정 주소로 옮겨 두어서 남편과 주민등록 주소가 다르다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["병원에 가면 남편 보험으로 처리돼서 남편이 알 수밖에 없다고 생각한다"],
       "goals": ["시설을 나간 뒤 살 집", "남편과 엮인 서류·보험으로 위치가 새지 않게 하는 방법"],
@@ -333,9 +352,10 @@
       "facts_revealed": [],
       "hidden_facts": [
         {"fact": "1년 사귀는 동안 맞은 적이 있다. 결혼하지 않았고 같이 산 적도 없다", "reveal_when": "그 사람과 어떤 관계였는지 물을 때", "maps_to_flags": [], "maps_to_victim_type": "dating"},
-        {"fact": "다음 달 전세 계약을 하고 보증금 때문에 등기도 할 생각이다", "reveal_when": "집 계약이나 등기 계획을 물을 때", "maps_to_flags": ["own_property_or_lease_registration"]},
+        {"fact": "지금 사는 집 전세 계약을 다음 달 다시 하면서(이사는 하지 않는다) 보증금 때문에 등기도 할 생각이다", "reveal_when": "집 계약이나 등기 계획을 물을 때", "maps_to_flags": ["own_property_or_lease_registration"]},
         {"fact": "직원 다섯 명인 작은 회사의 대표다", "reveal_when": "직업이나 회사에서의 직위를 물을 때", "maps_to_flags": ["company_officer"]},
-        {"fact": "곧 선거가 있어서 투표하러 갈 생각이다", "reveal_when": "선거나 투표, 다른 공적 명부를 물을 때", "maps_to_flags": ["election_period"]}
+        {"fact": "곧 선거가 있어서 투표하러 갈 생각이다", "reveal_when": "선거나 투표, 다른 공적 명부를 물을 때", "maps_to_flags": ["election_period"]},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["동사무소에서 주소를 막아 두면 다른 모든 공개 서류에서도 주소가 가려진다고 생각한다"],
       "goals": ["주소가 공개 서류로 새는 경로를 미리 알기", "막을 수 없는 경로에 대한 대비"],
@@ -353,8 +373,9 @@
         {"fact": "손해배상 민사소송을 낼 예정이다", "maps_to_flags": ["lawsuit"]}
       ],
       "hidden_facts": [
-        {"fact": "회식 뒤 직장 동료에게 성폭행을 당했다. 사귄 적도 가족도 아니다", "reveal_when": "어떤 일이었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"},
-        {"fact": "평소 SNS 에 일상 사진을 올리는데 그 사람이 제 계정을 본다. 아직 제 신상이 인터넷에 올라간 적은 없다", "reveal_when": "사진이나 SNS 를 올리는지 물을 때", "maps_to_flags": ["photos_social"]}
+        {"fact": "지인 모임 뒤 그 모임에서 알게 된 남자에게 성폭행을 당했다. 사귄 적도 가족도 아니고, 그 사람은 내 직장을 모른다", "reveal_when": "어떤 일이었는지 조심스럽게 물을 때", "maps_to_flags": [], "maps_to_victim_type": "sexual"},
+        {"fact": "평소 SNS 에 일상 사진을 올리는데 그 사람이 제 계정을 본다. 아직 제 신상이 인터넷에 올라간 적은 없다", "reveal_when": "사진이나 SNS 를 올리는지 물을 때", "maps_to_flags": ["photos_social"]},
+        {"fact": "그 사람과 같이 산 적도, 주민등록 주소가 같았던 적도 없다", "reveal_when": "주민등록 주소가 그 사람과 같은지, 지금 그 사람과 같이 사는지 물을 때", "maps_to_flags": []}
       ],
       "misconceptions": ["형사 재판에서 이미 보호받고 있으니 민사소송에서도 주소가 자동으로 가려진다고 생각한다"],
       "goals": ["민사소송에서 주소를 지키는 방법", "SNS 로 신상이 새지 않게 하는 방법"],
