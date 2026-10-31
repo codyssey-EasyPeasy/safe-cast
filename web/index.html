@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>숨은집 지킴이</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="site-header">
+  <h1>숨은집 지킴이</h1>
+  <p class="disclaimer" role="note">
+    법률정보 안내이며 법률상담이 아닙니다. 긴급 <a href="tel:112">112</a> · <a href="tel:1366">1366</a> · 법률구조공단 <a href="tel:132">132</a>
+  </p>
+</header>
+
+<button type="button" id="quick-exit" class="quick-exit" aria-label="빠른 나가기 (즉시 상태를 지우고 중립 사이트로 이동)">빠른 나가기</button>
+
+<nav class="tabs" role="tablist" aria-label="기능 선택">
+  <button role="tab" id="tab-diagnose" aria-controls="panel-diagnose" aria-selected="true" tabindex="0">진단</button>
+  <button role="tab" id="tab-docs" aria-controls="panel-docs" aria-selected="false" tabindex="-1">서류 점검</button>
+  <button role="tab" id="tab-search" aria-controls="panel-search" aria-selected="false" tabindex="-1">근거 질의</button>
+</nav>
+
+<main>
+  <section id="panel-diagnose" role="tabpanel" aria-labelledby="tab-diagnose" class="panel">
+    <h2>내 상황에 맞는 제도 찾기</h2>
+    <form id="diagnose-form" autocomplete="off" novalidate>
+      <fieldset class="victim-fieldset">
+        <legend>피해 유형</legend>
+        <label class="victim-item"><input type="radio" name="victim_type" value="family" required> 가정폭력</label>
+        <label class="victim-item"><input type="radio" name="victim_type" value="stalking"> 스토킹</label>
+        <label class="victim-item"><input type="radio" name="victim_type" value="dating"> 교제폭력</label>
+        <label class="victim-item"><input type="radio" name="victim_type" value="sexual"> 성폭력</label>
+      </fieldset>
+
+      <fieldset class="flags-fieldset">
+        <legend>상황 체크</legend>
+        <div id="flags-container" class="flags-container" aria-live="polite"></div>
+      </fieldset>
+
+      <button type="submit" class="primary">진단하기</button>
+    </form>
+
+    <div id="diagnose-status" class="status" role="status" aria-live="polite"></div>
+    <div id="diagnose-results" class="results" aria-live="polite"></div>
+  </section>
+
+  <section id="panel-docs" role="tabpanel" aria-labelledby="tab-docs" class="panel" hidden>
+    <h2>서류 점검</h2>
+    <label for="doc-text" class="field-label">서류 내용을 붙여넣으세요</label>
+    <textarea id="doc-text" class="doc-text" rows="8" spellcheck="false" autocomplete="off"></textarea>
+    <p class="hint" id="doc-hint">
+      이 브라우저 밖으로 내용이 전송되지 않습니다. ‘2단계 점검’ 버튼을 누른 경우에만 서버로 전송됩니다.
+    </p>
+    <div class="btn-row">
+      <button type="button" id="doc-tier1" class="primary">1단계 점검(이 브라우저에서만)</button>
+      <button type="button" id="doc-tier2">기관 내부 2단계 점검</button>
+    </div>
+    <div id="doc-status" class="status" role="status" aria-live="polite"></div>
+    <div id="doc-highlight" class="doc-highlight" aria-label="하이라이트된 서류 내용"></div>
+    <div id="doc-findings" class="doc-findings" aria-live="polite"></div>
+  </section>
+
+  <section id="panel-search" role="tabpanel" aria-labelledby="tab-search" class="panel" hidden>
+    <h2>근거 질의</h2>
+    <label for="search-q" class="field-label">궁금한 점을 입력하세요</label>
+    <div class="search-row">
+      <input id="search-q" type="text" class="search-input" autocomplete="off"
+             placeholder="예: 소장 접수 전에 주소 비공개를 신청할 수 있나요?">
+      <button type="button" id="search-btn" class="primary">근거 찾기</button>
+    </div>
+    <div id="search-status" class="status" role="status" aria-live="polite"></div>
+    <div id="search-results" class="results" aria-live="polite"></div>
+  </section>
+</main>
+
+<script src="/static/detect.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
