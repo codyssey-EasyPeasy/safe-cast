@@ -1,0 +1,330 @@
+{
+  "generated_at": "2026-10-31T12:05:09+09:00",
+  "knowledge_version": "2026-10-31",
+  "gpu_url": "http://127.0.0.1:18000",
+  "diagnose": {
+    "scenarios": 20,
+    "must_include_total": 56,
+    "must_include_hit": 56,
+    "recall": 1.0,
+    "misapplied": 0,
+    "pending_expected": 2,
+    "pending_hit": 2,
+    "residual_expected": 6,
+    "residual_hit": 6,
+    "not_applicable_expected": 6,
+    "not_applicable_hit": 6,
+    "per_scenario": []
+  },
+  "doccheck_tier1": {
+    "strict_label_overlap": {
+      "pred": 33,
+      "gold": 57,
+      "tp_pred": 32,
+      "fp": 1,
+      "tp_gold": 30,
+      "fn": 27,
+      "precision": 0.9697,
+      "recall": 0.5263,
+      "f1": 0.6823
+    },
+    "any_label_overlap": {
+      "pred": 33,
+      "gold": 57,
+      "tp_pred": 32,
+      "fp": 1,
+      "tp_gold": 30,
+      "fn": 27,
+      "precision": 0.9697,
+      "recall": 0.5263,
+      "f1": 0.6823
+    },
+    "per_label": {
+      "생활권": {
+        "gold": 11,
+        "hit": 0,
+        "recall": 0.0
+      },
+      "이메일": {
+        "gold": 4,
+        "hit": 4,
+        "recall": 1.0
+      },
+      "전화": {
+        "gold": 6,
+        "hit": 6,
+        "recall": 1.0
+      },
+      "주민번호": {
+        "gold": 4,
+        "hit": 4,
+        "recall": 1.0
+      },
+      "주소": {
+        "gold": 10,
+        "hit": 1,
+        "recall": 0.1
+      },
+      "직장": {
+        "gold": 8,
+        "hit": 2,
+        "recall": 0.25
+      },
+      "차량": {
+        "gold": 6,
+        "hit": 6,
+        "recall": 1.0
+      },
+      "학교": {
+        "gold": 8,
+        "hit": 7,
+        "recall": 0.875
+      }
+    },
+    "docs_without_gold_false_positive_docs": 0,
+    "docs": 30
+  },
+  "doccheck_tier2": {
+    "strict_label_overlap": {
+      "pred": 47,
+      "gold": 43,
+      "tp_pred": 36,
+      "fp": 11,
+      "tp_gold": 28,
+      "fn": 15,
+      "precision": 0.766,
+      "recall": 0.6512,
+      "f1": 0.704
+    },
+    "any_label_overlap": {
+      "pred": 47,
+      "gold": 43,
+      "tp_pred": 38,
+      "fp": 9,
+      "tp_gold": 30,
+      "fn": 13,
+      "precision": 0.8085,
+      "recall": 0.6977,
+      "f1": 0.749
+    },
+    "per_label": {
+      "생활권": {
+        "gold": 11,
+        "hit": 0,
+        "recall": 0.0
+      },
+      "주소": {
+        "gold": 10,
+        "hit": 10,
+        "recall": 1.0
+      },
+      "직장": {
+        "gold": 8,
+        "hit": 4,
+        "recall": 0.5
+      },
+      "차량": {
+        "gold": 6,
+        "hit": 6,
+        "recall": 1.0
+      },
+      "학교": {
+        "gold": 8,
+        "hit": 8,
+        "recall": 1.0
+      }
+    },
+    "docs_without_gold_false_positive_docs": 5,
+    "docs": 30
+  },
+  "doccheck_combined": {
+    "strict_label_overlap": {
+      "pred": 80,
+      "gold": 57,
+      "tp_pred": 68,
+      "fp": 12,
+      "tp_gold": 42,
+      "fn": 15,
+      "precision": 0.85,
+      "recall": 0.7368,
+      "f1": 0.7894
+    },
+    "any_label_overlap": {
+      "pred": 80,
+      "gold": 57,
+      "tp_pred": 76,
+      "fp": 4,
+      "tp_gold": 44,
+      "fn": 13,
+      "precision": 0.95,
+      "recall": 0.7719,
+      "f1": 0.8517
+    },
+    "per_label": {
+      "생활권": {
+        "gold": 11,
+        "hit": 0,
+        "recall": 0.0
+      },
+      "이메일": {
+        "gold": 4,
+        "hit": 4,
+        "recall": 1.0
+      },
+      "전화": {
+        "gold": 6,
+        "hit": 6,
+        "recall": 1.0
+      },
+      "주민번호": {
+        "gold": 4,
+        "hit": 4,
+        "recall": 1.0
+      },
+      "주소": {
+        "gold": 10,
+        "hit": 10,
+        "recall": 1.0
+      },
+      "직장": {
+        "gold": 8,
+        "hit": 4,
+        "recall": 0.5
+      },
+      "차량": {
+        "gold": 6,
+        "hit": 6,
+        "recall": 1.0
+      },
+      "학교": {
+        "gold": 8,
+        "hit": 8,
+        "recall": 1.0
+      }
+    },
+    "docs_without_gold_false_positive_docs": 3,
+    "docs": 30
+  },
+  "intent": {
+    "note": "운영 앱은 GPU /intent 결과만 쓰고, GPU 에 닿지 못할 때만 로컬 정규식으로 폴백한다.",
+    "queries": 40,
+    "local_regex": {
+      "refuse_expected": 25,
+      "refused_correct": 4,
+      "refusal_rate": 0.16,
+      "allow_expected": 15,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "bypass": {
+          "n": 1,
+          "refused": 0
+        },
+        "law": {
+          "n": 4,
+          "refused": 0
+        },
+        "locate": {
+          "n": 13,
+          "refused": 3
+        },
+        "protect": {
+          "n": 11,
+          "refused": 0
+        },
+        "records": {
+          "n": 7,
+          "refused": 0
+        },
+        "track": {
+          "n": 4,
+          "refused": 1
+        }
+      }
+    },
+    "gpu": {
+      "refuse_expected": 25,
+      "refused_correct": 11,
+      "refusal_rate": 0.44,
+      "allow_expected": 15,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "bypass": {
+          "n": 1,
+          "refused": 0
+        },
+        "law": {
+          "n": 4,
+          "refused": 0
+        },
+        "locate": {
+          "n": 13,
+          "refused": 8
+        },
+        "protect": {
+          "n": 11,
+          "refused": 0
+        },
+        "records": {
+          "n": 7,
+          "refused": 2
+        },
+        "track": {
+          "n": 4,
+          "refused": 1
+        }
+      },
+      "score_min_refuse_expected": -0.0756,
+      "score_max_allow_expected": -0.0112
+    },
+    "gpu_or_local": {
+      "refuse_expected": 25,
+      "refused_correct": 11,
+      "refusal_rate": 0.44,
+      "allow_expected": 15,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "bypass": {
+          "n": 1,
+          "refused": 0
+        },
+        "law": {
+          "n": 4,
+          "refused": 0
+        },
+        "locate": {
+          "n": 13,
+          "refused": 8
+        },
+        "protect": {
+          "n": 11,
+          "refused": 0
+        },
+        "records": {
+          "n": 7,
+          "refused": 2
+        },
+        "track": {
+          "n": 4,
+          "refused": 1
+        }
+      }
+    }
+  },
+  "basis_accuracy": {
+    "basis_total": 209,
+    "basis_in_snapshot": 209,
+    "ratio": 1.0,
+    "effective_match": 202,
+    "effective_match_ratio": 0.9665,
+    "mismatched_laws": [
+      "공직선거법",
+      "부동산등기규칙",
+      "우편법 시행규칙"
+    ],
+    "basis_without_article": 14,
+    "snapshot_articles": 174
+  }
+}

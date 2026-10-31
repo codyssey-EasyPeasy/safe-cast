@@ -208,9 +208,9 @@ def create_app(
         except (httpx.HTTPError, ValueError, KeyError, TypeError):
             return {"available": False}
 
-    web_dir = REPO_ROOT / "web"
-    if web_dir.is_dir():
-        app.mount("/static", StaticFiles(directory=str(web_dir)), name="static")
+    static_dir = REPO_ROOT / "web" / "static"
+    if static_dir.is_dir():
+        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
     @app.get("/")
     async def index():

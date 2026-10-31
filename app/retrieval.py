@@ -54,6 +54,46 @@ def local_locate_intent(q: str) -> bool:
     return any(p.search(text) for p in _LOCATE_PATTERNS)
 
 
+# GPU 서버는 요청 본문을 20KB 로 제한한다(gpu/server.py MAX_BODY). 여유를 두고 자른다.
+_GPU_BODY_BUDGET = 16 * 1024
+_EMBED_CHARS = 1200  # 임베딩용 조문 앞부분(조 제목·핵심 문장이 앞에 온다)
+_RERANK_CHARS = 600
+
+
+def _json_bytes(payload: dict[str, Any]) -> bytes:
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+
+
+def _budget_batches(texts: list[str], max_items: int) -> list[list[int]]:
+    """본문 크기 상한 안에 들어가도록 인덱스를 묶는다."""
+    batches: list[list[int]] = []
+    cur: list[int] = []
+    size = 64
+    for i, t in enumerate(texts):
+        n = len(t.encode("utf-8")) + 8
+        if cur and (size + n > _GPU_BODY_BUDGET or len(cur) >= max_items):
+            batches.append(cur)
+            cur, size = [], 64
+        cur.append(i)
+        size += n
+    if cur:
+        batches.append(cur)
+    return batches
+
+
+async def _gpu_post(
+    client: httpx.AsyncClient, url: str, payload: dict[str, Any], timeout: float = 15.0
+) -> dict[str, Any]:
+    r = await client.post(
+        url,
+        content=_json_bytes(payload),
+        headers={"Content-Type": "application/json"},
+        timeout=timeout,
+    )
+    r.raise_for_status()
+    return r.json()
+
+
 def _tokens(text: str) -> list[str]:
     """한국어 텍스트 토큰화: 공백 단어 + 문자 bigram."""
     text = (text or "").lower()
@@ -184,14 +224,12 @@ class Retriever:
 
             vectors: list[list[float]] = []
             try:
-                for start in range(0, len(self.articles), 32):
-                    batch = self.articles[start : start + 32]
-                    texts = [a["text"] for a in batch]
-                    r = await client.post(
-                        f"{gpu_url}/embed", json={"texts": texts}, timeout=10.0
+                all_texts = [a["text"][:_EMBED_CHARS] for a in self.articles]
+                for idx in _budget_batches(all_texts, 32):
+                    texts = [all_texts[i] for i in idx]
+                    data = await _gpu_post(
+                        client, f"{gpu_url}/embed", {"texts": texts}, timeout=30.0
                     )
-                    r.raise_for_status()
-                    data = r.json()
                     vs = data.get("vectors") or []
                     if len(vs) != len(texts):
                         raise ValueError("embed size mismatch")
@@ -229,9 +267,7 @@ class Retriever:
             if not ok:
                 return (self.bm25(q, top_k), True)
 
-            r = await client.post(f"{gpu_url}/embed", json={"texts": [q]}, timeout=10.0)
-            r.raise_for_status()
-            data = r.json()
+            data = await _gpu_post(client, f"{gpu_url}/embed", {"texts": [q]})
             vs = data.get("vectors") or []
             if not vs:
                 raise ValueError("no query vector")
@@ -240,16 +276,21 @@ class Retriever:
             sims = [(self._dot(qv, v), i) for i, v in enumerate(self.vectors)]
             sims.sort(key=lambda x: x[0], reverse=True)
             top = sims[:30]
-            docs = [self.articles[i]["text"] for _, i in top]
+            docs = [self.articles[i]["text"][:_RERANK_CHARS] for _, i in top]
 
-            rr = await client.post(
-                f"{gpu_url}/rerank", json={"query": q, "docs": docs}, timeout=10.0
-            )
-            rr.raise_for_status()
-            rdata = rr.json()
-            scores = rdata.get("scores") or []
-            if len(scores) != len(docs):
-                raise ValueError("rerank size mismatch")
+            # 재순위 점수는 (질의, 문서) 쌍마다 독립이므로 나눠 보내도 같다.
+            scores: list[float] = [0.0] * len(docs)
+            for idx in _budget_batches(docs, 100):
+                rdata = await _gpu_post(
+                    client,
+                    f"{gpu_url}/rerank",
+                    {"query": q, "docs": [docs[i] for i in idx]},
+                )
+                part = rdata.get("scores") or []
+                if len(part) != len(idx):
+                    raise ValueError("rerank size mismatch")
+                for i, sc in zip(idx, part):
+                    scores[i] = float(sc)
 
             ranked = sorted(
                 [(float(s), i) for s, (_, i) in zip(scores, top)],
