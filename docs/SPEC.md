@@ -92,3 +92,15 @@ tests/                     # pytest
 - 결과마다 "혼자 하기 어려우면 1366(24시간) · 법률구조공단 132" 연결을 붙인다. 위험이 급하면 112.
 - 이중용도 강화: 잔여 위험(제도 없는 경로)은 "이 기록에는 주소가 남을 수 있으니 등록·신청 전에 고려하세요" 수준의 사전 안내만, 조회 주체·요건·방법 서술 금지. 근거 질의 가드는 그대로.
 - 통지 경고는 사용자가 직접 결정하므로 더 눈에 띄게(신청 전 확인 체크).
+
+## 8. 내부 LLM (2026-10-31 오너 승인) — GPU 서버 자체 호스팅, 외부 LLM 런타임 금지
+- 모델: `Qwen/Qwen3-8B-AWQ`(Apache-2.0, 공식 AWQ, thinking 끔). 대안 `kakaocorp/kanana-1.5-8b-instruct-2505`(Apache-2.0)로 10문항 A/B 후 확정. EXAONE 은 라이선스(other) 때문에 제외.
+- 서빙: GPU 서버 vLLM OpenAI 호환 서버 `127.0.0.1:8001`(외부 바인드 금지), `gpu/` FastAPI 가 프록시. `--gpu-memory-utilization` 은 다른 모델(bge-m3·reranker·GLiNER)과 함께 24GB 안에 들어가게 조정(실측).
+- 역할 3가지만 (모두 `gpu/` 엔드포인트, 운영 API 가 프록시):
+  1. `POST /llm/intake` `{text}` → `{victim_type|null, flags:[id...], confidence, unclear:[질문]}` — JSON 스키마 강제(guided decoding), flag id 는 knowledge.json 목록만. 사용자가 체크박스로 확인·수정한 뒤에만 진단. **어떤 제도를 권할지는 규칙 엔진**.
+  2. `POST /llm/answer` `{question, item_ids:[...]}` → 해당 지식표 행과 조문 원문만 컨텍스트로 쉬운 말 답 + 인용(item id·조문). 컨텍스트에 없으면 "확인되지 않음 · 1366/132 문의". 결과에 'AI 생성' 표시.
+  3. `POST /llm/rewrite` `{text, spans}` → 위치 단서를 안전 문구로 바꾼 제안 문장(원문 의미 보존, 새 사실 추가 금지).
+- 가드: 입력은 기존 `/intent`, 출력도 `/intent`(locate) + 규칙 필터로 한 번 더 검사해 차단. 사용자 텍스트 안 지시문 무시(프롬프트 주입 방어: 시스템 지시에 명시, 사용자 텍스트는 구분자로 감쌈).
+- 로그: 본문·프롬프트·생성문 저장 금지(vLLM `--disable-log-requests`).
+- 실패 시: 체크박스 방식으로 그대로 동작(외부 LLM 대체 금지).
+- 평가: intake 는 합성 자유서술 20개(정답 flags) → flag F1·피해유형 정확도. answer 는 10문항 근거 이탈 여부(사람 판정 표본). rewrite 는 단서 잔존율.
