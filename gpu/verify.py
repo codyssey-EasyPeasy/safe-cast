@@ -167,6 +167,12 @@ class Ctx:
     has_notify: bool
     deny_supported: bool
     ids: list[str]
+    # 근거 절(clause) 단위 낱말 집합과 그 절의 한계·불확실 표지(없으면 None), 의무 표지 여부.
+    clauses: list[tuple[set[str], str | None, bool]] = field(default_factory=list)
+    # 근거 행 어딘가에 '재량·노출 가능·미확인' 같은 노출 한계가 적혀 있는지(그 표지).
+    exposure_limit: str | None = None
+    # 처벌·벌칙 문구가 행 칸이나 조문 본문에 있는지(법령 이름의 '처벌'은 세지 않는다: HR11).
+    has_penalty: bool = False
 
 
 _ART_RE = re.compile(r"제\s*(\d+)\s*조(?:\s*의\s*(\d+))?(?:\s*제?\s*(\d+)\s*항)?")
@@ -198,8 +204,190 @@ def build_ctx(items: list[dict[str, Any]]) -> Ctx:
     has_notify = any(it.get("notify_warning") for it in items) or bool(_NOTIFY_WORD_RE.search(raw))
     deny = any(llm.DENY_NOTIFY_RE.search(str(it.get(k) or ""))
                for it in items for k in ("notify_warning", "limits", "where", "plain", "measure"))
+    clauses = []
+    for t in _context_fields(items):
+        for c in split_clauses(t, evidence=True):
+            toks = content_tokens(c)
+            if toks:
+                m = _EVID_HEDGE_RE.search(c)
+                clauses.append((toks, m.group(0) if m else None, bool(_EVID_OBLIG_RE.search(c))))
+    lim = None
+    for it in items:
+        for k in ("limits", "plain", "measure", "notify_warning", "where"):
+            m = _EXPOSURE_LIMIT_RE.search(str(it.get(k) or ""))
+            if m:
+                lim = m.group(0)
+                break
+        if lim:
+            break
     return Ctx(raw=raw, norm=norm(raw), digits=_int_digits(raw), article_bases=bases,
-               has_notify=has_notify, deny_supported=deny, ids=[it["id"] for it in items])
+               has_notify=has_notify, deny_supported=deny, ids=[it["id"] for it in items],
+               clauses=clauses, exposure_limit=lim,
+               has_penalty=any(_PENALTY_CTX_RE.search(t) for t in _context_fields(items)))
+
+
+def _context_fields(items: list[dict[str, Any]]) -> list[str]:
+    out = []
+    for it in items:
+        for k in llm.CTX_FIELDS:
+            v = it.get(k)
+            if v:
+                out.append(str(v))
+        for a in it.get("articles") or []:
+            if a.get("text"):
+                out.append(str(a["text"]))
+    return out
+
+
+# ------------------------------------------------------------------ 절(clause)·낱말(한계 표현 보존 검사용)
+# 2026-11-01 보류 세트 실패: 근거는 '재량·미확인·~할 수 있음'인데 생성문이 '드러나지 않아요'·'적용되지 않습니다'로
+# 단정했다(HR06·HR10). 문장을 절로 나눠, 그 절과 낱말이 가장 많이 겹치는 근거 절이 한계 표현을 담고 있는데
+# 생성 절에는 한계 표현이 없으면 근거 없는 단정으로 본다.
+_CLAUSE_SPLIT_RE = re.compile(r"(?<=[.!?;。])\s+|\n+|;\s*|(?<=[고며서]),\s+|(?:지만|으나|는데|지마는)\s*,?\s+|,\s*다만\s*,?\s*|\s다만\s*,?\s*")
+_TOKEN_RE = re.compile(r"[가-힣A-Za-z0-9]{2,}")
+_JOSA_RE = re.compile(
+    r"(?:으로부터|에서부터|에서는|에서도|에게는|에게도|으로는|으로도|이라도|까지는|부터는|이라서|이라|에서|에게|한테|"
+    r"으로|부터|까지|처럼|보다|이나|라도|마다|조차|이고|이며|이면|하면|하려면|려면|은|는|이|가|을|를|에|의|도|로|와|과|만|나)$"
+)
+_STOP = {
+    "제도", "피해자", "가해자", "상대방", "상대", "경우", "신청", "신청할", "신청하", "있어요", "있습니다", "있다", "합니다", "해요",
+    "됩니다", "돼요", "이는", "그리고", "다만", "또는", "해당", "관련", "내용", "근거", "확인", "가능", "사람", "본인", "이제도",
+    "않습니다", "않아요", "않음", "없어요", "없습니다", "없음", "있음", "수도", "때문", "통해", "위해", "대한", "함께", "모두",
+}
+# 근거 쪽 한계·불확실 표지(근거 절에 있으면 '한계가 붙은 절').
+_EVID_HEDGE_RE = re.compile(
+    r"재량|미확인|확인되지\s*않|확인\s*안\s*됨|노출될\s*수|노출\s*가능|드러날\s*수|알게\s*될\s*수|알\s*수\s*있|"
+    r"원칙적으로|역노출|보정을\s*명할\s*수|우려|달라질\s*수|않을\s*수|못할\s*수|생략할\s*수|거절할\s*수"
+)
+# 생성 절의 한계 표지(이게 있으면 단정이 아니다).
+_ANS_HEDGE_RE = re.compile(
+    r"수\s*(?:도\s*)?있|확인되지\s*않|확인할\s*수\s*없|미확인|재량|원칙적으로|원칙상|가능성|달라질|경우에\s*따라|"
+    r"문의|확인하세요|확인해\s*(?:보|주)세요|우려|지\s*모릅|지는\s*않을|않을\s*수|해도\s*(?:됩|돼)|"
+    r"것이\s*좋|하세요|권합니다|요청해\s*보|예정"
+)
+# 노출 한계(근거 행): 이게 있으면 '드러나지 않는다·막을 수 있다' 같은 보호 효과 단정은 한계 표현을 함께 써야 한다.
+# ('미확인'은 적용 여부의 한계라 한계 표현 보존 검사가 맡는다. 여기에 넣으면 무관한 보호 효과 문장까지 걸린다: HR08.)
+_EXPOSURE_LIMIT_RE = re.compile(r"재량|노출될\s*수|노출\s*가능|역노출|드러날\s*수|알게\s*될\s*수")
+_PROTECT_CLAIM_RE = re.compile(
+    r"드러나지\s*않|노출되지\s*않|노출\s*안\s*(?:돼|됩|된)|가려(?:집|져|진다)|알\s*수\s*없|알지\s*못|모르게\s*(?:돼|됩|할|하)|"
+    r"막을\s*수\s*있|막아\s*(?:줍|줘|준)|막(?:습니다|아요|힙니다|혀요)|차단(?:됩|돼|된)|안전(?:합니다|해요)"
+)
+# 생성 절의 '한계 표지'로 인정하는 더 엄격한 목록(보호 효과 단정 검사용: '막을 수 있어요'의 '수 있'은 한계가 아니다).
+_STRICT_HEDGE_RE = re.compile(r"재량|미확인|확인되지\s*않|노출될\s*수|드러날\s*수|알게\s*될\s*수|원칙적으로|원칙상|"
+                              r"완전히\s*(?:막|가리)지|한계|가능성|경우에\s*따라|지\s*모릅|문의")
+# 의무 단정: 근거 절에도 의무·요청 표지가 있어야 한다.
+_ANS_OBLIG_RE = re.compile(r"([가-힣]{1,4})\s*(?:해야\s*(?:합|해|하|돼|됩)|하여야)|필수(?:입니다|예요|이에요)?")
+_OBLIG_SUFFIX = ("해야", "하여야", "하세요", "하십시오", "필수")
+_EVID_OBLIG_RE = re.compile(r"해야|하여야|써야|내야|필수|의무|하세요|하십시오|필요|하여야\s*한다")
+# 처벌·제재 주장: 근거에 처벌·징역·벌금 등이 있어야 한다(HR11: 처벌 조항 없이 '처벌받을 수 있어요').
+_PENALTY_RE = re.compile(r"처벌|징역|벌금|과태료|구류|형사\s*책임|범죄(?:가|에)\s*(?:되|돼|해당)")
+_PENALTY_CTX_RE = re.compile(r"처벌|징역|벌금|과태료|구류|범죄")
+# 이름이 비슷한 제도: 정확한 이름으로 근거에 있어야 한다('임시조치'만 있는 근거로 '긴급임시조치'를 말하면 안 되고 그 반대도).
+MEASURE_NAMES: list[tuple[str, str]] = [
+    ("긴급임시조치", r"긴급\s*임시\s*조치"),
+    ("임시조치", r"(?<!긴급)(?<!긴급\s)임시\s*조치"),
+    ("긴급응급조치", r"긴급\s*응급\s*조치"),
+    ("응급조치", r"(?<!긴급)(?<!긴급\s)응급\s*조치"),
+    ("임시보호명령", r"임시\s*보호\s*명령"),
+    ("피해자보호명령", r"피해자\s*보호\s*명령"),
+    ("명의도용방지서비스", r"명의\s*도용\s*방지"),
+    ("가입제한서비스", r"가입\s*제한"),
+    ("가입사실현황조회", r"가입\s*사실\s*(?:현황\s*)?조회"),
+    ("신변안전조치", r"신변\s*안전\s*조치"),
+    ("삭제지원", r"삭제\s*지원"),
+    ("형사공탁", r"형사\s*공탁"),
+    ("송달영수인", r"송달\s*영수인"),
+    ("피해자 국선변호사", r"국선\s*변호사"),
+]
+# 기능 혼동(실측 HR26): 명의도용방지서비스는 개통 사실을 알려 주고, 개통을 미리 막는 것은 가입제한서비스다.
+# (이름, 이름 패턴, 그 이름에 붙이면 안 되는 기능, 같은 절에 있으면 허용하는 짝 이름, 고칠 말)
+CONFUSABLE: list[tuple[str, str, str, str, str]] = [
+    ("명의도용방지서비스", r"명의\s*도용\s*방지", r"막|차단|못\s*하게|제한(?!\s*서비스)|금지", r"가입\s*제한",
+     "명의도용방지서비스는 개통 사실을 알려 주는 서비스이고, 개통을 미리 막는 것은 가입제한서비스입니다"),
+]
+
+
+# 근거 쪽은 더 잘게(쉼표·'~고 '·괄호) 나눈다: '교부는 재량, 인터넷 발급은 기속 금지'처럼 한 칸에 한계 있는 부분과
+# 없는 부분이 섞여 있어서다.
+_EVID_SPLIT_RE = re.compile(r",\s*|(?<=[고며])\s+|[()]")
+
+
+def split_clauses(text: str, evidence: bool = False) -> list[str]:
+    out = [c.strip() for c in _CLAUSE_SPLIT_RE.split(text or "") if c and c.strip()]
+    if evidence:
+        out = [p.strip() for c in out for p in _EVID_SPLIT_RE.split(c) if p and p.strip()]
+    return out
+
+
+def content_tokens(text: str) -> set[str]:
+    out = set()
+    for t in _TOKEN_RE.findall(_strip_ids(text)):
+        t = _JOSA_RE.sub("", t)
+        if len(t) >= 2 and t not in _STOP and not t.isdigit():
+            out.add(t)
+    return out
+
+
+def _tok_match(a: str, b: str) -> bool:
+    return a == b or (min(len(a), len(b)) >= 2 and (a.startswith(b) or b.startswith(a)))
+
+
+def _overlap(ans: set[str], ev: set[str]) -> int:
+    return sum(any(_tok_match(a, e) for e in ev) for a in ans)
+
+
+def best_clauses(clause: str, ctx: Ctx, min_overlap: int = 2) -> list[tuple[set[str], str | None, bool]]:
+    """생성 절과 낱말이 가장 많이 겹치는 근거 절들(동점 모두). 겹침이 min_overlap 미만이면 빈 목록."""
+    toks = content_tokens(clause)
+    if not toks or not ctx.clauses:
+        return []
+    scored = [(_overlap(toks, c[0]), c) for c in ctx.clauses]
+    top = max(sc for sc, _c in scored)
+    if top < min_overlap:
+        return []
+    return [c for sc, c in scored if sc == top]
+
+
+def clause_checks(sentence: str, ctx: Ctx) -> list[str]:
+    """절 단위 결정적 검사: 한계 표현 보존, 보호 효과 단정, 의무 단정, 처벌 주장, 제도 이름·기능 혼동."""
+    reasons: list[str] = []
+    s = _strip_ids(sentence)
+    for cl in split_clauses(s):
+        # 제도 이름(비슷한 이름 구별)
+        for name, pat in MEASURE_NAMES:
+            if re.search(pat, cl) and not re.search(pat, ctx.raw):
+                reasons.append(f"제도 이름 '{name}' 근거에 없음(근거 항목에 적힌 제도 이름만 쓸 것)")
+        for name, pat, func, partner, fix in CONFUSABLE:
+            if re.search(pat, cl) and re.search(func, cl) and not re.search(partner, cl):
+                reasons.append(f"제도 기능 혼동: {fix}")
+        # 처벌 주장
+        m = _PENALTY_RE.search(cl)
+        if m and not ctx.has_penalty:
+            reasons.append(f"처벌 주장 '{m.group(0)}' 근거 없음(처벌 여부는 근거에서 확인되지 않음)")
+        # 보호 효과 단정(근거 행에 노출 한계가 있을 때)
+        m = _PROTECT_CLAIM_RE.search(cl)
+        if m and ctx.exposure_limit and not _STRICT_HEDGE_RE.search(cl):
+            n = norm(cl)
+            k = n.find(norm(m.group(0)))
+            window = n[max(0, k - 6):k + len(norm(m.group(0)))]
+            if window not in ctx.norm:
+                reasons.append(f"보호 효과 단정 '{m.group(0)}': 근거는 '{ctx.exposure_limit}'(한계)라 그대로 함께 쓸 것")
+                continue
+        top = best_clauses(cl, ctx)
+        if not top:
+            continue
+        # 한계 표현 보존: 가장 가까운 근거 절이 모두 한계 표현을 담는데 생성 절은 단정
+        hedges = [h for _t, h, _o in top]
+        if all(hedges) and not _ANS_HEDGE_RE.search(cl):
+            reasons.append(f"한계 표현 누락: 근거는 '{hedges[0]}'인데 단정함(근거의 한계 표현을 그대로 쓸 것)")
+        # 의무 단정
+        m = _ANS_OBLIG_RE.search(cl)
+        if m and not any(o for _t, _h, o in top) and norm(m.group(0)) not in ctx.norm:
+            stem = m.group(1) or ""
+            # 같은 동사에 근거가 의무를 붙였으면(예: 근거 '신고하여야' ↔ 답 '신고해야') 통과.
+            if not (stem and any(stem + suf in ctx.norm for suf in _OBLIG_SUFFIX)):
+                reasons.append(f"의무 단정 '{m.group(0).strip()}' 근거 없음")
+    return reasons
 
 
 # ------------------------------------------------------------------ 규칙 검사(문장 단위)
@@ -219,12 +407,16 @@ _CIRCLED = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮"
 _INSTITUTION_RE = re.compile(
     r"해바라기센터|행정복지센터|주민센터|교육지원청|교육청|교육장|교육감|학교장|보호관찰소|가정법원|법원|"
     r"검찰청?|공소청|검사|경찰서|경찰|수사관|판사|재판장|변호사|우체국|구청|시청|군청|공단|상담소|"
-    r"보호시설|쉼터|통신사|은행|병원|고용주|인사부서"
+    r"보호시설|쉼터|통신사|은행|병원|고용주|인사부서|"
+    r"중앙디지털성범죄피해자지원센터|디지털성범죄피해자지원센터|한국인터넷진흥원|방송통신심의위원회|방심위|"
+    r"개인정보보호위원회|국민권익위원회|사법경찰관|지방자치단체|지자체|구청장|법무부|여성가족부|교육부|행정안전부|"
+    r"엠세이퍼|KAIT|국선변호사|진술조력인"
 )
 # 근거보다 센 단정·예외(의무·자동·면제·영구). 근거에 같은 말이 있어야 한다.
 _STRONG_RE = re.compile(
     r"의무적으로|의무가\s*있|자동으로|직권으로|영원히|평생|언제나|항상|전혀|필요\s*없|필요하지\s*않|"
-    r"무료|수수료\s*(?:가\s*)?없|모든\s*경우|어떤\s*경우에도|(?:으로|에서|에게)만\s"
+    r"무료|수수료\s*(?:가\s*)?없|모든\s*경우|어떤\s*경우에도|(?:으로|에서|에게)만\s|"
+    r"에\s*한해|에\s*한하여|에만\s|만\s*(?:가능|할\s*수|돼요|됩니다)|누구에게도|아무도"
 )
 
 
@@ -278,6 +470,8 @@ def rule_check(sentence: str, ctx: Ctx) -> list[str]:
     for m in _STRONG_RE.finditer(s):
         if norm(m.group(0)) not in ctx.norm:
             reasons.append(f"단정 '{m.group(0)}' 근거 없음")
+    # 절 단위: 한계 표현 보존·보호 효과 단정·의무·처벌·제도 이름 혼동(2026-11-01 보류 세트 실패 유형)
+    reasons += clause_checks(sentence, ctx)
     # 통지 단정
     if _NOTIFY_WORD_RE.search(s) and not _HEDGE_RE.search(s):
         if llm.DENY_NOTIFY_RE.search(s):
@@ -352,6 +546,9 @@ supported=false: 다음 중 하나라도 해당한다.
 - 근거의 관계를 바꾼다(예: 근거는 '출석·귀가 동행'인데 문장은 '가해자와의 동행').
 - 근거보다 세게 말한다(예: 근거는 '재량'인데 문장은 '의무', 근거에 없는 '절대'·'영원히'·'모르게'·'~로만').
 - 근거에 없는 예외·면제·효과를 말한다(예: '서류는 필요 없다', '상대가 알 수 없다').
+- 근거의 한계 표현을 지운다(예: 근거는 '재량'·'미확인'·'노출될 수 있음'인데 문장은 '드러나지 않는다'·'적용되지 않는다').
+- 근거의 다른 항목·다른 제도의 내용을 섞거나, 이름이 비슷한 다른 제도의 기능을 붙인다.
+- 근거에 없는 목적·이유·처벌을 덧붙인다.
 
 {examples}
 
