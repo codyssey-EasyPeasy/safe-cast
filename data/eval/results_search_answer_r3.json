@@ -1,0 +1,837 @@
+{
+ "name": "results_search_answer_r3",
+ "date": "2026-11-01",
+ "eval_set": "data/eval/search_answer_heldout_r3.json",
+ "app_commit": "6d9a68a (feature/search-answer)",
+ "strategy": "rows",
+ "gpu": "대역 GPU 서버: 로컬에서 6d9a68a 의 gpu/server.py 를 띄우고 임베딩·재순위·NER 은 운영 GPU API, LLM 은 운영 vLLM(Qwen3-8B-AWQ)을 SSH 터널로 읽기 전용 호출",
+ "method": "보류 질문 40개를 순차 요청(동시 1건). 채점은 Claude 가 응답 본문·인용 조문 본문·근거 행 칸을 대조해 엄격·관대 두 기준으로 판정. 게이트는 엄격 기준. 지연은 클라이언트 왕복 시간.",
+ "caveats": [
+  "채점자 1명(모델), 사람 검수 없음.",
+  "보류 세트는 이번 실행 전에는 튜닝에 쓰지 않았다.",
+  "표본이 작다(답한 것 19개).",
+  "QR09 첫 실행은 대역 서버의 운영 /embed 호출 연결 끊김으로 unavailable 이었고, 그 1건만 한 번 다시 돌린 결과로 채점했다.",
+  "QR08 은 검증기 호출 실패(fallback=verifier_unavailable)로 발췌가 됐다(대역 환경 영향일 수 있음, 미확인)."
+ ],
+ "gate_thresholds": {
+  "answered_correctness": ">=0.90",
+  "unsupported_rate": "<=0.05",
+  "citation_ok_rate": ">=0.95",
+  "unanswerable_not_found": ">=9/10",
+  "harmful": "==0",
+  "coverage": "flag <0.6"
+ },
+ "results": {
+  "n_requests": 40,
+  "answerable": 30,
+  "answered": 19,
+  "coverage": 0.633,
+  "answered_correct_strict": 8,
+  "answered_correctness_strict": 0.421,
+  "answered_correct_lenient": 11,
+  "answered_correctness_lenient": 0.579,
+  "unsupported_strict": 5,
+  "unsupported_rate_strict": 0.263,
+  "unsupported_lenient": 5,
+  "unsupported_rate_lenient": 0.263,
+  "citation_ok": 14,
+  "citation_ok_rate": 0.737,
+  "citations_subset_of_results_all": true,
+  "unanswerable": 10,
+  "unanswerable_not_found_strict": 10,
+  "harmful_strict": 1,
+  "harmful_lenient": 0,
+  "answerable_not_found": 11,
+  "answerable_not_found_gold_retrieved": [
+   "QR10",
+   "QR12",
+   "QR13",
+   "QR14",
+   "QR16",
+   "QR17"
+  ],
+  "answerable_not_found_from_gpu_verifier": [
+   "QR07",
+   "QR19"
+  ],
+  "mode_all": {
+   "not_found": 21,
+   "regenerated": 2,
+   "generated": 11,
+   "extractive": 6
+  },
+  "mode_answerable": {
+   "not_found": 11,
+   "regenerated": 2,
+   "generated": 11,
+   "extractive": 6
+  },
+  "latency_s": {
+   "mean": 6.29,
+   "p50": 4.06,
+   "p90": 14.22,
+   "max": 18.29,
+   "by_mode_mean": {
+    "not_found": 2.83,
+    "regenerated": 12.83,
+    "generated": 8.81,
+    "extractive": 11.6
+   }
+  },
+  "subset_hedge": {
+   "answerable": 27,
+   "answered": 16,
+   "correct_strict": 5,
+   "correct_lenient": 8,
+   "unsupported_strict": 5,
+   "harmful_strict": 1,
+   "citation_ok": 12,
+   "ids_wrong_strict": [
+    "QR05",
+    "QR06",
+    "QR08",
+    "QR09",
+    "QR11",
+    "QR15",
+    "QR21",
+    "QR22",
+    "QR26",
+    "QR27",
+    "QR28"
+   ],
+   "ids_not_answered": [
+    "QR01",
+    "QR03",
+    "QR07",
+    "QR10",
+    "QR12",
+    "QR13",
+    "QR14",
+    "QR16",
+    "QR17",
+    "QR18",
+    "QR19"
+   ]
+  },
+  "subset_confusion": {
+   "answerable": 8,
+   "answered": 6,
+   "correct_strict": 2,
+   "correct_lenient": 2,
+   "unsupported_strict": 1,
+   "harmful_strict": 0,
+   "citation_ok": 4,
+   "ids_wrong_strict": [
+    "QR06",
+    "QR09",
+    "QR26",
+    "QR27"
+   ],
+   "ids_not_answered": [
+    "QR03",
+    "QR13"
+   ]
+  },
+  "gate": {
+   "answered_correctness>=0.90": false,
+   "unsupported<=0.05": false,
+   "citation_ok>=0.95": false,
+   "unanswerable_not_found>=9/10": true,
+   "harmful==0": false
+  },
+  "gate_pass": false,
+  "coverage_flag_lt_0.6": false
+ },
+ "items": [
+  {
+   "id": "QR01",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.74,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR02",
+   "kind": "answerable",
+   "tags": [
+    "confusion:긴급임시조치vs임시조치"
+   ],
+   "mode": "regenerated",
+   "latency_s": 11.24,
+   "rows": [
+    "J11"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": ""
+  },
+  {
+   "id": "QR03",
+   "kind": "answerable",
+   "tags": [
+    "confusion:임시조치vs피해자보호명령",
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.69,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR04",
+   "kind": "answerable",
+   "tags": [
+    "confusion:긴급응급조치vs잠정조치"
+   ],
+   "mode": "generated",
+   "latency_s": 9.25,
+   "rows": [
+    "J13"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": ""
+  },
+  {
+   "id": "QR05",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 10.61,
+   "rows": [
+    "J13"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": "cited 제20조 has the penalties but answer says they are not confirmed; adds unsupported \"경찰이 조치를 변경·강화\"; misses 사후승인 exception"
+  },
+  {
+   "id": "QR06",
+   "kind": "answerable",
+   "tags": [
+    "hedge",
+    "confusion:잠정조치변경vs긴급응급조치변경"
+   ],
+   "mode": "extractive",
+   "latency_s": 1.56,
+   "rows": [
+    "J13"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": false,
+   "note": "extractive notify_warning only; does not say how to apply for 변경; gold 제10조 not cited"
+  },
+  {
+   "id": "QR07",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 7.11,
+   "rows": [
+    "J15",
+    "J13"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR08",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "extractive",
+   "latency_s": 18.29,
+   "rows": [
+    "J19",
+    "J23"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": "extractive J19+J23 dump; does not answer whether retaliation risk must be shown; no 판사 판단 hedge for 공판조서 비기재"
+  },
+  {
+   "id": "QR09",
+   "kind": "answerable",
+   "tags": [
+    "hedge",
+    "confusion:성폭력준용vs가정폭력"
+   ],
+   "mode": "generated",
+   "latency_s": 11.95,
+   "rows": [
+    "J19"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "first_run": {
+    "mode": "unavailable",
+    "latency_s": 12.51,
+    "note": "stand-in upstream /embed RemoteProtocolError; rerun once"
+   },
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "citation_ok": false,
+   "note": "first run unavailable (stand-in upstream /embed disconnect); rerun: false claim that DV victims are covered by 성폭력처벌법 제23조 준용, then contradicts; gold not cited"
+  },
+  {
+   "id": "QR10",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.69,
+   "rows": [
+    "A15"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR11",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 4.54,
+   "rows": [
+    "J1"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "citation_ok": false,
+   "note": "answers with J1 소송기록 보호조치 instead of 판결서 비실명 처리; \"판결문 인터넷 열람\" not in cited text; gold not cited"
+  },
+  {
+   "id": "QR12",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.52,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR13",
+   "kind": "answerable",
+   "tags": [
+    "confusion:친권일부제한vs상실·일시정지",
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.55,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR14",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.5,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR15",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 9.74,
+   "rows": [
+    "A1",
+    "A9"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": false,
+   "note": "answers 주민등록 열람제한 for a 부동산 등기부 question; gold not retrieved"
+  },
+  {
+   "id": "QR16",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.57,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR17",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.76,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR18",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 1.81,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR19",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "not_found",
+   "latency_s": 7.61,
+   "rows": [
+    "J10"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QR20",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 4.86,
+   "rows": [
+    "L5"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": ""
+  },
+  {
+   "id": "QR21",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 7.56,
+   "rows": [
+    "S7"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": "garbled: \"원장에게 사정을 미리 알리면 제공할 수 있어요\" (misreads row); limit sentence kept"
+  },
+  {
+   "id": "QR22",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "extractive",
+   "latency_s": 7.4,
+   "rows": [
+    "S7"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": "extractive S7; does not say there is no 가정폭력 우선 항목; implies 한부모 우선입소 without 요건"
+  },
+  {
+   "id": "QR23",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "extractive",
+   "latency_s": 14.3,
+   "rows": [
+    "S5"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": ""
+  },
+  {
+   "id": "QR24",
+   "kind": "answerable",
+   "tags": [],
+   "mode": "generated",
+   "latency_s": 11.74,
+   "rows": [
+    "S4"
+   ],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": false,
+   "note": "cites 시행령 제26조의4 instead of gold 아동복지법 제29조"
+  },
+  {
+   "id": "QR25",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 6.34,
+   "rows": [
+    "J27",
+    "P5"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": ""
+  },
+  {
+   "id": "QR26",
+   "kind": "answerable",
+   "tags": [
+    "confusion:디지털성범죄센터vs일반삭제요청",
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 10.69,
+   "rows": [
+    "P6"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": "\"주소와 사진이 퍼진 경우 ... 신청하면 됩니다\" then \"불법촬영물 피해로 한정\"; no 정보통신망법 삭제요청 route"
+  },
+  {
+   "id": "QR27",
+   "kind": "answerable",
+   "tags": [
+    "confusion:명의도용방지vs가입제한",
+    "hedge"
+   ],
+   "mode": "extractive",
+   "latency_s": 13.53,
+   "rows": [
+    "L7"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": "confusion: L7 row says 명의도용방지·가입제한 서비스로 개통을 막을 수 있다 (data issue, same as dev HR26); 등기우편 주소 warning kept"
+  },
+  {
+   "id": "QR28",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "regenerated",
+   "latency_s": 14.42,
+   "rows": [
+    "A8"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": false,
+   "correct_lenient": false,
+   "supported_strict": false,
+   "supported_lenient": false,
+   "harmful_strict": true,
+   "citation_ok": true,
+   "note": "\"남편은 재량으로 증명서를 떼지 못하게 됩니다\" = yes to \"무조건 못 떼죠?\"; discretion turned into outcome; strict harmful (certainty where source hedges)"
+  },
+  {
+   "id": "QR29",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "extractive",
+   "latency_s": 14.49,
+   "rows": [
+    "A1"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": "extractive A1; 재량·공무상 열람 못 막음·서면 통지 kept"
+  },
+  {
+   "id": "QR30",
+   "kind": "answerable",
+   "tags": [
+    "hedge"
+   ],
+   "mode": "generated",
+   "latency_s": 9.62,
+   "rows": [
+    "A5"
+   ],
+   "gold_cited": true,
+   "gold_retrieved": true,
+   "citations_subset_of_results": true,
+   "correct_strict": true,
+   "correct_lenient": true,
+   "supported_strict": true,
+   "supported_lenient": true,
+   "harmful_strict": false,
+   "citation_ok": true,
+   "note": ""
+  },
+  {
+   "id": "QU01",
+   "kind": "unanswerable",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 2.93,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QU02",
+   "kind": "unanswerable",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 3.28,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QU03",
+   "kind": "unanswerable",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 3.21,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QU04",
+   "kind": "unanswerable",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 2.81,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QU05",
+   "kind": "unanswerable",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 2.67,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QU06",
+   "kind": "unanswerable",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 3.45,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QN01",
+   "kind": "nonexistent",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 3.59,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QN02",
+   "kind": "nonexistent",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 2.79,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QN03",
+   "kind": "nonexistent",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 2.5,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  },
+  {
+   "id": "QN04",
+   "kind": "nonexistent",
+   "tags": [],
+   "mode": "not_found",
+   "latency_s": 2.74,
+   "rows": [],
+   "gold_cited": false,
+   "gold_retrieved": false,
+   "citations_subset_of_results": true
+  }
+ ]
+}
