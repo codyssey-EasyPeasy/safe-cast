@@ -871,8 +871,14 @@
     setStatus('doc-status', '안전한 문장을 만들고 있습니다...');
     postJSON('/api/rewrite', { text: text, spans: spans })
       .then(function (d) {
-        var after = (d && typeof d.rewritten === 'string') ? d.rewritten : '';
         out.textContent = '';
+        if (d && d.refused) {
+          out.appendChild(el('p', 'notice', d.message || '이 문장은 바꿀 수 없습니다.'));
+          out.hidden = false;
+          setStatus('doc-status', '이 문장은 바꿀 수 없습니다.');
+          return;
+        }
+        var after = (d && typeof d.rewritten === 'string') ? d.rewritten : '';
         var head = el('div', 'card-meta');
         head.appendChild(badge('ai-badge', 'AI 생성'));
         head.appendChild(el('span', 'meta', '제안일 뿐입니다. 뜻이 바뀌거나 없던 내용이 들어가지 않았는지 꼭 확인해 주세요.'));

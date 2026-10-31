@@ -26,7 +26,8 @@ class FakeGPU:
             "unclear": ["자녀가 학교에 다니나요?"],
         }
         self.answer_out: dict = {"answer": "송달 주소를 따로 정할 수 있습니다.", "citations": ["J1", "ZZ9"], "grounded": True}
-        self.rewrite_out: dict = {"rewritten": "[주소 생략]에서 일합니다."}
+        self.rewrite_out: dict = {"suggested": "[주소 생략]에서 일합니다.", "method": "llm", "forced": 0}
+        self.intent_score: float = 0.0
 
     def __call__(self, request: httpx.Request) -> httpx.Response:
         path = request.url.path
@@ -35,7 +36,9 @@ class FakeGPU:
         if path == "/health":
             return httpx.Response(200, json={"ok": True, "llm": self.llm})
         if path == "/intent":
-            return httpx.Response(200, json={"locate_intent": self.intent_hit in body.get("q", ""), "score": 1.0})
+            hit = self.intent_hit in body.get("q", "")
+            score = 1.0 if hit else self.intent_score
+            return httpx.Response(200, json={"locate_intent": hit or score > 0.02, "score": score, "rule": False})
         if path == "/embed":
             return httpx.Response(200, json={"vectors": [[1.0, 0.0] for _ in body.get("texts", [])]})
         if path.startswith("/llm/"):
@@ -173,18 +176,22 @@ def test_answer_context_is_items_and_exposable_articles_only(make_client, gpu):
         assert d["citations"] == ["J1"]          # 컨텍스트 밖 인용(ZZ9)은 버린다
         assert d["ai_generated"] is True
     (sent,) = gpu.llm_calls("answer")
-    assert sent["item_ids"] == ["J1", "D1", "A2"]   # 없는 id 는 빠진다
-    ids = [x["id"] for x in sent["context"]]
-    assert "J1" in ids and "D1" in ids and "A2" in ids
+    assert set(sent) == {"question", "items"}      # GPU AnswerIn 계약
+    ids = [x["id"] for x in sent["items"]]
+    assert ids == ["J1", "D1", "A2"]                 # 없는 id 는 빠진다
+    arts = {x["id"]: [(a["law"], a["article"]) for a in x["articles"]] for x in sent["items"]}
     # 노출 가능 조문(제163조, 제29조)만 붙고, 플래그 없는/노출 불가 조문은 없다.
-    assert "J1:민사소송법 제163조" in ids
-    assert "A2:주민등록법 제29조" in ids
+    assert ("민사소송법", "제163조") in arts["J1"]
+    assert ("주민등록법", "제29조") in arts["A2"]
     blob = json.dumps(sent, ensure_ascii=False)
     assert "공직선거법" not in blob and "플래그없음" not in blob
     # 잔여 위험(D1) 행에는 exposure·limits 를 싣지 않는다.
-    d1 = next(x for x in sent["context"] if x["id"] == "D1")["text"]
-    assert "limits:" not in d1 and "exposure" not in d1
-    assert all("exposure" not in x["text"] for x in sent["context"])
+    d1 = next(x for x in sent["items"] if x["id"] == "D1")
+    assert "limits" not in d1 and "exposure" not in d1
+    assert all("exposure" not in x for x in sent["items"])
+    for x in sent["items"]:
+        assert len(x["articles"]) <= 2
+        assert all(len(v) <= 500 for k, v in x.items() if isinstance(v, str) and k != "plain")
     assert len(json.dumps(sent, ensure_ascii=False).encode()) < 20 * 1024
 
 
@@ -219,7 +226,28 @@ def test_answer_output_guard(make_client, gpu):
         assert "다음과 같습니다" not in json.dumps(d, ensure_ascii=False)
 
 
+def test_answer_gpu_refusal_passes_through(make_client, gpu):
+    gpu.answer_out = {"refused": True, "answer": "x", "citations": [], "grounded": False}
+    with make_client(httpx.MockTransport(gpu)) as c:
+        d = c.post("/api/answer", json={"question": "무슨 뜻인가요?", "item_ids": ["J1"]}).json()
+        assert d["refused"] is True
+
+
+def test_llm_path_uses_relaxed_embedding_threshold(make_client, gpu):
+    # 서버 기본 0.02 는 넘지만 LLM 경로 임계값 0.15 는 넘지 않는 보호 질문은 통과한다.
+    gpu.intent_score = 0.1258
+    with make_client(httpx.MockTransport(gpu)) as c:
+        d = c.post("/api/answer", json={"question": "예전 집 우편물을 새 곳으로 받을 수 있나요?", "item_ids": ["J1"]}).json()
+        assert d["refused"] is False
+        # 검색(/api/search)은 기존 0.02 판정 그대로.
+        assert c.post("/api/search", json={"q": "예전 집 우편물"}).json()["refused"] is True
+    gpu.intent_score = 0.2
+    with make_client(httpx.MockTransport(gpu)) as c:
+        assert c.post("/api/answer", json={"question": "우편물", "item_ids": ["J1"]}).json()["refused"] is True
+
+
 @pytest.mark.parametrize("payload", [
+    {"question": "뜻?", "item_ids": ["AB1"]},
     {"question": "뜻?", "item_ids": []},
     {"question": "뜻?", "item_ids": ["j1"]},
     {"question": "뜻?", "item_ids": ["J1; drop"]},
@@ -231,6 +259,25 @@ def test_answer_strict_validation(make_client, gpu, payload):
         assert c.post("/api/answer", json=payload).status_code == 422
 
 
+def test_answer_retries_once_on_gpu_503(make_client, gpu):
+    real = gpu.__call__
+    state = {"n": 0}
+
+    def flaky(request):
+        if request.url.path == "/llm/answer":
+            state["n"] += 1
+            if state["n"] == 1:
+                gpu.calls.append(("/llm/answer", {}))
+                return httpx.Response(503, json={"available": False})
+        return real(request)
+
+    with make_client(httpx.MockTransport(flaky)) as c:
+        d = c.post("/api/answer", json={"question": "무슨 뜻인가요?", "item_ids": ["J1"]}).json()
+        assert d["grounded"] is True
+        assert c.get("/api/features").json() == {"llm": True}
+    assert state["n"] == 2
+
+
 def test_answer_503(make_client):
     with make_client(httpx.MockTransport(FakeGPU(fail_llm=True))) as c:
         assert c.post("/api/answer", json={"question": "뜻?", "item_ids": ["J1"]}).status_code == 503
@@ -240,12 +287,13 @@ def test_answer_503(make_client):
 def test_rewrite_ok_and_remaining(make_client, gpu):
     text = "저는 가나다로 12에서 일합니다. 라마빌딩 3층."
     spans = [{"start": 3, "end": 9, "label": "주소"}, {"start": 19, "end": 23, "label": "건물"}]
-    gpu.rewrite_out = {"rewritten": "저는 [주소]에서 일합니다. 라마빌딩 3층."}
+    gpu.rewrite_out = {"suggested": "저는 [주소]에서 일합니다. 라마빌딩 3층.", "method": "llm", "forced": 0}
     with make_client(httpx.MockTransport(gpu)) as c:
         d = c.post("/api/rewrite", json={"text": text, "spans": spans}).json()
         assert d["rewritten"].startswith("저는 [주소]")
         assert d["remaining"] == [text[19:23]]
         assert d["ai_generated"] is True
+        assert d["refused"] is False
     (sent,) = gpu.llm_calls("rewrite")
     assert sent["spans"][0] == {"start": 3, "end": 9, "label": "주소"}
 
@@ -258,9 +306,19 @@ def test_rewrite_drops_out_of_range_spans(make_client, gpu):
 
 
 def test_rewrite_503_on_empty(make_client, gpu):
-    gpu.rewrite_out = {"rewritten": "  "}
+    gpu.rewrite_out = {"suggested": "  "}
     with make_client(httpx.MockTransport(gpu)) as c:
         assert c.post("/api/rewrite", json={"text": "글", "spans": []}).status_code == 503
+
+
+def test_rewrite_accepts_legacy_key_and_refusal(make_client, gpu):
+    gpu.rewrite_out = {"rewritten": "[주소 비공개]"}
+    with make_client(httpx.MockTransport(gpu)) as c:
+        assert c.post("/api/rewrite", json={"text": "글", "spans": []}).json()["rewritten"] == "[주소 비공개]"
+    gpu.rewrite_out = {"refused": True, "suggested": None}
+    with make_client(httpx.MockTransport(gpu)) as c:
+        d = c.post("/api/rewrite", json={"text": "글", "spans": []}).json()
+        assert d["refused"] is True and "rewritten" not in d
 
 
 def test_rewrite_strict_validation(make_client, gpu):
@@ -276,7 +334,7 @@ def test_llm_endpoints_do_not_log_bodies(make_client, gpu):
     log.addHandler(h)
     marker = "MARKERLLM4242"
     gpu.answer_out = {"answer": marker + " 답", "citations": ["J1"], "grounded": True}
-    gpu.rewrite_out = {"rewritten": marker}
+    gpu.rewrite_out = {"suggested": marker}
     try:
         with make_client(httpx.MockTransport(gpu)) as c:
             c.post("/api/intake", json={"text": marker})

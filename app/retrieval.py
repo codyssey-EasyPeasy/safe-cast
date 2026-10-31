@@ -317,14 +317,23 @@ class Retriever:
             return (self.bm25(q, top_k), True)
 
 
-async def intent(q: str, client: httpx.AsyncClient, gpu_url: str) -> bool:
-    """의도 분류(fail-closed). GPU 결과·로컬 규칙을 OR 로 결합한다."""
+async def intent(
+    q: str, client: httpx.AsyncClient, gpu_url: str, thresh: float | None = None
+) -> bool:
+    """의도 분류(fail-closed). GPU 결과·로컬 규칙을 OR 로 결합한다.
+
+    `thresh` 를 주면 GPU 의 locate_intent(서버 기본 임계값 0.02) 대신
+    `rule OR score > thresh` 로 판정한다(내부 LLM 경로 전용, app/llm.py LLM_GUARD_THRESH).
+    """
     gpu_locate = False
     try:
         r = await client.post(f"{gpu_url}/intent", json={"q": q}, timeout=10.0)
         r.raise_for_status()
         data = r.json()
-        gpu_locate = bool(data.get("locate_intent", False))
+        if thresh is None:
+            gpu_locate = bool(data.get("locate_intent", False))
+        else:
+            gpu_locate = bool(data.get("rule", False)) or float(data.get("score", 0.0)) > thresh
     except (httpx.HTTPError, ValueError, KeyError, TypeError):
         gpu_locate = False
     return gpu_locate or local_locate_intent(q) or rule_locate_intent(q)

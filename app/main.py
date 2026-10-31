@@ -267,7 +267,7 @@ def create_app(
         req: IntakeRequest, request: Request, _: None = Depends(_require_access_code)
     ):
         client, url = await _llm_gate(request)
-        if await _retrieval.intent(req.text, client, url):
+        if await _retrieval.intent(req.text, client, url, thresh=_llm.llm_guard_thresh()):
             return {"refused": True, "message": REFUSAL_MESSAGE}
         try:
             out = await _llm.intake(
@@ -286,7 +286,7 @@ def create_app(
         req: AnswerRequest, request: Request, _: None = Depends(_require_access_code)
     ):
         client, url = await _llm_gate(request)
-        if await _retrieval.intent(req.question, client, url):
+        if await _retrieval.intent(req.question, client, url, thresh=_llm.llm_guard_thresh()):
             return {"refused": True, "message": REFUSAL_MESSAGE}
         try:
             out = await _llm.answer(
@@ -317,7 +317,9 @@ def create_app(
             )
         except _llm.LLMUnavailable:
             raise _llm_down()
-        return out
+        if out.get("refused"):
+            return {"refused": True, "message": REFUSAL_MESSAGE}
+        return {"refused": False, **out}
 
     static_dir = REPO_ROOT / "web" / "static"
     if static_dir.is_dir():

@@ -3,13 +3,20 @@
 GPU 쪽 계약(이 모듈이 보내고 기대하는 형태):
 - `GET  /health`        → `{..., "llm": true|false}` (또는 `{"llm": {"ok": true}}`). 없으면 꺼진 것으로 본다.
 - `POST /llm/intake`    `{text}` → `{victim_type|null, flags:[id], confidence:float, unclear:[str]}`
-- `POST /llm/answer`    `{question, item_ids, context:[{id, text}]}` → `{answer:str, citations:[id], grounded:bool}`
-- `POST /llm/rewrite`   `{text, spans:[{start,end,label}]}` → `{rewritten:str}`
+- `POST /llm/answer`    `{question, items:[{id, measure?, plain?, path?, ..., articles:[{law, article, text}]}]}`
+                         → `{answer:str, citations:[id], grounded:bool}` 또는 `{refused:true, ...}`
+                         (item id 는 `^[A-Z][0-9]{1,3}$`, 항목 최대 8개, 필드 500자·plain 1000자, 조문 최대 6개·2000자)
+- `POST /llm/rewrite`   `{text, spans:[{start,end,label}]}` → `{suggested:str, method, forced}` 또는 `{refused:true}`
+                         (구버전 `{rewritten}` 도 받는다)
 
 원칙
 - 본문·프롬프트·생성문은 저장·로깅하지 않는다(이 모듈은 로거를 쓰지 않는다).
-- 입력 가드: intake·answer 는 기존 `retrieval.intent()` 로 먼저 검사(fail-closed).
-- 출력 가드: intake 의 질문 문구·answer 의 답은 `intent()` 로 한 번 더 검사해 걸리면 거절 문구로 바꾼다.
+- 입력 가드: intake·answer 는 `retrieval.intent(..., thresh=LLM_GUARD_THRESH)` 로 먼저 검사.
+- 출력 가드: intake 의 질문 문구·answer 의 답은 같은 방식으로 한 번 더 검사해 걸리면 거절한다.
+  GPU `/llm/answer` 도 자체로 규칙 OR 임베딩>0.15 를 질문·답에 건다(이중).
+- LLM 경로 임베딩 임계값은 GPU 와 같은 0.15(`LLM_GUARD_THRESH`). 규칙은 그대로 항상 먼저 적용된다.
+  2026-10-31 실측: 서버 기본 0.02 로는 tools/eval_llm.py 의 답할 수 있는 피해자 질문 5개 중 3개
+  (우편물 0.1258·휴대폰 명의 0.1121·머물 곳 0.0938)가 앱 입력 단계에서 거절됐다.
 - answer 컨텍스트는 지식표 행 + `exposable` 조문(발췌 우선)만. 잔여 위험 행은 exposure·limits 를 뺀다.
 - GPU 실패·형식 오류는 503 → 화면은 체크박스 방식으로 그대로 동작.
 - 어떤 제도를 권할지는 규칙 엔진이 정한다. intake 결과는 체크박스 '미리 선택'에만 쓰인다.
@@ -17,6 +24,7 @@ GPU 쪽 계약(이 모듈이 보내고 기대하는 형태):
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import time
@@ -30,10 +38,11 @@ from .retrieval import intent
 CONTEXT_BUDGET_BYTES = 14 * 1024
 _ITEM_FIELDS = ("measure", "plain", "path", "timing", "where", "documents", "notify_warning")
 _ITEM_FIELDS_IN_FORCE_EXTRA = ("limits",)
-_ARTICLE_CHARS = 700
+_ARTICLE_CHARS = 600
 _FIELD_CHARS = 400
+_ARTICLES_PER_ITEM = 2
 
-ITEM_ID_RE = r"^[A-Z]{1,3}[0-9]{1,3}$"
+ITEM_ID_RE = r"^[A-Z][0-9]{1,3}$"
 _ITEM_ID_PAT = re.compile(ITEM_ID_RE)
 
 NOT_FOUND_ANSWER = (
@@ -42,6 +51,13 @@ NOT_FOUND_ANSWER = (
 )
 
 _FEATURE_TTL = 30.0
+
+
+def llm_guard_thresh() -> float:
+    try:
+        return float(os.environ.get("LLM_GUARD_THRESH", "0.15"))
+    except ValueError:
+        return 0.15
 
 
 class LLMUnavailable(Exception):
@@ -91,6 +107,10 @@ async def _post(
 ) -> dict[str, Any]:
     try:
         r = await client.post(url, json=payload, timeout=timeout)
+        if r.status_code == 503:
+            # GPU 는 생성 JSON 이 깨져도 503 을 준다(2026-10-31 실측: 앱 경로 약 40회 중 1회,
+            # 같은 요청 재시도는 성공). 응답이 온 503 만 한 번 다시 묻는다(시간 초과는 재시도 안 함).
+            r = await client.post(url, json=payload, timeout=timeout)
         r.raise_for_status()
         data = r.json()
     except (httpx.HTTPError, ValueError) as e:
@@ -144,7 +164,7 @@ async def intake(
             if not q:
                 continue
             # 출력 가드: 되묻는 질문에 탐색 표현이 섞이면 버린다.
-            if await intent(q, client, gpu_url):
+            if await intent(q, client, gpu_url, thresh=llm_guard_thresh()):
                 continue
             unclear.append(q)
 
@@ -166,22 +186,22 @@ def _article_base(article: str) -> str:
     return m.group(1) if m else ""
 
 
-def build_context(
+def build_items(
     item_ids: list[str],
     items_by_id: dict[str, dict[str, Any]],
     articles: list[dict[str, Any]],
-) -> list[dict[str, str]]:
-    """지식표 행 + 노출 가능 조문(발췌 우선)만으로 컨텍스트를 만든다.
+) -> list[dict[str, Any]]:
+    """GPU `/llm/answer` 의 items: 지식표 행 + 노출 가능 조문(발췌 우선)만.
 
     `articles` 는 Retriever 가 이미 exposable 만 남기고 excerpt 로 치환한 목록이다.
+    exposure 는 보내지 않고, 잔여 위험 행(status == "none")은 limits 도 뺀다.
     """
     art_index: dict[tuple[str, str], dict[str, Any]] = {}
     for a in articles:
         art_index[(a.get("law", ""), a.get("article", ""))] = a
 
-    out: list[dict[str, str]] = []
+    out: list[dict[str, Any]] = []
     used = 0
-    seen_articles: set[tuple[str, str]] = set()
     for iid in item_ids:
         item = items_by_id.get(iid)
         if not item:
@@ -189,42 +209,32 @@ def build_context(
         fields = list(_ITEM_FIELDS)
         if item.get("status") != "none":
             fields += list(_ITEM_FIELDS_IN_FORCE_EXTRA)
-        lines = []
+        entry: dict[str, Any] = {"id": iid}
         for k in fields:
             v = _clip(item.get(k), _FIELD_CHARS)
             if v:
-                lines.append(f"{k}: {v}")
-        basis = []
-        for b in item.get("basis") or []:
-            law = b.get("law", "")
-            art = b.get("article", "")
-            basis.append(f"{law} {art}".strip())
-        if basis:
-            lines.append("basis: " + "; ".join(x for x in basis if x))
-        entry = {"id": iid, "text": "\n".join(lines)}
-        size = len(entry["text"].encode("utf-8")) + 32
-        if used + size > CONTEXT_BUDGET_BYTES:
-            break
-        out.append(entry)
-        used += size
-
+                entry[k] = v
+        arts: list[dict[str, str]] = []
+        seen: set[tuple[str, str]] = set()
         for b in item.get("basis") or []:
             key = (b.get("law", ""), _article_base(b.get("article", "")))
-            if not key[1] or key in seen_articles:
+            if not key[1] or key in seen:
                 continue
             a = art_index.get(key)
             if not a:
                 continue
-            seen_articles.add(key)
+            seen.add(key)
             text = _clip(a.get("text"), _ARTICLE_CHARS)
-            if not text:
-                continue
-            aentry = {"id": f"{iid}:{key[0]} {key[1]}", "text": text}
-            asize = len(text.encode("utf-8")) + 64
-            if used + asize > CONTEXT_BUDGET_BYTES:
-                continue
-            out.append(aentry)
-            used += asize
+            if text:
+                arts.append({"law": key[0][:100], "article": key[1], "text": text})
+            if len(arts) >= _ARTICLES_PER_ITEM:
+                break
+        entry["articles"] = arts
+        size = len(json.dumps(entry, ensure_ascii=False).encode("utf-8"))
+        if used + size > CONTEXT_BUDGET_BYTES:
+            break
+        out.append(entry)
+        used += size
     return out
 
 
@@ -238,18 +248,20 @@ async def answer(
     articles: list[dict[str, Any]],
 ) -> dict[str, Any]:
     ids = [i for i in item_ids if i in items_by_id]
-    context = build_context(ids, items_by_id, articles)
-    if not context:
+    items = build_items(ids, items_by_id, articles)
+    if not items:
         return {"answer": NOT_FOUND_ANSWER, "citations": [], "grounded": False, "ai_generated": True}
 
     data = await _post(
         client,
         f"{gpu_url}/llm/answer",
-        {"question": question, "item_ids": ids, "context": context},
+        {"question": question, "items": items},
         timeout=90.0,
     )
+    if data.get("refused") is True:
+        return {"refused": True}
     text = _clip(data.get("answer"), 2000)
-    allowed = {c["id"] for c in context}
+    allowed = {it["id"] for it in items}
     citations: list[str] = []
     raw = data.get("citations")
     if isinstance(raw, list):
@@ -262,7 +274,7 @@ async def answer(
         return {"answer": NOT_FOUND_ANSWER, "citations": [], "grounded": False, "ai_generated": True}
 
     # 출력 가드: 생성문에 탐색 의도 표현이 섞이면 내보내지 않는다.
-    if await intent(text, client, gpu_url):
+    if await intent(text, client, gpu_url, thresh=llm_guard_thresh()):
         return {"refused": True}
 
     return {"answer": text, "citations": citations, "grounded": True, "ai_generated": True}
@@ -289,7 +301,11 @@ async def rewrite(
         {"text": text, "spans": clean_spans},
         timeout=90.0,
     )
-    out = data.get("rewritten")
+    if data.get("refused") is True:
+        return {"refused": True}
+    out = data.get("suggested")
+    if out is None:
+        out = data.get("rewritten")
     if not isinstance(out, str) or not out.strip():
         raise LLMUnavailable()
     out = out[: len(text) * 2 + 200]
