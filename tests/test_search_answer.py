@@ -22,6 +22,8 @@ class SearchGPU(FakeGPU):
     def __init__(self, **kw) -> None:
         super().__init__(**kw)
         self.rerank_down = False
+        self.rerank_const: float | None = None  # 정하면 모든 재순위 점수를 이 값으로(무관 질문 흉내)
+        self.rerank_bodies: list[dict] = []
         # None 이면 받은 items 의 첫 id 를 인용하는 생성 답.
         self.answer_out = None  # type: ignore[assignment]
 
@@ -32,6 +34,9 @@ class SearchGPU(FakeGPU):
             if self.rerank_down:
                 return httpx.Response(500)
             body = json.loads(request.content)
+            self.rerank_bodies.append(body)
+            if self.rerank_const is not None:
+                return httpx.Response(200, json={"scores": [self.rerank_const] * len(body.get("docs", []))})
             q = set(body.get("query", ""))
             return httpx.Response(200, json={"scores": [float(sum(1 for ch in q if ch in d))
                                                         for d in body.get("docs", [])]})
@@ -90,7 +95,7 @@ def test_rows_default_contract(make_client, sgpu):
     (sent,) = sgpu.llm_calls("answer")
     # 행 방식: 검색 조문을 근거로 드는 지식표 행만, 최대 5개, 컨텍스트 조문은 검색된 조문뿐.
     ids = [x["id"] for x in sent["items"]]
-    assert 1 <= len(ids) <= 5 and set(ids) <= {"J1", "A2", "P1", "L1"}
+    assert 1 <= len(ids) <= sa.MAX_ROWS == 2 and set(ids) <= {"J1", "A2", "P1", "L1"}
     assert set(ids) <= set(d["rows"])
     for it in sent["items"]:
         for a in it["articles"]:
@@ -99,12 +104,14 @@ def test_rows_default_contract(make_client, sgpu):
     assert "공직선거법" not in blob and "플래그없음" not in blob
 
 
-def test_rows_ordered_by_article_rank():
-    results = [{"law": "위치정보법", "article": "제9조"}, {"law": "민사소송법", "article": "제163조"},
-               {"law": "없는법", "article": "제1조"}]
-    idx = {("민사소송법", "제163조"): ["J1"], ("위치정보법", "제9조"): ["L1", "L2"]}
-    assert sa.rows_for_results(results, idx) == ["L1", "L2", "J1"]
-    assert sa.rows_for_results(results, idx, limit=2) == ["L1", "L2"]
+def test_row_candidates_rank_and_article_score():
+    results = [{"law": "위치정보법", "article": "제9조", "score": 0.4},
+               {"law": "민사소송법", "article": "제163조", "score": 0.9},
+               {"law": "없는법", "article": "제1조", "score": 0.1}]
+    idx = {("민사소송법", "제163조"): ["J1", "L2"], ("위치정보법", "제9조"): ["L1", "L2"]}
+    # (id, 가장 높은 검색 순위, 그 행이 드는 검색 조문의 최고 재순위 점수), 검색 순위 순
+    assert sa.row_candidates(results, idx) == [("L1", 0, 0.4), ("L2", 0, 0.9), ("J1", 1, 0.9)]
+    assert sa.row_candidates(results, idx, limit=2) == [("L1", 0, 0.4), ("L2", 0, 0.9)]
 
 
 def test_row_index_uses_article_base():
@@ -442,3 +449,144 @@ def test_articles_extractive_marks_pending(make_client, sgpu, monkeypatch):
     with make_client(httpx.MockTransport(sgpu)) as c:
         d = _ask(c, strategy="articles").json()
     assert d["mode"] == "extractive" and "시행 예정, 시행 전)" in d["answer"]
+
+
+# --- 행 고르기(최대 2개·제도/유형 불일치 제외·관련도 문턱) -------------------------------
+def _it(iid, path, measure="", plain=""):
+    return {"id": iid, "path": path, "measure": measure, "plain": plain, "basis": []}
+
+
+ROWS = {
+    "G1": _it("G1", "가정폭력 피해자보호명령(피해자 직접 청구)", "퇴거, 접근금지, 임시보호명령"),
+    "K1": _it("K1", "스토킹 접근·연락", "긴급응급조치, 잠정조치(서면경고, 100m)"),
+    "K2": _it("K2", "수사기관이 잠정조치를 신청하지 않을 때", "스토킹 피해자보호명령·임시보호명령"),
+    "N1": _it("N1", "친권 경로", "피해자보호명령 친권행사 제한"),
+    "S1": _it("S1", "가정폭력 피해 자녀 입학·전학", "주소지 외 취학 지원"),
+    "S3": _it("S3", "스토킹 피해자(가족 포함) 취학", "취학 지원, 비공개"),
+}
+
+
+def test_topic_ok_drops_row_without_named_measure():
+    q = "피해자보호명령 결정이 나기 전까지 당장 보호받을 방법이 있나요?"
+    assert sa.topic_ok(q, ROWS["G1"]) and sa.topic_ok(q, ROWS["K2"])
+    assert not sa.topic_ok(q, ROWS["K1"])   # 스토킹 잠정조치 행은 '보호명령'을 대지 않는다
+    assert sa.topic_ok("우편물을 옮겨 받으려면?", ROWS["K1"])  # 제도 이름이 없는 질문은 거르지 않는다
+
+
+def test_domain_ok_uses_row_heading_only():
+    assert not sa.domain_ok("스토킹 피해 학생도 전학 지원을 받을 수 있나요?", ROWS["S1"])
+    assert sa.domain_ok("스토킹 피해 학생도 전학 지원을 받을 수 있나요?", ROWS["S3"])
+    assert sa.domain_ok("스토킹 피해자도 보호명령을 신청할 수 있나요?", ROWS["K2"])  # 제목 measure 에 스토킹
+    assert sa.domain_ok("아이를 전학시킬 수 있나요?", ROWS["S1"])  # 질문이 유형을 대지 않음
+    assert sa.domain_ok("가정폭력인데 친권을 막을 수 있나요?", ROWS["N1"])  # 행 제목에 유형 없음
+
+
+def test_select_rows_orders_by_rerank_and_limits_to_two():
+    q = "보호를 받을 수 있나요?"
+    cands = [("K1", 0, 0.9), ("G1", 1, 0.9), ("N1", 2, 0.9), ("K2", 3, 0.9)]
+    ids, rel = sa.select_rows(q, cands, ROWS, {"K1": 0.40, "G1": 0.95, "N1": 0.90, "K2": 0.85})
+    assert ids == ["G1", "N1"] and rel["K1"] == 0.40
+
+
+def test_select_rows_second_row_needs_ratio():
+    q = "보호를 받을 수 있나요?"
+    cands = [("G1", 0, 0.9), ("N1", 1, 0.9)]
+    assert sa.select_rows(q, cands, ROWS, {"G1": 0.9, "N1": 0.44})[0] == ["G1"]
+    assert sa.select_rows(q, cands, ROWS, {"G1": 0.9, "N1": 0.46})[0] == ["G1", "N1"]
+    # 두 번째 행이 재순위 문턱 미만이면(조문 점수로만 관련) 붙이지 않는다
+    assert sa.select_rows(q, cands, ROWS, {"G1": 0.04, "N1": 0.02})[0] == ["G1"]
+
+
+def test_select_rows_filters_topic_and_domain_before_ranking():
+    q = "스토킹 피해자도 법원에 직접 피해자보호명령을 신청할 수 있나요?"
+    cands = [("G1", 0, 0.9), ("K2", 1, 0.9), ("K1", 2, 0.9)]
+    ids, _ = sa.select_rows(q, cands, ROWS, {"G1": 0.99, "K2": 0.8, "K1": 0.7})
+    assert ids == ["K2"]   # G1 은 가정폭력, K1 은 보호명령 아님
+
+
+def test_select_rows_relevance_gate():
+    q = "보호를 받을 수 있나요?"
+    cands = [("G1", 0, 0.01), ("N1", 1, 0.04)]
+    # 행 재순위·조문 재순위 모두 문턱 미만 → 보낼 행 없음
+    assert sa.select_rows(q, cands, ROWS, {"G1": 0.02, "N1": 0.029})[0] == []
+    # 행은 약해도 그 행이 드는 검색 조문의 재순위가 문턱 이상이면 관련 → 검색 순위 순으로
+    cands2 = [("G1", 0, 0.20), ("N1", 1, 0.06)]
+    assert sa.select_rows(q, cands2, ROWS, {"G1": 0.01, "N1": 0.02})[0] == ["G1", "N1"]
+    # BM25 폴백이면 조문 점수는 척도가 달라 쓰지 않는다
+    assert sa.select_rows(q, cands2, ROWS, {"G1": 0.01, "N1": 0.02}, fallback=True)[0] == []
+    # 재순위 문턱 이상인 행이 검색 순위보다 먼저
+    assert sa.select_rows(q, cands2, ROWS, {"G1": 0.01, "N1": 0.5})[0] == ["N1"]
+
+
+def test_select_rows_lexical_when_rerank_unavailable():
+    q = "서면경고를 받을 수 있나요?"
+    cands = [("K1", 0, 9.0), ("S1", 1, 9.0)]
+    ids, rel = sa.select_rows(q, cands, ROWS, None, fallback=True)
+    assert ids == ["K1"] and rel["K1"] >= sa.LEXICAL_MIN > rel["S1"]
+    assert sa.lexical_overlap("", "무엇이든") == 0.0
+
+
+def test_cited_rows_relevant():
+    cands = [("G1", 0, 0.01), ("N1", 1, 0.30)]
+    rel = {"G1": 0.02, "N1": 0.0}
+    assert not sa.cited_rows_relevant(["G1"], cands, rel, reranked=True, fallback=False)
+    assert sa.cited_rows_relevant(["N1"], cands, rel, reranked=True, fallback=False)
+    assert not sa.cited_rows_relevant(["N1"], cands, rel, reranked=True, fallback=True)
+    assert sa.cited_rows_relevant(["G1"], cands, {"G1": 0.2}, reranked=False, fallback=True)
+    assert not sa.cited_rows_relevant([], cands, rel, reranked=True, fallback=False)
+
+
+def test_topic_terms_match_gpu_list():
+    """앱의 TOPIC_TERMS 는 gpu/llm.py 의 목록과 같아야 한다(gpu/ 는 import 하지 않고 소스만 읽는다)."""
+    import ast
+    from pathlib import Path
+
+    src = (Path(__file__).resolve().parents[1] / "gpu" / "llm.py").read_text(encoding="utf-8")
+    for node in ast.parse(src).body:
+        target = getattr(node, "target", None) or (node.targets[0] if isinstance(node, ast.Assign) else None)
+        if isinstance(target, ast.Name) and target.id == "TOPIC_TERMS":
+            assert ast.literal_eval(node.value) == sa.TOPIC_TERMS
+            return
+    raise AssertionError("gpu/llm.py 에 TOPIC_TERMS 가 없다")
+
+
+def test_rows_irrelevant_question_not_found_without_llm(make_client, sgpu):
+    sgpu.rerank_const = 0.001   # 조문·행 모두 질문과 무관
+    with make_client(httpx.MockTransport(sgpu)) as c:
+        d = _ask(c).json()
+    assert d["mode"] == "not_found" and d["grounded"] is False and d["citations"] == []
+    assert d["rows"] == [] and d["results"]
+    assert sgpu.llm_calls("answer") == []
+    # 행 재순위는 기존 /rerank 로(조문 검색 재순위 다음 호출), 행 글(path·measure·plain)을 보낸다
+    assert len(sgpu.rerank_bodies) == 2 and all(b["query"] == Q for b in sgpu.rerank_bodies)
+
+
+def test_rows_rerank_down_uses_lexical_and_answers(make_client, sgpu):
+    sgpu.rerank_down = True
+    with make_client(httpx.MockTransport(sgpu)) as c:
+        d = _ask(c, q="소송 서면 송달 주소를 비공개로 할 수 있나요?").json()
+    assert d["fallback"] is True and d["grounded"] is True and d["rows"] == ["J1"]
+    _assert_citations_in_retrieved(d)
+
+
+def test_rows_cited_irrelevant_row_is_not_found(make_client, sgpu, monkeypatch):
+    # 방어선: 생성·발췌가 관련도 문턱 미만 행만 인용하면 내보내지 않는다.
+    monkeypatch.setattr(sa, "cited_rows_relevant", lambda *a, **k: False)
+    sgpu.answer_out = {"answer": "관련 제도는 다음과 같습니다.", "citations": ["J1"], "grounded": True,
+                       "mode": "extractive"}
+    with make_client(httpx.MockTransport(sgpu)) as c:
+        d = _ask(c).json()
+    assert d["mode"] == "not_found" and d["citations"] == [] and d["grounded"] is False
+
+
+def test_quoted_name_must_appear_in_row():
+    q = "가정폭력 피해자 전용 '안심 가상주소 발급제'는 어디서 신청하나요?"
+    assert sa.quoted_names(q) == ["안심가상주소발급제"]
+    assert sa.quoted_names("“신분 재설정 제도”는요? 「주소 봉인」도요") == ["신분재설정", "주소봉인"]
+    row = _it("A1", "주민등록 등·초본", "열람·교부 제한", "주민센터에 신청")
+    assert not sa.quoted_ok(q, row)
+    assert sa.quoted_ok("'열람 · 교부 제한'은 어디서 하나요?", row)   # 공백 무시
+    assert sa.quoted_ok("주민등록 등본을 막을 수 있나요?", row)          # 따옴표 이름 없음
+    cands = [("A1", 0, 0.9)]
+    items = {"A1": row}
+    assert sa.select_rows(q, cands, items, {"A1": 0.9})[0] == []

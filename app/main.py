@@ -491,7 +491,8 @@ def create_app(
         else:
             try:
                 out = await _sa.synthesize(strategy, req.q, results, client=client, gpu_url=url,
-                                           items_by_id=items_by_id, row_index=row_index)
+                                           items_by_id=items_by_id, row_index=row_index,
+                                           fallback=fallback)
             except _llm.LLMUnavailable as e:
                 if e.down:
                     probe.mark_down()
