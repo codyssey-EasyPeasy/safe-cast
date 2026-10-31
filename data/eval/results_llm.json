@@ -1,0 +1,623 @@
+{
+ "generated_at": "2026-10-31T13:18:50+09:00",
+ "model": "qwen3-8b (Qwen/Qwen3-8B-AWQ, vLLM, thinking off)",
+ "intake": {
+  "n": 20,
+  "flag_micro": {
+   "tp": 34,
+   "fp": 8,
+   "fn": 14,
+   "precision": 0.8095,
+   "recall": 0.7083,
+   "f1": 0.7555
+  },
+  "victim_type_accuracy": 0.9,
+  "latency_s": {
+   "mean": 1.42,
+   "max": 2.04
+  },
+  "cases": [
+   {
+    "id": "in01",
+    "victim_type_ok": true,
+    "pred_victim_type": "family",
+    "gold_victim_type": "family",
+    "missed": [],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in02",
+    "victim_type_ok": true,
+    "pred_victim_type": "stalking",
+    "gold_victim_type": "stalking",
+    "missed": [
+     "bluetooth_tag_suspected",
+     "vehicle",
+     "workplace_known"
+    ],
+    "extra": [
+     "device_tampering_suspected",
+     "shared_vehicle_or_abuser_owned"
+    ],
+    "n_unclear": 0
+   },
+   {
+    "id": "in03",
+    "victim_type_ok": true,
+    "pred_victim_type": "dating",
+    "gold_victim_type": "dating",
+    "missed": [],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in04",
+    "victim_type_ok": true,
+    "pred_victim_type": "sexual",
+    "gold_victim_type": "sexual",
+    "missed": [],
+    "extra": [
+     "mail_old_address"
+    ],
+    "n_unclear": 1
+   },
+   {
+    "id": "in05",
+    "victim_type_ok": true,
+    "pred_victim_type": "family",
+    "gold_victim_type": "family",
+    "missed": [
+     "child_victim"
+    ],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in06",
+    "victim_type_ok": true,
+    "pred_victim_type": "stalking",
+    "gold_victim_type": "stalking",
+    "missed": [],
+    "extra": [],
+    "n_unclear": 1
+   },
+   {
+    "id": "in07",
+    "victim_type_ok": true,
+    "pred_victim_type": "family",
+    "gold_victim_type": "family",
+    "missed": [],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in08",
+    "victim_type_ok": false,
+    "pred_victim_type": "sexual",
+    "gold_victim_type": null,
+    "missed": [],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in09",
+    "victim_type_ok": true,
+    "pred_victim_type": "family",
+    "gold_victim_type": "family",
+    "missed": [
+     "parcel_delivery"
+    ],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in10",
+    "victim_type_ok": true,
+    "pred_victim_type": "stalking",
+    "gold_victim_type": "stalking",
+    "missed": [
+     "protection_order"
+    ],
+    "extra": [
+     "criminal_case"
+    ],
+    "n_unclear": 1
+   },
+   {
+    "id": "in11",
+    "victim_type_ok": true,
+    "pred_victim_type": "dating",
+    "gold_victim_type": "dating",
+    "missed": [
+     "own_property_or_lease_registration"
+    ],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in12",
+    "victim_type_ok": true,
+    "pred_victim_type": "sexual",
+    "gold_victim_type": "sexual",
+    "missed": [],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in13",
+    "victim_type_ok": true,
+    "pred_victim_type": "family",
+    "gold_victim_type": "family",
+    "missed": [
+     "company_officer"
+    ],
+    "extra": [
+     "own_property_or_lease_registration"
+    ],
+    "n_unclear": 1
+   },
+   {
+    "id": "in14",
+    "victim_type_ok": true,
+    "pred_victim_type": "stalking",
+    "gold_victim_type": "stalking",
+    "missed": [],
+    "extra": [],
+    "n_unclear": 1
+   },
+   {
+    "id": "in15",
+    "victim_type_ok": false,
+    "pred_victim_type": "family",
+    "gold_victim_type": null,
+    "missed": [],
+    "extra": [],
+    "n_unclear": 1
+   },
+   {
+    "id": "in16",
+    "victim_type_ok": true,
+    "pred_victim_type": "family",
+    "gold_victim_type": "family",
+    "missed": [
+     "children_school"
+    ],
+    "extra": [
+     "child_victim",
+     "vehicle"
+    ],
+    "n_unclear": 0
+   },
+   {
+    "id": "in17",
+    "victim_type_ok": true,
+    "pred_victim_type": "dating",
+    "gold_victim_type": "dating",
+    "missed": [],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in18",
+    "victim_type_ok": true,
+    "pred_victim_type": "sexual",
+    "gold_victim_type": "sexual",
+    "missed": [
+     "abuser_is_plaintiff",
+     "workplace_known"
+    ],
+    "extra": [],
+    "n_unclear": 0
+   },
+   {
+    "id": "in19",
+    "victim_type_ok": true,
+    "pred_victim_type": "stalking",
+    "gold_victim_type": "stalking",
+    "missed": [
+     "bluetooth_tag_suspected",
+     "vehicle"
+    ],
+    "extra": [
+     "shared_vehicle_or_abuser_owned"
+    ],
+    "n_unclear": 0
+   },
+   {
+    "id": "in20",
+    "victim_type_ok": true,
+    "pred_victim_type": "family",
+    "gold_victim_type": "family",
+    "missed": [
+     "children_school"
+    ],
+    "extra": [],
+    "n_unclear": 0
+   }
+  ]
+ },
+ "answer": {
+  "n": 10,
+  "answerable_answered": "5/5",
+  "answerable_cites_expected": "5/5",
+  "citation_validity": 1.0,
+  "out_of_context_refusal": "5/5",
+  "guard_refusals": 0,
+  "latency_s": {
+   "mean": 2.52,
+   "max": 4.49
+  },
+  "note": "답변 본문의 근거 이탈(인용은 맞지만 내용이 근거 밖) 여부는 사람 판정 표본으로 따로 본다(SPEC §8).",
+  "cases": [
+   {
+    "id": "a1",
+    "answerable": true,
+    "answered": true,
+    "refused_by_guard": false,
+    "not_found": false,
+    "citations": [
+     "J1"
+    ],
+    "citations_in_context": true,
+    "cites_expected": true
+   },
+   {
+    "id": "a2",
+    "answerable": true,
+    "answered": true,
+    "refused_by_guard": false,
+    "not_found": false,
+    "citations": [
+     "L3"
+    ],
+    "citations_in_context": true,
+    "cites_expected": true
+   },
+   {
+    "id": "a3",
+    "answerable": true,
+    "answered": true,
+    "refused_by_guard": false,
+    "not_found": false,
+    "citations": [
+     "S1"
+    ],
+    "citations_in_context": true,
+    "cites_expected": true
+   },
+   {
+    "id": "a4",
+    "answerable": true,
+    "answered": true,
+    "refused_by_guard": false,
+    "not_found": false,
+    "citations": [
+     "L7"
+    ],
+    "citations_in_context": true,
+    "cites_expected": true
+   },
+   {
+    "id": "a5",
+    "answerable": true,
+    "answered": true,
+    "refused_by_guard": false,
+    "not_found": false,
+    "citations": [
+     "P1"
+    ],
+    "citations_in_context": true,
+    "cites_expected": true
+   },
+   {
+    "id": "n1",
+    "answerable": false,
+    "answered": false,
+    "refused_by_guard": false,
+    "not_found": true,
+    "citations": [],
+    "citations_in_context": true,
+    "cites_expected": null
+   },
+   {
+    "id": "n2",
+    "answerable": false,
+    "answered": false,
+    "refused_by_guard": false,
+    "not_found": true,
+    "citations": [],
+    "citations_in_context": true,
+    "cites_expected": null
+   },
+   {
+    "id": "n3",
+    "answerable": false,
+    "answered": false,
+    "refused_by_guard": false,
+    "not_found": true,
+    "citations": [],
+    "citations_in_context": true,
+    "cites_expected": null
+   },
+   {
+    "id": "n4",
+    "answerable": false,
+    "answered": false,
+    "refused_by_guard": false,
+    "not_found": true,
+    "citations": [],
+    "citations_in_context": true,
+    "cites_expected": null
+   },
+   {
+    "id": "n5",
+    "answerable": false,
+    "answered": false,
+    "refused_by_guard": false,
+    "not_found": true,
+    "citations": [],
+    "citations_in_context": true,
+    "cites_expected": null
+   }
+  ]
+ },
+ "rewrite": {
+  "n": 30,
+  "rewritten": 30,
+  "refused": 0,
+  "rule_fallback": 0,
+  "forced_masks": 6,
+  "tier1_spans_before": 33,
+  "tier1_spans_after": 0,
+  "tier1_residual_rate": 0.0,
+  "docs_with_tier1_residual": "0/30",
+  "gold_span_text_left_rate": 0.0877,
+  "latency_s": {
+   "mean": 2.64,
+   "max": 4.33
+  },
+  "cases": [
+   {
+    "id": "doc01",
+    "refused": false,
+    "tier1_before": 2,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc02",
+    "refused": false,
+    "tier1_before": 3,
+    "tier1_after": 0,
+    "gold_spans": 3,
+    "gold_left": 0
+   },
+   {
+    "id": "doc03",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc04",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 1
+   },
+   {
+    "id": "doc05",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc06",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc07",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc08",
+    "refused": false,
+    "tier1_before": 2,
+    "tier1_after": 0,
+    "gold_spans": 3,
+    "gold_left": 0
+   },
+   {
+    "id": "doc09",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 1
+   },
+   {
+    "id": "doc10",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 0,
+    "gold_left": 0
+   },
+   {
+    "id": "doc11",
+    "refused": false,
+    "tier1_before": 2,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc12",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc13",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 1
+   },
+   {
+    "id": "doc14",
+    "refused": false,
+    "tier1_before": 2,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc15",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 1
+   },
+   {
+    "id": "doc16",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 0,
+    "gold_left": 0
+   },
+   {
+    "id": "doc17",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc18",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 3,
+    "gold_left": 0
+   },
+   {
+    "id": "doc19",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 0,
+    "gold_left": 0
+   },
+   {
+    "id": "doc20",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc21",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 1
+   },
+   {
+    "id": "doc22",
+    "refused": false,
+    "tier1_before": 2,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc23",
+    "refused": false,
+    "tier1_before": 2,
+    "tier1_after": 0,
+    "gold_spans": 3,
+    "gold_left": 0
+   },
+   {
+    "id": "doc24",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 3,
+    "gold_left": 0
+   },
+   {
+    "id": "doc25",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 0,
+    "gold_left": 0
+   },
+   {
+    "id": "doc26",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc27",
+    "refused": false,
+    "tier1_before": 3,
+    "tier1_after": 0,
+    "gold_spans": 3,
+    "gold_left": 0
+   },
+   {
+    "id": "doc28",
+    "refused": false,
+    "tier1_before": 0,
+    "tier1_after": 0,
+    "gold_spans": 1,
+    "gold_left": 0
+   },
+   {
+    "id": "doc29",
+    "refused": false,
+    "tier1_before": 2,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   },
+   {
+    "id": "doc30",
+    "refused": false,
+    "tier1_before": 1,
+    "tier1_after": 0,
+    "gold_spans": 2,
+    "gold_left": 0
+   }
+  ]
+ }
+}

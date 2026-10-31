@@ -14,6 +14,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+import llm
 from guard import rule_locate_intent
 
 MAX_BODY = 20 * 1024
@@ -216,6 +217,7 @@ def health():
         "ok": True,
         "models": {k: M.get(k) is not None for k in ("embedder", "reranker", "gliner")},
         "device": device,
+        "llm": llm.llm_alive(),
     }
 
 
@@ -282,3 +284,165 @@ def intent(req: IntentIn):
     cos_protect = float(np.max(seeds["protect"] @ v))
     locate, score = decide_intent(req.q, cos_locate, cos_protect)
     return {"locate_intent": locate, "score": score, "rule": bool(keyword_locate(req.q))}
+
+
+# --- 내부 LLM (SPEC §8): vLLM 127.0.0.1:8001 프록시 ---
+# LLM 경로의 임베딩 가드 임계값(입력 질문·출력 공통). 규칙(guard.py·정규식)은 항상 먼저 적용된다.
+# 2026-10-31 실측(bge-m3): guard_holdout 10개·redteam 25개의 탐색 질의는 모두 규칙이 잡았고
+# (임베딩만 잡은 것 0건), 피해자 본인의 보호 질문은 임베딩 점수가 0.126 까지 나왔다
+# (예: 옛 집 우편물 전송 질문 0.1258 > 0.02 → 오거절). 그래서 LLM 경로는 0.15 를 쓴다.
+# 이 값은 tools/eval_llm.py 의 질문을 본 뒤 정했다(평가 세트 노출 있음).
+OUT_THRESH = float(os.environ.get("LLM_GUARD_THRESH", "0.15"))
+_ITEM_ID = r"^[A-Z]\d{1,3}$"
+
+
+class FlagIn(BaseModel):
+    id: str = Field(..., max_length=64)
+    label: str = Field("", max_length=200)
+
+
+class IntakeIn(BaseModel):
+    text: str = Field(..., min_length=1, max_length=3000)
+    flags: list[FlagIn] | None = Field(None, max_length=80)
+
+
+class ArticleIn(BaseModel):
+    law: str = Field("", max_length=100)
+    article: str = Field("", max_length=100)
+    text: str = Field("", max_length=2000)
+
+
+class ItemIn(BaseModel):
+    id: str = Field(..., pattern=_ITEM_ID)
+    path: str | None = Field(None, max_length=500)
+    exposure: str | None = Field(None, max_length=500)
+    measure: str | None = Field(None, max_length=500)
+    timing: str | None = Field(None, max_length=500)
+    where: str | None = Field(None, max_length=500)
+    documents: str | None = Field(None, max_length=500)
+    limits: str | None = Field(None, max_length=500)
+    notify_warning: str | None = Field(None, max_length=500)
+    status: str | None = Field(None, max_length=20)
+    pending_effective: str | None = Field(None, max_length=20)
+    plain: str | None = Field(None, max_length=1000)
+    note: str | None = Field(None, max_length=500)
+    articles: list[ArticleIn] = Field(default_factory=list, max_length=6)
+
+
+class AnswerIn(BaseModel):
+    question: str = Field(..., min_length=1, max_length=500)
+    items: list[ItemIn] = Field(default_factory=list, max_length=8)
+
+
+class SpanIn(BaseModel):
+    start: int = Field(..., ge=0)
+    end: int = Field(..., ge=0)
+    label: str = Field(..., max_length=20)
+
+
+class RewriteIn(BaseModel):
+    text: str = Field(..., min_length=1, max_length=6000)
+    spans: list[SpanIn] = Field(default_factory=list, max_length=100)
+
+
+def locate_score(text: str) -> tuple[bool, float | None]:
+    """(규칙 판정, 임베딩 의도 점수). 임베더가 없으면 점수 None."""
+    rule = keyword_locate(text)
+    seeds, emb = M.get("seeds"), M.get("embedder")
+    if seeds is None or emb is None:
+        return rule, None
+    import torch
+
+    with torch.inference_mode():
+        v = np.asarray(emb.encode([text], normalize_embeddings=True))[0]
+    return rule, float(np.max(seeds["locate"] @ v)) - float(np.max(seeds["protect"] @ v))
+
+
+def locate_flagged(text: str, thresh: float | None = None) -> bool:
+    """규칙(guard.py·정규식) OR 임베딩 의도 점수 > 임계값."""
+    rule, score = locate_score(text)
+    return rule or (score is not None and score > (THRESH if thresh is None else thresh))
+
+
+# rewrite 출력 가드: 입력은 사용자 본인 서류라 주소 단어가 많아 임베딩 점수가 원래 높다
+# (2026-10-31 실측: 합성 소장 한 문장 0.0896 > 0.02). 그래서 '모델이 새로 만든' 탐색 내용만 잡는다:
+# 입력에 없던 규칙 적중이 생기거나, 임베딩 점수가 임계값을 넘으면서 입력보다 REWRITE_DELTA 이상 오르면 차단.
+REWRITE_DELTA = float(os.environ.get("LLM_REWRITE_DELTA", "0.05"))
+
+
+def rewrite_flagged(original: str, suggested: str) -> bool:
+    r_in, s_in = locate_score(original)
+    r_out, s_out = locate_score(suggested)
+    if r_out and not r_in:
+        return True
+    if s_out is None or s_in is None:
+        return False
+    return s_out > OUT_THRESH and s_out > s_in + REWRITE_DELTA
+
+
+def _llm_down() -> JSONResponse:
+    return JSONResponse({"detail": "llm unavailable", "available": False}, status_code=503)
+
+
+def _refusal() -> dict:
+    return {"refused": True, "answer": llm.SAFE_REFUSAL, "citations": [], "grounded": False,
+            "ai_generated": True}
+
+
+@app.post("/llm/intake")
+def llm_intake(req: IntakeIn):
+    flags = [f.model_dump() for f in req.flags] if req.flags else llm.load_local_flags()
+    ids = [f["id"] for f in flags]
+    try:
+        out = llm.chat_json(llm.intake_messages(req.text, flags), llm.intake_schema(ids),
+                            max_tokens=512, temperature=0.0)
+    except llm.LlmDown:
+        return _llm_down()
+    res = llm.clean_intake(out, ids)
+    # 확인 질문도 생성문이다: 탐색 표현이 섞이면 버린다.
+    res["unclear"] = [q for q in res["unclear"] if not keyword_locate(q)]
+    res["ai_generated"] = True
+    return res
+
+
+@app.post("/llm/answer")
+def llm_answer(req: AnswerIn):
+    if locate_flagged(req.question, OUT_THRESH):
+        return _refusal()
+    items = [i.model_dump() for i in req.items]
+    ids = [i["id"] for i in items]
+    if not ids:
+        return llm.not_found()
+    try:
+        out = llm.chat_json(llm.answer_messages(req.question, items), llm.answer_schema(ids),
+                            max_tokens=700, temperature=0.1)
+    except llm.LlmDown:
+        return _llm_down()
+    res = llm.clean_answer(out, ids)
+    if res["grounded"] and locate_flagged(res["answer"], OUT_THRESH):
+        return _refusal()
+    return res
+
+
+@app.post("/llm/rewrite")
+def llm_rewrite(req: RewriteIn):
+    n = len(req.text)
+    given = [s.model_dump() for s in req.spans if s.start < s.end <= n]
+    # 앱이 넘긴 span 에 서버 정규식 span 을 더한다(누락 대비).
+    spans = merge_spans([{**s, "score": 1.0} for s in given] + regex_spans(req.text))
+    try:
+        out = llm.chat_json(llm.rewrite_messages(req.text, spans), llm.rewrite_schema(),
+                            max_tokens=min(4096, 2 * n + 256), temperature=0.0)
+    except llm.LlmDown:
+        return _llm_down()
+    spans = merge_spans(spans + [{**c, "score": 0.5} for c in llm.clue_spans(req.text, out.get("clues"))])
+    res = llm.finalize_rewrite(req.text, spans, str(out.get("text") or ""))
+    # 생성문에 남은 정규식 단서는 규칙으로 한 번 더 가린다.
+    left = regex_spans(res["suggested"])
+    if left:
+        res["suggested"] = llm.mask_spans(res["suggested"], merge_spans(left))
+        res["forced"] += len(left)
+    if rewrite_flagged(req.text, res["suggested"]):
+        return _refusal() | {"suggested": None}
+    res["ai_generated"] = True
+    return res

@@ -1,0 +1,193 @@
+{
+ "note": "합성 자유서술 20개(일상 언어, 법률 용어 없음). 실제 인물·사건과 무관. flags 는 data/knowledge.json flag id.",
+ "cases": [
+  {
+   "id": "in01",
+   "text": "남편한테 몇 년 동안 맞다가 아이 둘 데리고 집을 나와서 친정 근처로 막 이사했어요. 큰애는 초등학생이라 전학해야 하고 작은애는 어린이집 다녀요. 남편이 먼저 이혼 소장을 냈다고 법원에서 서류가 왔어요.",
+   "victim_type": "family",
+   "flags": [
+    "moved_recently",
+    "children_school",
+    "children_daycare",
+    "lawsuit",
+    "abuser_is_plaintiff"
+   ]
+  },
+  {
+   "id": "in02",
+   "text": "헤어지자고 한 뒤로 그 사람이 몇 달째 제 회사 앞에서 기다려요. 경찰에 신고해서 지금 수사 중이에요. 제 이름으로 된 차 밑에 뭔가 작은 게 붙어 있는 것 같기도 해요.",
+   "victim_type": "stalking",
+   "flags": [
+    "workplace_known",
+    "criminal_case",
+    "bluetooth_tag_suspected",
+    "vehicle"
+   ]
+  },
+  {
+   "id": "in03",
+   "text": "사귀던 남자친구가 때려서 헤어졌는데 아직 제 휴대폰이 그 사람 명의로 되어 있어요. 인스타 비밀번호도 그 사람이 알고 있고요.",
+   "victim_type": "dating",
+   "flags": [
+    "abuser_named_phone_or_family_plan",
+    "shared_accounts_or_location_sharing"
+   ]
+  },
+  {
+   "id": "in04",
+   "text": "모르는 사람한테 성범죄를 당해서 고소했어요. 곧 재판이 열린다는데 제 집 주소가 그쪽에 알려질까 봐 너무 무서워요.",
+   "victim_type": "sexual",
+   "flags": [
+    "criminal_case"
+   ]
+  },
+  {
+   "id": "in05",
+   "text": "남편이 저를 때리고 아이한테도 손을 대요. 아이랑 같이 쉼터에 들어가고 싶어요. 주민등록은 아직 남편 집에 같이 되어 있어요.",
+   "victim_type": "family",
+   "flags": [
+    "child_victim",
+    "shelter_needed",
+    "same_registration_address"
+   ]
+  },
+  {
+   "id": "in06",
+   "text": "예전에 알던 사람이 제 사진을 퍼다가 단톡방에 집 주소랑 같이 올렸어요. 그 뒤로 집 근처에서 자꾸 마주쳐요. 저는 평소에 SNS에 사진을 자주 올리는 편이에요.",
+   "victim_type": "stalking",
+   "flags": [
+    "posted_online",
+    "photos_social"
+   ]
+  },
+  {
+   "id": "in07",
+   "text": "결혼하고 한국에 온 지 3년 된 외국인이에요. 남편이 때리는데, 저는 남편 건강보험에 피부양자로 올라가 있어요.",
+   "victim_type": "family",
+   "flags": [
+    "foreign_national",
+    "health_insurance_dependent"
+   ]
+  },
+  {
+   "id": "in08",
+   "text": "누가 제 휴대폰을 몰래 보는 것 같아요. 모르는 앱이 깔려 있었고 배터리가 이상하게 빨리 닳아요.",
+   "victim_type": null,
+   "flags": [
+    "device_tampering_suspected"
+   ]
+  },
+  {
+   "id": "in09",
+   "text": "이혼하고 따로 사는데 예전 집으로 아직 제 우편물이 가요. 택배도 자주 시키는데 걱정돼요. 전남편은 제 주민등록번호도 알고 있어요.",
+   "victim_type": "family",
+   "flags": [
+    "mail_old_address",
+    "parcel_delivery",
+    "id_number_leaked"
+   ]
+  },
+  {
+   "id": "in10",
+   "text": "모르는 남자가 몇 주째 집 앞에 찾아오고 문자를 보내요. 법원에서 가까이 오지 말라는 결정을 받으려고 해요. 저는 서울에 살아요.",
+   "victim_type": "stalking",
+   "flags": [
+    "protection_order",
+    "region_seoul"
+   ]
+  },
+  {
+   "id": "in11",
+   "text": "전 여자친구한테 맞은 적이 있어요. 같이 산 차가 공동명의라 아직 정리를 못 했고, 이사 갈 집 전세 계약을 앞두고 있어요.",
+   "victim_type": "dating",
+   "flags": [
+    "shared_vehicle_or_abuser_owned",
+    "own_property_or_lease_registration",
+    "moved_recently"
+   ]
+  },
+  {
+   "id": "in12",
+   "text": "모르는 사이에 찍힌 제 영상이 돌아다닌다는 걸 알았어요. 찍은 사람이 더 퍼뜨리겠다고 협박해요.",
+   "victim_type": "sexual",
+   "flags": [
+    "intimate_images"
+   ]
+  },
+  {
+   "id": "in13",
+   "text": "남편 폭력 때문에 집을 나와 다른 동네로 옮겼어요. 제가 작은 회사 대표로 등기돼 있어서 주소가 드러날까 걱정이에요. 생계급여도 신청하려고 해요.",
+   "victim_type": "family",
+   "flags": [
+    "moved_recently",
+    "company_officer",
+    "welfare_or_pension"
+   ]
+  },
+  {
+   "id": "in14",
+   "text": "동네에서 알던 사람이 계속 따라다녀요. 곧 선거가 있는데 선거 때 주소가 적힌 명부가 나온다고 들었어요.",
+   "victim_type": "stalking",
+   "flags": [
+    "election_period"
+   ]
+  },
+  {
+   "id": "in15",
+   "text": "그냥 요즘 무서워서 이사를 했어요. 무엇부터 해야 할지 모르겠어요.",
+   "victim_type": null,
+   "flags": [
+    "moved_recently"
+   ]
+  },
+  {
+   "id": "in16",
+   "text": "남편이 저를 계속 때려요. 아이가 다음 달에 중학교에 입학해요. 저는 남편 이름으로 된 차를 타고 다녀요.",
+   "victim_type": "family",
+   "flags": [
+    "children_school",
+    "shared_vehicle_or_abuser_owned"
+   ]
+  },
+  {
+   "id": "in17",
+   "text": "남자친구랑 휴대폰 위치 공유를 켜 놨었는데 헤어진 뒤에도 제가 어디 있는지 다 알아요. 가족 요금제로 묶여 있기도 해요.",
+   "victim_type": "dating",
+   "flags": [
+    "shared_accounts_or_location_sharing",
+    "abuser_named_phone_or_family_plan"
+   ]
+  },
+  {
+   "id": "in18",
+   "text": "회사 상사한테 성추행을 당해서 신고했어요. 그 사람은 제 직장을 당연히 알고, 오히려 저한테 손해배상 소송을 걸었어요.",
+   "victim_type": "sexual",
+   "flags": [
+    "criminal_case",
+    "workplace_known",
+    "lawsuit",
+    "abuser_is_plaintiff"
+   ]
+  },
+  {
+   "id": "in19",
+   "text": "모르는 사람이 계속 따라다니더니 제 명의 차에 이상한 기계를 붙여 둔 걸 발견했어요. 아이는 유치원에 다녀요.",
+   "victim_type": "stalking",
+   "flags": [
+    "bluetooth_tag_suspected",
+    "vehicle",
+    "children_daycare"
+   ]
+  },
+  {
+   "id": "in20",
+   "text": "아내가 저와 아이들을 때려요. 아이들은 초등학교에 다니는데 아이도 맞았어요. 고소하려고 경찰서에 다녀왔어요.",
+   "victim_type": "family",
+   "flags": [
+    "children_school",
+    "child_victim",
+    "criminal_case"
+   ]
+  }
+ ]
+}

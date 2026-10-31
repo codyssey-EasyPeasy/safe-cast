@@ -1,0 +1,126 @@
+{
+ "version": "2026-10-31",
+ "source": "data/knowledge.json flags 사본(내부 LLM intake 용, 앱이 flags 를 보내지 않을 때)",
+ "flags": [
+  {
+   "id": "moved_recently",
+   "label": "최근 이사(또는 이사 예정)"
+  },
+  {
+   "id": "same_registration_address",
+   "label": "가해자와 주민등록지가 같음"
+  },
+  {
+   "id": "shelter_needed",
+   "label": "피신처·임시 거처가 필요함(보호시설 포함)"
+  },
+  {
+   "id": "own_property_or_lease_registration",
+   "label": "본인 명의 부동산 등기·임차권등기·임대차 계약 예정"
+  },
+  {
+   "id": "region_seoul",
+   "label": "서울에 거주(또는 서울 지원 이용)"
+  },
+  {
+   "id": "lawsuit",
+   "label": "민사·가사 소송 중이거나 예정(이혼·양육·손해배상 등)"
+  },
+  {
+   "id": "abuser_is_plaintiff",
+   "label": "가해자가 원고·채권자로 먼저 소송을 냄"
+  },
+  {
+   "id": "criminal_case",
+   "label": "고소·신고 후 수사·재판 중"
+  },
+  {
+   "id": "protection_order",
+   "label": "접근금지·보호명령 등 조치가 있거나 예정"
+  },
+  {
+   "id": "children_school",
+   "label": "자녀가 학교에 다님(입학·전학 예정 포함)"
+  },
+  {
+   "id": "children_daycare",
+   "label": "자녀가 어린이집·유치원에 다님"
+  },
+  {
+   "id": "child_victim",
+   "label": "자녀도 학대·폭력 피해를 입음"
+  },
+  {
+   "id": "vehicle",
+   "label": "본인 명의 차량이 있음"
+  },
+  {
+   "id": "shared_vehicle_or_abuser_owned",
+   "label": "공동명의 차량이거나 가해자 명의 차량을 씀"
+  },
+  {
+   "id": "mail_old_address",
+   "label": "옛 주소(가해자 거주지)로 우편물이 감"
+  },
+  {
+   "id": "parcel_delivery",
+   "label": "택배·배달을 받음"
+  },
+  {
+   "id": "abuser_named_phone_or_family_plan",
+   "label": "가해자 명의 휴대폰이거나 가족결합 요금제"
+  },
+  {
+   "id": "shared_accounts_or_location_sharing",
+   "label": "계정·비밀번호·위치를 가해자와 공유했거나 공유 중"
+  },
+  {
+   "id": "device_tampering_suspected",
+   "label": "휴대폰 등 기기 감시가 의심됨"
+  },
+  {
+   "id": "bluetooth_tag_suspected",
+   "label": "위치 태그(추적기) 부착이 의심됨"
+  },
+  {
+   "id": "photos_social",
+   "label": "사진·SNS를 게시함"
+  },
+  {
+   "id": "posted_online",
+   "label": "주소·직장 등 신상이 온라인에 게시·유포됨"
+  },
+  {
+   "id": "intimate_images",
+   "label": "불법촬영물·딥페이크 피해가 있음"
+  },
+  {
+   "id": "workplace_known",
+   "label": "가해자가 직장을 앎"
+  },
+  {
+   "id": "company_officer",
+   "label": "본인이 법인 대표이사·임원임"
+  },
+  {
+   "id": "foreign_national",
+   "label": "외국인(결혼이민자 등) 피해자"
+  },
+  {
+   "id": "health_insurance_dependent",
+   "label": "가해자의 건강보험 피부양자이거나 같은 세대"
+  },
+  {
+   "id": "welfare_or_pension",
+   "label": "기초생활·국민연금 등 급여를 신청·수급"
+  },
+  {
+   "id": "id_number_leaked",
+   "label": "주민등록번호가 가해자에게 알려짐"
+  },
+  {
+   "id": "election_period",
+   "label": "선거를 앞두고 있음(선거인명부 작성 기간)"
+  }
+ ]
+}
