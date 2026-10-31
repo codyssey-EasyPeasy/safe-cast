@@ -82,6 +82,19 @@ def test_penalty_claim_without_penalty_text_fails():
     assert any("처벌" in x for x in r)
 
 
+def test_penalty_unconfirmed_statement_passes():
+    # 답변 지시문은 근거에 없는 처벌 여부를 '근거에서 확인되지 않습니다'로 쓰라고 한다. 그 문장을 처벌 주장으로 막으면
+    # 지시를 따른 답이 재생성·발췌로 밀려난다.
+    assert bad("처벌되는지는 근거에서 확인되지 않습니다. [J12]", [J12]) == []
+    assert bad("어기면 처벌받는지는 근거에 나와 있지 않아요. [J12]", [J12]) == []
+
+
+def test_penalty_claim_next_to_unconfirmed_clause_still_fails():
+    # 다른 절의 '확인되지 않'으로 처벌 단정이 풀리면 안 된다.
+    r = bad("어기면 처벌받습니다. 기간은 근거에서 확인되지 않습니다. [J12]", [J12])
+    assert any("처벌" in x for x in r)
+
+
 def test_obligation_not_in_evidence_fails():
     r = bad("신고할 때 송달영수인도 함께 정해야 합니다. [J2]", [J2])
     assert any("의무 단정" in x for x in r)

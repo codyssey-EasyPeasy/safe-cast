@@ -282,6 +282,8 @@ _EVID_OBLIG_RE = re.compile(r"해야|하여야|써야|내야|필수|의무|하�
 # 처벌·제재 주장: 근거에 처벌·징역·벌금 등이 있어야 한다(HR11: 처벌 조항 없이 '처벌받을 수 있어요').
 _PENALTY_RE = re.compile(r"처벌|징역|벌금|과태료|구류|형사\s*책임|범죄(?:가|에)\s*(?:되|돼|해당)")
 _PENALTY_CTX_RE = re.compile(r"처벌|징역|벌금|과태료|구류|범죄")
+# 처벌 여부를 '근거에서 확인되지 않는다'고 밝히는 절은 처벌 주장이 아니다(답변 지시문이 그렇게 쓰라고 한다).
+_UNCONFIRMED_RE = re.compile(r"확인되지\s*않|확인할\s*수\s*없|확인\s*안\s*(?:돼|됩|됨)|미확인|(?:나와|적혀)\s*있지\s*않")
 # 이름이 비슷한 제도: 정확한 이름으로 근거에 있어야 한다('임시조치'만 있는 근거로 '긴급임시조치'를 말하면 안 되고 그 반대도).
 MEASURE_NAMES: list[tuple[str, str]] = [
     ("긴급임시조치", r"긴급\s*임시\s*조치"),
@@ -362,7 +364,7 @@ def clause_checks(sentence: str, ctx: Ctx) -> list[str]:
                 reasons.append(f"제도 기능 혼동: {fix}")
         # 처벌 주장
         m = _PENALTY_RE.search(cl)
-        if m and not ctx.has_penalty:
+        if m and not ctx.has_penalty and not _UNCONFIRMED_RE.search(cl):
             reasons.append(f"처벌 주장 '{m.group(0)}' 근거 없음(처벌 여부는 근거에서 확인되지 않음)")
         # 보호 효과 단정(근거 행에 노출 한계가 있을 때)
         m = _PROTECT_CLAIM_RE.search(cl)
