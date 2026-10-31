@@ -197,7 +197,7 @@
     head.appendChild(title);
     card.appendChild(head);
 
-    if (item.status === 'pending' && item.note) {
+    if (item.note) {
       var note = document.createElement('p');
       note.className = 'card-note';
       note.textContent = item.note;
@@ -350,9 +350,25 @@
         t.className = 'card-title';
         t.textContent = it.measure || it.path || it.id || '잔여 위험';
         card.appendChild(t);
+        if (it.plain) {
+          var pbox = document.createElement('div');
+          pbox.className = 'plain-box';
+          if (!it.plain_reviewed) {
+            pbox.appendChild(badge('ai-badge', 'AI 생성(검수 전)'));
+          }
+          var pp = document.createElement('p');
+          pp.textContent = it.plain;
+          pbox.appendChild(pp);
+          card.appendChild(pbox);
+        }
+        if (it.timing) card.appendChild(row('대비', it.timing));
         if (it.path) card.appendChild(row('경로', it.path));
-        if (it.exposure) card.appendChild(row('노출', it.exposure));
-        if (it.limits) card.appendChild(row('한계', it.limits));
+        if (it.support) {
+          var sn = document.createElement('p');
+          sn.className = 'card-note';
+          sn.textContent = it.support;
+          card.appendChild(sn);
+        }
         root.appendChild(card);
       }
     }

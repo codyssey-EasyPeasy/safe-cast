@@ -14,12 +14,17 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from guard import rule_locate_intent
+
 MAX_BODY = 20 * 1024
 MAX_TEXTS = 64
 MAX_DOCS = 100
 NER_THRESHOLD = 0.4
-# 시드 문장으로 튜닝한 locate 판정 임계값.
-THRESH = 0.15
+# locate 판정 임계값(max-sim 점수 = 최대 locate 유사도 - 최대 protect 유사도).
+# data/eval/guard_holdout.json(별도 검증 세트, 평가용 redteam 40개와 별개)으로 정했다
+# (2026-10-31 실측, bge-m3): 허용 기대 최댓값 -0.0363, 거절 기대 최솟값 0.0201 → 0.02 에서
+# 임베딩 단독 10/10 거절·0/10 오거절. 여유가 얇으므로 규칙(guard.py)이 1차 방어다.
+THRESH = float(os.environ.get("INTENT_THRESH", "0.02"))
 
 LABELS = ["주소", "직장", "학교", "차량", "생활권"]
 
@@ -63,8 +68,8 @@ def _load_seeds() -> None:
     loc = np.asarray(emb.encode(data["locate"], normalize_embeddings=True))
     pro = np.asarray(emb.encode(data["protect"], normalize_embeddings=True))
     M["seeds"] = {
-        "locate": loc.mean(axis=0),
-        "protect": pro.mean(axis=0),
+        "locate": loc,
+        "protect": pro,
     }
 
 
@@ -178,14 +183,15 @@ def merge_spans(spans: list[dict]) -> list[dict]:
 _LOCATE_PAT = re.compile(
     r"(?:어디\s*(?:살|사는|있)|주소\s*(?:알아|찾|조회)|위치\s*(?:추적|알아|찾)|어디로\s*이사)"
 )
-_PROTECT_PAT = re.compile(r"(?:보호|차단|숨기|열람\s*제한|비공개|내\s*정보|신청|막)")
+# 1인칭 자기 보호 표현(내/제/저의 주소·정보·위치·거주지)만 좁게 차단한다.
+# 타인 소재 탐색은 보호 단어가 섞여도 guard 규칙/정규식이 잡는다.
+_SELF_PROTECT_PAT = re.compile(r"(?:내|제|저의)\s*(?:새\s*)?(?:주소|정보|위치|거주지)")
 
 
 def keyword_locate(q: str) -> bool:
-    """사람 위치 탐색 표현이 있으면서 보호 표현이 없을 때만 True."""
-    if _PROTECT_PAT.search(q):
-        return False
-    return bool(_LOCATE_PAT.search(q))
+    """타인 위치 탐색 표현이면 True. 1인칭 자기 보호 표현이면 정규식은 끄되,
+    guard 규칙 엔진이 타인 소재 탐색으로 판정하면 True."""
+    return bool(_LOCATE_PAT.search(q) and not _SELF_PROTECT_PAT.search(q)) or rule_locate_intent(q)
 
 
 def decide_intent(q: str, cos_locate: float, cos_protect: float) -> tuple[bool, float]:
@@ -272,7 +278,7 @@ def intent(req: IntentIn):
     emb = M["embedder"]
     with torch.inference_mode():
         v = np.asarray(emb.encode([req.q], normalize_embeddings=True))[0]
-    cos_locate = float(np.dot(v, seeds["locate"]))
-    cos_protect = float(np.dot(v, seeds["protect"]))
+    cos_locate = float(np.max(seeds["locate"] @ v))
+    cos_protect = float(np.max(seeds["protect"] @ v))
     locate, score = decide_intent(req.q, cos_locate, cos_protect)
-    return {"locate_intent": locate, "score": score}
+    return {"locate_intent": locate, "score": score, "rule": bool(keyword_locate(req.q))}

@@ -190,6 +190,8 @@ def b(*entries):
 OV: dict[str, dict] = {
     # ---- A 행정 ----
     "A1": dict(v=[F], u=1, tm="전입신고와 같은 방문에서(전입 직후 제한 전 공백을 줄인다)", nw=NW_A1,
+               cn=[{"if_any": ["same_registration_address"],
+                    "note": "지금은 가해자와 주민등록지가 같아 바로 신청할 수 없습니다. 세대·주민등록지를 먼저 분리(A6)한 뒤에 신청할 수 있습니다."}],
                exp="가족 자격으로 발급되는 주민등록 등·초본에 새 주소가 실린다",
                b=b((JU, "제29조 제6항"), (JU, "제29조 제7항"), (JU, "제29조 제8항"), (JUR, "제47조의2"), (JUK, "제13조의2"))),
     "A2": dict(v=ALL, any=["moved_recently", "lawsuit"], u=2, tm="전입 직후 주민센터에 위험 사정을 알려 둔다",
@@ -197,12 +199,15 @@ OV: dict[str, dict] = {
                b=b((JU, "제29조 제5항"), (JU, "제29조 제2항"))),
     "A3": dict(v=ALL, u=2, tm="전입신고 때 함께", b=b((JUR, "제47조 제8항"), (JUK, "제6조의2 제1항"))),
     "A4": dict(v=[F], u=3, tm="제한 신청 때 해제 사유를 함께 안내", b=b((JU, "제29조 제9항"), (JUR, "제47조의2 제2항"), (JUK, "제13조의2"))),
-    "A5": dict(v=ALL, any=["id_number_leaked"], u=2, tm="가족관계 교부 제한(A8)을 먼저 또는 함께 신청한 뒤",
+    "A5": dict(v=ALL, any=["id_number_leaked"], u=2,
+               tm="가정폭력 피해자는 가족관계 교부 제한(A8)을 먼저 또는 함께 신청한 뒤. 그 밖의 유형은 변경 전에 상담소와 새 번호 노출 위험을 점검",
+               lim="유출 입증 필요. 새 번호가 가족관계등록부에 반영됨. 가정폭력 피해자는 가족관계 제한(A8)을 먼저·함께 신청. 스토킹·교제폭력·성폭력 피해자는 가족관계 제한 제도가 없어 새 번호가 가족관계 증명서로 노출될 수 있음(잔여 위험). 주소는 가려지지 않음",
                b=b((JU, "제7조의4 제1항"), (JU, "제7조의5 제4항"), (JUR, "제12조의3"), (JUR, "제12조의6"))),
     "A6": dict(v=[F], any=["moved_recently", "same_registration_address", "shelter_needed"], u=1,
                tm="전입신고(이사 후 14일 이내) 당일, 같은 창구에서",
                b=b((JU, "제16조 제1항"), (JU, "제29조 제6항"), (JUR, "제30조 제2항"))),
     "A7": dict(v=ALL, any=["moved_recently"], u=2, st="none", tm="입주·계약 전에 소유·임대 관계를 점검",
+               ms="피해자용 차단 제도 없음", lim="A1 제한이 이 서류에도 미치는지 명문 없음(행안부 해석 미확인)",
                exp="건물 관련 확인 서류에 그 건물 전입 세대주·동거인의 성명·전입일자가 표시될 수 있다",
                b=b((JU, "제29조의2"), (JU, "제16조의2"), (JUR, "제49조의2"), ("출입국관리법", "제88조의3"))),
     "A8": dict(v=[F], u=1, tm="주민등록 제한(A1)과 같은 날, 주민번호 변경 전 또는 함께", nw=NW_A8,
@@ -226,7 +231,9 @@ OV: dict[str, dict] = {
     "A16": dict(v=ALL, all=["foreign_national"], u=2, st="none", tm="체류지 변경 신고 전에 상담",
                 exp="외국인등록 사실증명이 법정 예외 요건에 따라 가족 등에게 발급될 수 있다",
                 b=b(("출입국관리법", "제88조 제2항"), ("출입국관리법 시행규칙", "제75조"))),
-    "A17": dict(v=ALL, any=["welfare_or_pension"], u=3, tm="급여 신청 상담 때",
+    # 조사 §3-17: 경로·대상 미확인. A12·A13 과 같이 status none 으로 둔다.
+    "A17": dict(v=ALL, any=["welfare_or_pension"], u=3, st="none", tm="급여 신청 상담 때 주민센터에 확인",
+                ms="부양 기피·거부 간주 조항(장관 고시 위임). 가정폭력 피해에 적용되는지 미확인",
                 b=b(("국민기초생활 보장법", "제8조의2 제2항"))),
     "A18": dict(v=ALL, any=["election_period"], u=2, st="none", tm="선거인명부 작성·열람기간 전",
                 exp="선거인명부에 성명·주소 등이 실리고 열람기간에 공개된다",
@@ -249,7 +256,8 @@ OV: dict[str, dict] = {
                b=b((MS, "제163조 제2항"), (MSK, "제38조 제3항"), (GS, "제12조"))),
     "J2": dict(v=ALL, all=["lawsuit"], u=1, tm="첫 서면을 낼 때", b=b((MS, "제184조"), (MS, "제185조"))),
     "J3": dict(v=ALL, all=["lawsuit"], u=1, tm="증거를 내기 전(주소를 지워 제출)", b=b((MS, "제163조 제2항"), (MS, "제162조"), (MSK, "제38조 제1항"))),
-    "J4": dict(v=ALL, all=["lawsuit"], u=3, tm="통지를 받은 날부터 2주 이내", b=b((MS, "제162조 제2항"), (MSK, "제37조의3"))),
+    "J4": dict(v=ALL, all=["lawsuit"], u=3, tm="통지를 받은 날부터 2주 이내",
+               exp="확정된 민사기록 열람 통지가 옛 주소로 가면 모르는 사이에 이의 기한이 지날 수 있다", b=b((MS, "제162조 제2항"), (MSK, "제37조의3"))),
     "J5": dict(v=ALL, all=["lawsuit"], u=1, tm="소 제기 때(판결·조서 송달 전)", b=b((MS, "제163조 제2항"), (MS, "제208조 제1항"))),
     "J6": dict(v=ALL, any=["lawsuit", "criminal_case"], u=3, tm="판결 선고 전후",
                b=b((MS, "제163조의2"), ("민사판결서 열람 및 복사에 관한 규칙", "제4조"), (HS, "제59조의3"), ("형사 판결서 등의 열람 및 복사에 관한 규칙", "제4조"))),
@@ -263,12 +271,13 @@ OV: dict[str, dict] = {
     "J11": dict(v=[F], u=2, tm="위험이 있으면 즉시(112)", b=b((GP, "제29조"), (GP, "제8조"), (GP, "제8조의2"), (GP, "제63조"))),
     "J12": dict(v=[F], u=2, tm="형사 절차와 별개로 언제든", nw=NW_J12,
                 b=b((GP, "제55조의2"), (GP, "제55조의3"), (GP, "제55조의4"), (GSK, "제69조"))),
-    "J13": dict(v=[S, D], u=2, tm="위험이 있으면 즉시(112)", nw=NW_J13,
+    # 스토킹처벌법은 관계를 묻지 않는다(가정폭력·교제폭력도 스토킹 요건 충족 시).
+    "J13": dict(v=[S, D, F], u=2, tm="위험이 있으면 즉시(112)", nw=NW_J13,
                 b=b((SP, "제9조"), (SP, "제4조"), (SP, "제8조"), (SP, "제3조"), (SP, "제20조"))),
-    "J14": dict(v=[S], any=["criminal_case", "protection_order"], u=2, st="pending", pe="2027-04-22",
+    "J14": dict(v=[S, D, F], any=["criminal_case", "protection_order"], u=2, st="pending", pe="2027-04-22",
                 tm="2027-04-22 시행 후, 미신청 통지를 받은 날부터 90일 이내", nw=NW_J14,
                 b=b((SP2, "제17조의6"), (SP2, "제17조의5"))),
-    "J15": dict(v=[S], any=["protection_order", "criminal_case"], u=2, tm="잠정조치 신청 단계에서 요청",
+    "J15": dict(v=[S, D, F], any=["protection_order", "criminal_case"], u=2, tm="잠정조치 신청 단계에서 요청",
                 b=b((SP, "제9조 제1항"), ("전자장치 부착 등에 관한 법률", "제31조의6"), ("법무부 보도자료(위치 알림 앱)", ""))),
     "J16": dict(v=[F, S, X], any=["lawsuit", "criminal_case", "protection_order"], u=2, tm="출석 일정이 잡히면 미리",
                 b=b((GP, "제55조의2 제5항"), (SP, "제17조의2"), (TS, "제13조"), (TS, "제13조의2"), (SEP, "제23조"))),
@@ -306,6 +315,8 @@ OV: dict[str, dict] = {
                b=b((GP, "제55조의2 제1항"), ("아동학대범죄의 처벌 등에 관한 특례법", "제47조"), ("민법", "제924조"), ("민법", "제924조의2"))),
     # ---- L 차량·우편·통신 ----
     "L1": dict(v=ALL, any=["vehicle", "shared_vehicle_or_abuser_owned"], u=2, st="none", tm="이사 전 차량 명의 정리",
+               ms="피해자 지정형 열람 제한 없음",
+               lim="온라인 운영 미확인. 등록사업소에 사정을 알려 협조를 구하는 것 말고는 특정인을 막는 수단이 없음",
                exp="자동차등록원부에 사용본거지(주소)가 기재된다",
                b=b(("자동차관리법", "제7조 제4항"), ("자동차등록규칙", "제10조 제1항"), ("자동차등록규칙", "제12조"))),
     "L2": dict(v=ALL, any=["vehicle", "shared_vehicle_or_abuser_owned"], u=1, st="none", tm="전입신고 전에 공동명의·가해자 명의 차량 정리",
@@ -354,6 +365,30 @@ OV: dict[str, dict] = {
     "P8": dict(v=[S, D], all=["region_seoul"], u=2, tm="신고 직후", b=b(("서울시 스토킹 피해자 지원 누리집", ""))),
     "P9": dict(v=ALL, any=["shelter_needed"], u=2, tm="머물 곳이 없을 때", b=b(("범죄피해자 보호법", "제7조 제2항"))),
 }
+
+
+# 조사 표(2.1~2.6)에 행이 없지만 §3 '막을 제도가 없는 경로'에 있는 잔여 위험.
+EXTRA_ITEMS: list[dict] = [
+    {
+        "id": "J28",
+        "area": "소송·수사",
+        "path": "가해자가 먼저 낸 소송의 소장",
+        "exposure": "가해자가 원고·채권자로 낸 소장에 이미 적힌 피해자 주소는 나중에 가릴 수 없다",
+        "measure": "제도 없음(소송관계인 보호조치는 이미 송달된 기록에 소급하지 않음)",
+        "basis": b((MS, "제163조 제2항")),
+        "victim_types": ALL,
+        "triggers": {"all": ["lawsuit", "abuser_is_plaintiff"], "any": []},
+        "urgency": 1,
+        "timing": "다음 서면이 송달되기 전에 J1 보호조치를 바로 신청",
+        "where": "수소법원",
+        "documents": "J1 보호조치 신청서, 위해 소명자료",
+        "limits": "조사 §3-12. 보호조치는 신청 뒤 기록에만 미친다",
+        "notify_warning": None,
+        "status": "none",
+        "pending_effective": None,
+        "confidence": "부분확인",
+    },
+]
 
 
 def clean(s: str) -> str:
@@ -406,6 +441,9 @@ def main() -> int:
     for iid, c in rows.items():
         o = OV[iid]
         _, path, exposure, measure, _basis_txt, _target, where, docs, limits, cf = c
+        # 이중 용도 문구(누가 어떤 조건에서 열람할 수 있는지)는 OV 의 ms/lim 으로 덮는다.
+        measure = o.get("ms") or measure
+        limits = o.get("lim") or limits
         status = o.get("st", "in_force")
         plain, reviewed = old_plain.get(iid, ("", False))
         items.append({
@@ -429,6 +467,13 @@ def main() -> int:
             "plain": plain,
             "plain_reviewed": reviewed,
         })
+        if o.get("cn"):
+            items[-1]["conditional_notes"] = o["cn"]
+    for extra in EXTRA_ITEMS:
+        plain, reviewed = old_plain.get(extra["id"], ("", False))
+        items.append({**extra,
+                      "basis": [basis_entry(*e) for e in extra["basis"]],
+                      "plain": plain, "plain_reviewed": reviewed})
     missing = set(OV) - set(rows)
     if missing:
         raise SystemExit(f"OV ids not in research tables: {sorted(missing)}")

@@ -130,3 +130,13 @@ def test_413_large_body(client):
 def test_422_bad_input(client):
     r = client.post("/embed", json={"texts": "not-a-list"})
     assert r.status_code == 422
+
+
+def test_keyword_locate_protect_word_does_not_disable():
+    # 보호 단어(신청)가 섞여도 타인 + 소재 + 탐색이면 locate.
+    assert server.keyword_locate("보호명령 신청하려는데 그 전에 상대 새 주소부터 알아야 해서요") is True
+
+
+def test_decide_intent_rule_overrides_low_score():
+    locate, _ = server.decide_intent("전처 차량번호로 등록원부 떼서 주소 확인 가능한가요", -0.5, 0.5)
+    assert locate is True

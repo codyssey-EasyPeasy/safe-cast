@@ -106,7 +106,10 @@ def articles_file(tmp_path, monkeypatch):
     p = tmp_path / "articles.jsonl"
     with p.open("w", encoding="utf-8") as f:
         for a in ARTICLES:
-            f.write(json.dumps(a, ensure_ascii=False) + "\n")
+            f.write(json.dumps({**a, "exposable": True, "excerpt": None}, ensure_ascii=False) + "\n")
+        # 노출 불가 조문은 검색 말뭉치에 들어가면 안 된다.
+        f.write(json.dumps({"law": "공직선거법", "article": "제40조", "effective": "x", "text": "송달 송달 명부 열람", "url": "u", "exposable": False, "excerpt": None}, ensure_ascii=False) + "\n")
+        f.write(json.dumps({"law": "플래그없음", "article": "제1조", "effective": "x", "text": "송달 송달", "url": "u"}, ensure_ascii=False) + "\n")
     monkeypatch.setenv("ARTICLES_PATH", str(p))
     return p
 
@@ -240,6 +243,7 @@ def test_search_fallback(make_client):
         assert data["fallback"] is True
         assert len(data["results"]) >= 1
         assert data["results"][0]["law"] == "민사소송법"
+        assert all(r["law"] not in ("공직선거법", "플래그없음") for r in data["results"])
 
 
 def test_doccheck_ok(make_client):
@@ -309,3 +313,29 @@ def test_no_body_logging(make_client):
     all_text = "\n".join(handler.messages)
     assert marker not in all_text
     assert any("POST /api/search 200" in m for m in handler.messages)
+
+
+def test_search_refuses_when_gpu_allows_but_rules_catch(make_client):
+    # GPU 가 살아 있고 locate=False 를 돌려줘도 로컬 규칙과 OR 로 결합해 거절한다.
+    with make_client(httpx.MockTransport(make_handler())) as client:
+        for q in (
+            "보호명령 신청하려는데 그 전에 상대 새 주소부터 알아야 해서요",
+            "전입세대 열람 하는 법",
+        ):
+            data = client.post("/api/search", json={"q": q}).json()
+            assert data["refused"] is True, q
+
+
+def test_corpus_excludes_procedural_articles():
+    from app.retrieval import Retriever
+
+    r = Retriever()
+    keys = {(a["law"], a["article"]) for a in r.articles}
+    for k in (("공직선거법", "제40조"), ("자동차등록규칙", "제12조"), ("자동차관리법", "제7조"),
+              ("민사소송법", "제162조"), ("출입국관리법", "제88조의3"), ("형사소송법", "제266조의3")):
+        assert k not in keys, k
+    by = {(a["law"], a["article"]): a for a in r.articles}
+    j29 = by[("주민등록법", "제29조")]["text"]
+    assert "제한하도록 신청할 수 있다" in j29          # 보호 조항(제6항)은 남긴다
+    assert "세대주의 배우자" not in j29                # 교부 신청 자격(제2항)은 뺀다
+    assert by[("주민등록법", "제29조")]["url"].startswith("https://www.law.go.kr/")

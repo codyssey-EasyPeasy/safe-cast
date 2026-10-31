@@ -104,3 +104,11 @@ tests/                     # pytest
 - 로그: 본문·프롬프트·생성문 저장 금지(vLLM `--disable-log-requests`).
 - 실패 시: 체크박스 방식으로 그대로 동작(외부 LLM 대체 금지).
 - 평가: intake 는 합성 자유서술 20개(정답 flags) → flag F1·피해유형 정확도. answer 는 10문항 근거 이탈 여부(사람 판정 표본). rewrite 는 단서 잔존율.
+
+## 9. 가드·노출 통제 보강 (2026-10-31 리뷰 반영)
+- `/api/search` 의도 판정은 GPU `/intent` · 로컬 정규식 · 규칙 가드(`app/guard.py`, GPU 쪽 사본 `gpu/guard.py`)를 **항상 OR** 로 결합한다(fail-closed). 타인 지시어 + 소재·기록 명사 + 탐색 표현이 함께 나오면 보호 단어가 섞여도 거절.
+- GPU `/intent` 는 시드별 최대 유사도(max-sim)로 비교, 임계값은 별도 검증 세트 `data/eval/guard_holdout.json`(평가 40개와 분리)으로 정한다(`INTENT_THRESH`, 기본 0.02).
+- `data/laws/articles.jsonl` 각 조문에 `exposable`(bool)·`excerpt`(보호 조항 발췌 또는 null). 검색 말뭉치는 `exposable: true` 만, `excerpt` 가 있으면 그 문장만 돌려준다. 열람·교부·발급 절차 조문은 `tools/mark_exposable.py` 의 거부 목록으로 제외.
+- 지식표 선택 키 `conditional_notes: [{"if_any": [flag], "note": "..."}]` → 진단 결과 checklist 항목의 `note`.
+- 잔여 위험(residual) 응답에는 `exposure`·`limits` 를 싣지 않고 `support`(1366·132·112 연결)를 붙인다.
+

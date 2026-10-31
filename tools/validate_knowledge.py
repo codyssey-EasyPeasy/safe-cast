@@ -18,7 +18,7 @@ PREFIX_AREA = {
     "L": "차량·우편·통신", "D": "디지털·위치", "P": "피신·지원",
 }
 EXPECTED_IDS = (
-    {f"A{i}" for i in range(1, 24)} | {f"J{i}" for i in range(1, 28)}
+    {f"A{i}" for i in range(1, 24)} | {f"J{i}" for i in range(1, 29)}  # J28: 조사 §3-12 잔여 위험
     | {f"S{i}" for i in range(1, 9)} | {f"L{i}" for i in range(1, 9)}
     | {f"D{i}" for i in range(1, 9)} | {f"P{i}" for i in range(1, 10)}
 )
@@ -28,6 +28,7 @@ REQUIRED_KEYS = {
     "notify_warning", "status", "pending_effective", "confidence",
     "plain", "plain_reviewed",
 }
+OPTIONAL_KEYS = {"conditional_notes"}  # [{"if_any": [flag], "note": str}]
 STR_FIELDS = ("path", "exposure", "measure", "timing", "where", "documents", "limits")
 VICTIM_TYPES = {"family", "stalking", "dating", "sexual", "any"}
 STATUSES = {"in_force", "pending", "none"}
@@ -60,8 +61,8 @@ class Validator:
         if not isinstance(items, list):
             self.err("items", "items must be a list")
             return
-        if len(items) != 83:
-            self.err("items", f"expected 83 items, got {len(items)}")
+        if len(items) != len(EXPECTED_IDS):
+            self.err("items", f"expected {len(EXPECTED_IDS)} items, got {len(items)}")
         seen_ids: set[str] = set()
         for item in items:
             if not isinstance(item, dict):
@@ -114,7 +115,7 @@ class Validator:
     def _check_item(self, iid: str, item: dict, flags: dict, seen_ids: set) -> None:
         keys = set(item.keys())
         missing = REQUIRED_KEYS - keys
-        extra = keys - REQUIRED_KEYS
+        extra = keys - REQUIRED_KEYS - OPTIONAL_KEYS
         if missing:
             self.err(iid, f"missing keys: {sorted(missing)}")
         if extra:

@@ -134,9 +134,19 @@ class Engine:
             if status in ("in_force", "pending"):
                 if applicable:
                     copy = dict(item)
+                    copy.pop("conditional_notes", None)
+                    note_parts: list[str] = []
                     if status == "pending":
                         eff = item.get("pending_effective") or ""
-                        copy["note"] = f"{eff} 시행 예정, 지금은 쓸 수 없음"
+                        note_parts.append(f"{eff} 시행 예정, 지금은 쓸 수 없음")
+                    for cn in item.get("conditional_notes") or []:
+                        if_any = cn.get("if_any") or []
+                        if any(f in flag_set for f in if_any):
+                            text = cn.get("note") or ""
+                            if text:
+                                note_parts.append(text)
+                    if note_parts:
+                        copy["note"] = " ".join(note_parts)
                     checklist.append(copy)
                 else:
                     not_applicable.append(
@@ -148,7 +158,16 @@ class Engine:
                     )
             elif status == "none":
                 if applicable:
-                    residual.append(dict(item))
+                    entry = {
+                        k: v
+                        for k, v in item.items()
+                        if k not in ("exposure", "limits", "conditional_notes")
+                    }
+                    entry["support"] = (
+                        "혼자 대비하기 어려우면 1366(24시간)이나 법률구조공단 132에 상담하세요. "
+                        "위험이 급하면 112."
+                    )
+                    residual.append(entry)
 
         non_pending = [c for c in checklist if c.get("status") != "pending"]
         pending = [c for c in checklist if c.get("status") == "pending"]

@@ -214,15 +214,20 @@ def _guard_metrics(rt: list[dict[str, Any]], refused: list[bool]) -> dict[str, A
 
 def eval_intent(rt: list[dict[str, Any]], gpu: str | None) -> dict[str, Any]:
     out: dict[str, Any] = {
-        "note": "운영 앱은 GPU /intent 결과만 쓰고, GPU 에 닿지 못할 때만 로컬 정규식으로 폴백한다.",
+        "note": "운영 앱은 GPU /intent·로컬 정규식·규칙 가드(app/guard.py)를 항상 OR 로 결합한다(app_combined).",
         "queries": len(rt),
     }
     local: list[bool] | None
     try:
+        from app.guard import rule_locate_intent
         from app.retrieval import local_locate_intent
 
-        local = [bool(local_locate_intent(x["q"])) for x in rt]
-        out["local_regex"] = _guard_metrics(rt, local)
+        regex = [bool(local_locate_intent(x["q"])) for x in rt]
+        rule = [bool(rule_locate_intent(x["q"])) for x in rt]
+        out["local_regex"] = _guard_metrics(rt, regex)
+        out["rule_guard"] = _guard_metrics(rt, rule)
+        local = [a or b for a, b in zip(regex, rule)]
+        out["local_combined"] = _guard_metrics(rt, local)
     except ImportError as exc:
         local = None
         out["local_regex"] = {"skipped": True, "reason": type(exc).__name__}
@@ -240,7 +245,7 @@ def eval_intent(rt: list[dict[str, Any]], gpu: str | None) -> dict[str, Any]:
     out["gpu"]["score_min_refuse_expected"] = round(min(s for s, x in zip(scores, rt) if x["expect_refuse"]), 4)
     out["gpu"]["score_max_allow_expected"] = round(max(s for s, x in zip(scores, rt) if not x["expect_refuse"]), 4)
     if local is not None:
-        out["gpu_or_local"] = _guard_metrics(rt, [a or b for a, b in zip(g, local)])
+        out["app_combined"] = _guard_metrics(rt, [a or b for a, b in zip(g, local)])
     return out
 
 
@@ -343,6 +348,8 @@ def main() -> int:
         res["doccheck_combined"] = {"skipped": True, "reason": "tier2 unavailable"}
 
     res["intent"] = eval_intent(rt, gpu)
+    # 별도 검증 세트(리뷰 우회 질의 10 + 보호 표현 10). 임계값 조정용, 평가 40개와 섞지 않는다.
+    res["intent_holdout"] = eval_intent(_load("data/eval/guard_holdout.json")["items"], gpu)
     res["basis_accuracy"] = eval_basis(knowledge)
 
     out = ROOT / a.out
@@ -359,7 +366,10 @@ def main() -> int:
     print(f"combined.strict          {_fmt(res['doccheck_combined'])}")
     print(f"intent.gpu               {_fmt_g(res['intent'].get('gpu'))}")
     print(f"intent.local_regex       {_fmt_g(res['intent'].get('local_regex'))}")
-    print(f"intent.gpu_or_local      {_fmt_g(res['intent'].get('gpu_or_local'))}")
+    print(f"intent.rule_guard        {_fmt_g(res['intent'].get('rule_guard'))}")
+    print(f"intent.app_combined      {_fmt_g(res['intent'].get('app_combined'))}")
+    print(f"holdout.gpu              {_fmt_g(res['intent_holdout'].get('gpu'))}")
+    print(f"holdout.app_combined     {_fmt_g(res['intent_holdout'].get('app_combined'))}")
     print(f"basis.ratio              {b['ratio']} ({b['basis_in_snapshot']}/{b['basis_total']})")
     print(f"basis.effective_match    {b['effective_match_ratio']} ({b['effective_match']}/{b['basis_in_snapshot']})")
     print(f"wrote {a.out}")

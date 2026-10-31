@@ -2,7 +2,7 @@
 
 - bm25: 순수 파이썬 간이 BM25 (GPU 불가 시 폴백, 폴백 질의).
 - ensure_embedded / search: GPU `/embed` + `/rerank`. 실패 시 bm25 폴백.
-- intent: GPU `/intent`. 실패 시 로컬 정규식 폴백.
+- intent: GPU `/intent` + 로컬 규칙(guard) OR 결합 (fail-closed).
 
 사람·주소를 찾는 방법을 출력하는 텍스트는 어디에도 두지 않는다.
 """
@@ -20,6 +20,8 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+
+from .guard import rule_locate_intent
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -138,12 +140,21 @@ def _load_articles() -> list[dict[str, Any]]:
                         continue
                     if not isinstance(obj, dict) or "text" not in obj:
                         continue
+                    # 노출 불가(플래그 누락 포함) 조문은 fail-closed 로 제외한다.
+                    if obj.get("exposable") is not True:
+                        continue
+                    excerpt = obj.get("excerpt")
+                    text = (
+                        excerpt
+                        if isinstance(excerpt, str) and excerpt
+                        else obj.get("text", "")
+                    )
                     articles.append(
                         {
                             "law": obj.get("law", ""),
                             "article": obj.get("article", ""),
                             "effective": obj.get("effective", ""),
-                            "text": obj.get("text", ""),
+                            "text": text,
                             "url": obj.get("url", ""),
                         }
                     )
@@ -307,11 +318,13 @@ class Retriever:
 
 
 async def intent(q: str, client: httpx.AsyncClient, gpu_url: str) -> bool:
-    """GPU 의도 분류. 실패 시 로컬 규칙으로 폴백."""
+    """의도 분류(fail-closed). GPU 결과·로컬 규칙을 OR 로 결합한다."""
+    gpu_locate = False
     try:
         r = await client.post(f"{gpu_url}/intent", json={"q": q}, timeout=10.0)
         r.raise_for_status()
         data = r.json()
-        return bool(data.get("locate_intent", False))
+        gpu_locate = bool(data.get("locate_intent", False))
     except (httpx.HTTPError, ValueError, KeyError, TypeError):
-        return local_locate_intent(q)
+        gpu_locate = False
+    return gpu_locate or local_locate_intent(q) or rule_locate_intent(q)

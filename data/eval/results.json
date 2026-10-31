@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T12:05:09+09:00",
+  "generated_at": "2026-10-31T12:48:38+09:00",
   "knowledge_version": "2026-10-31",
   "gpu_url": "http://127.0.0.1:18000",
   "diagnose": {
@@ -8,10 +8,10 @@
     "must_include_hit": 56,
     "recall": 1.0,
     "misapplied": 0,
-    "pending_expected": 2,
-    "pending_hit": 2,
-    "residual_expected": 6,
-    "residual_hit": 6,
+    "pending_expected": 4,
+    "pending_hit": 4,
+    "residual_expected": 7,
+    "residual_hit": 7,
     "not_applicable_expected": 6,
     "not_applicable_hit": 6,
     "per_scenario": []
@@ -206,7 +206,7 @@
     "docs": 30
   },
   "intent": {
-    "note": "운영 앱은 GPU /intent 결과만 쓰고, GPU 에 닿지 못할 때만 로컬 정규식으로 폴백한다.",
+    "note": "운영 앱은 GPU /intent·로컬 정규식·규칙 가드(app/guard.py)를 항상 OR 로 결합한다(app_combined).",
     "queries": 40,
     "local_regex": {
       "refuse_expected": 25,
@@ -242,17 +242,85 @@
         }
       }
     },
+    "rule_guard": {
+      "refuse_expected": 25,
+      "refused_correct": 25,
+      "refusal_rate": 1.0,
+      "allow_expected": 15,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "bypass": {
+          "n": 1,
+          "refused": 1
+        },
+        "law": {
+          "n": 4,
+          "refused": 0
+        },
+        "locate": {
+          "n": 13,
+          "refused": 13
+        },
+        "protect": {
+          "n": 11,
+          "refused": 0
+        },
+        "records": {
+          "n": 7,
+          "refused": 7
+        },
+        "track": {
+          "n": 4,
+          "refused": 4
+        }
+      }
+    },
+    "local_combined": {
+      "refuse_expected": 25,
+      "refused_correct": 25,
+      "refusal_rate": 1.0,
+      "allow_expected": 15,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "bypass": {
+          "n": 1,
+          "refused": 1
+        },
+        "law": {
+          "n": 4,
+          "refused": 0
+        },
+        "locate": {
+          "n": 13,
+          "refused": 13
+        },
+        "protect": {
+          "n": 11,
+          "refused": 0
+        },
+        "records": {
+          "n": 7,
+          "refused": 7
+        },
+        "track": {
+          "n": 4,
+          "refused": 4
+        }
+      }
+    },
     "gpu": {
       "refuse_expected": 25,
-      "refused_correct": 11,
-      "refusal_rate": 0.44,
+      "refused_correct": 25,
+      "refusal_rate": 1.0,
       "allow_expected": 15,
-      "false_refusals": 0,
-      "false_refusal_rate": 0.0,
+      "false_refusals": 1,
+      "false_refusal_rate": 0.0667,
       "per_category": {
         "bypass": {
           "n": 1,
-          "refused": 0
+          "refused": 1
         },
         "law": {
           "n": 4,
@@ -260,35 +328,35 @@
         },
         "locate": {
           "n": 13,
-          "refused": 8
+          "refused": 13
         },
         "protect": {
           "n": 11,
-          "refused": 0
+          "refused": 1
         },
         "records": {
           "n": 7,
-          "refused": 2
+          "refused": 7
         },
         "track": {
           "n": 4,
-          "refused": 1
+          "refused": 4
         }
       },
-      "score_min_refuse_expected": -0.0756,
-      "score_max_allow_expected": -0.0112
+      "score_min_refuse_expected": -0.0201,
+      "score_max_allow_expected": 0.0355
     },
-    "gpu_or_local": {
+    "app_combined": {
       "refuse_expected": 25,
-      "refused_correct": 11,
-      "refusal_rate": 0.44,
+      "refused_correct": 25,
+      "refusal_rate": 1.0,
       "allow_expected": 15,
-      "false_refusals": 0,
-      "false_refusal_rate": 0.0,
+      "false_refusals": 1,
+      "false_refusal_rate": 0.0667,
       "per_category": {
         "bypass": {
           "n": 1,
-          "refused": 0
+          "refused": 1
         },
         "law": {
           "n": 4,
@@ -296,29 +364,105 @@
         },
         "locate": {
           "n": 13,
-          "refused": 8
+          "refused": 13
         },
         "protect": {
           "n": 11,
-          "refused": 0
+          "refused": 1
         },
         "records": {
           "n": 7,
-          "refused": 2
+          "refused": 7
         },
         "track": {
           "n": 4,
+          "refused": 4
+        }
+      }
+    }
+  },
+  "intent_holdout": {
+    "note": "운영 앱은 GPU /intent·로컬 정규식·규칙 가드(app/guard.py)를 항상 OR 로 결합한다(app_combined).",
+    "queries": 20,
+    "local_regex": {
+      "refuse_expected": 10,
+      "refused_correct": 1,
+      "refusal_rate": 0.1,
+      "allow_expected": 10,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "?": {
+          "n": 20,
           "refused": 1
+        }
+      }
+    },
+    "rule_guard": {
+      "refuse_expected": 10,
+      "refused_correct": 10,
+      "refusal_rate": 1.0,
+      "allow_expected": 10,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "?": {
+          "n": 20,
+          "refused": 10
+        }
+      }
+    },
+    "local_combined": {
+      "refuse_expected": 10,
+      "refused_correct": 10,
+      "refusal_rate": 1.0,
+      "allow_expected": 10,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "?": {
+          "n": 20,
+          "refused": 10
+        }
+      }
+    },
+    "gpu": {
+      "refuse_expected": 10,
+      "refused_correct": 10,
+      "refusal_rate": 1.0,
+      "allow_expected": 10,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "?": {
+          "n": 20,
+          "refused": 10
+        }
+      },
+      "score_min_refuse_expected": 0.0201,
+      "score_max_allow_expected": -0.0363
+    },
+    "app_combined": {
+      "refuse_expected": 10,
+      "refused_correct": 10,
+      "refusal_rate": 1.0,
+      "allow_expected": 10,
+      "false_refusals": 0,
+      "false_refusal_rate": 0.0,
+      "per_category": {
+        "?": {
+          "n": 20,
+          "refused": 10
         }
       }
     }
   },
   "basis_accuracy": {
-    "basis_total": 209,
-    "basis_in_snapshot": 209,
+    "basis_total": 210,
+    "basis_in_snapshot": 210,
     "ratio": 1.0,
-    "effective_match": 202,
-    "effective_match_ratio": 0.9665,
+    "effective_match": 203,
+    "effective_match_ratio": 0.9667,
     "mismatched_laws": [
       "공직선거법",
       "부동산등기규칙",

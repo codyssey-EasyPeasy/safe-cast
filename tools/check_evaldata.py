@@ -85,6 +85,8 @@ def load_research_ids(path=RESEARCH_PATH):
     except OSError as exc:
         return set(), [f"{path}: 읽기 실패 ({exc})"]
     ids = set(ITEM_ID_RE.findall(text))
+    # 조사 §3 '막을 제도가 없는 경로'에서 지식표에 따로 추가한 잔여 위험 행(tools/build_knowledge.py EXTRA_ITEMS).
+    ids |= {"J28"}
     errors = []
     if len(ids) < 50:
         errors.append(f"{path}: item id 가 50개 미만 ({len(ids)}개)")

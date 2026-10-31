@@ -19,7 +19,7 @@ GPU_MAX_BODY = 20 * 1024  # gpu/server.py MAX_BODY
 
 def test_real_knowledge_scenarios():
     engine = Engine(load_knowledge(ROOT / "data" / "knowledge.json"))
-    assert len(engine.items) == 83
+    assert len(engine.items) == 84  # J28 추가(조사 §3-12)
     known = set(engine.flag_ids())
     for s in json.loads((ROOT / "data" / "eval" / "scenarios.json").read_text("utf-8")):
         assert set(s["flags"]) <= known, s["id"]
@@ -67,3 +67,50 @@ def test_real_corpus_embeds_under_gpu_limit():
     res, fallback = asyncio.run(run())
     assert fallback is False
     assert len(res) == 5
+
+
+def _ids(rows):
+    return {r["id"] for r in rows}
+
+
+def test_stalking_measures_apply_to_family_and_dating():
+    e = Engine(load_knowledge())
+    r = e.diagnose("family", ["protection_order", "moved_recently"])
+    assert {"J13", "J14", "J15"} <= _ids(r["checklist"])
+    assert not ({"J13", "J14", "J15"} & _ids(r["not_applicable"]))
+    r = e.diagnose("dating", ["protection_order", "criminal_case"])
+    assert {"J13", "J14", "J15"} <= _ids(r["checklist"])
+
+
+def test_a1_note_when_same_registration_address():
+    e = Engine(load_knowledge())
+    a1 = [c for c in e.diagnose("family", ["same_registration_address"])["checklist"] if c["id"] == "A1"][0]
+    assert "A6" in a1["note"]
+    a1 = [c for c in e.diagnose("family", [])["checklist"] if c["id"] == "A1"][0]
+    assert "note" not in a1
+    assert "conditional_notes" not in a1
+
+
+def test_abuser_plaintiff_residual_and_no_exposure_in_residual():
+    e = Engine(load_knowledge())
+    r = e.diagnose("family", ["lawsuit", "abuser_is_plaintiff"])
+    assert "J28" in _ids(r["residual"])
+    for it in r["residual"]:
+        assert "exposure" not in it and "limits" not in it
+        assert "1366" in it["support"]
+
+
+def test_a17_is_residual_not_promise():
+    e = Engine(load_knowledge())
+    r = e.diagnose("family", ["welfare_or_pension"])
+    assert "A17" in _ids(r["residual"]) and "A17" not in _ids(r["checklist"])
+
+
+def test_plain_has_no_dual_use_phrases():
+    k = load_knowledge()
+    bad = ("누구나 명부를 열람", "누구나 열람할 수", "인적사항을 적지 않으면", "신청할 수 있는 사람을 소유자",
+           "2주 뒤 동의로 간주", "준용 규정이 확인되지 않았")
+    for it in k["items"]:
+        for field in ("plain", "measure", "limits", "exposure"):
+            for b in bad:
+                assert b not in (it.get(field) or ""), (it["id"], field, b)
