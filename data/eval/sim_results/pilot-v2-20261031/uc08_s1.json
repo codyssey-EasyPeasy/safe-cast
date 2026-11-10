@@ -1,0 +1,568 @@
+{
+ "card": {
+  "id": "uc08",
+  "kind": "user",
+  "scenario_id": "sc08",
+  "persona": "20대, 말투: 잘못 알고 있음. 본인 휴대폰, 카페에서 접속",
+  "opening": "헤어진 사람이 자꾸 찾아와요. 법으로 아예 못 오게 막는 방법 있어요?",
+  "known_facts": [
+   "그 사람이 못 오게 하는 법적 조치를 받고 싶다"
+  ],
+  "hidden_facts": [
+   {
+    "fact": "2년 사귄 남자친구였고 사귀는 동안 맞은 적이 있다. 결혼하지 않았고 같이 산 적도 없다",
+    "reveal_when": "어떤 관계였는지, 같이 살았는지·결혼했는지 물을 때"
+   }
+  ],
+  "misconceptions": [
+   "오래 사귀었으니 부부 사이 폭력과 똑같이 법원에 보호해 달라고 할 수 있다고 믿는다"
+  ],
+  "goal": "지금 받을 수 있는 접근 금지 방법 / 안 되는 게 있다면 왜 안 되는지와 대안. 체크리스트를 받은 뒤 궁금한 점을 묻는다.",
+  "follow_ups": [
+   "부부가 아니면 법원에 못 오게 해 달라고 못 해요?",
+   "경찰에 신고하면 바로 막아 줘요?",
+   "나중에 생긴다는 제도는 언제부터예요?"
+  ],
+  "style": "잘못 알고 있음, 법률 용어를 모르는 일반인 말투, 짧게",
+  "max_turns": 6,
+  "_meta": {
+   "opening_implies": {
+    "victim_type": null,
+    "flags": [
+     "protection_order"
+    ]
+   },
+   "facts_revealed": [
+    {
+     "fact": "그 사람이 못 오게 하는 법적 조치를 받고 싶다",
+     "maps_to_flags": [
+      "protection_order"
+     ]
+    }
+   ],
+   "hidden_facts": [
+    {
+     "fact": "2년 사귄 남자친구였고 사귀는 동안 맞은 적이 있다. 결혼하지 않았고 같이 산 적도 없다",
+     "reveal_when": "어떤 관계였는지, 같이 살았는지·결혼했는지 물을 때",
+     "maps_to_flags": [],
+     "maps_to_victim_type": "dating"
+    }
+   ]
+  }
+ },
+ "kind": "user",
+ "mode": "intake",
+ "events": [
+  {
+   "role": "user_sim",
+   "text": "헤어진 사람이 자꾸 집으로 찾아와요. 법으로 아예 못 오게 막는 방법 있어요?",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "헤어진 사람이 자꾸 집으로 찾아와요. 법으로 아예 못 오게 막는 방법 있어요?"
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [
+     "criminal_case"
+    ],
+    "confidence": 0.9,
+    "unclear": [
+     "가해자와 주민등록 주소가 아직 같나요?"
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 2.04
+  },
+  {
+   "role": "user_sim",
+   "text": "아니요, 달라요. 같이 산 적이 없어서 주소가 같을 리 없죠.",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "헤어진 사람이 자꾸 집으로 찾아와요. 법으로 아예 못 오게 막는 방법 있어요?\n아니요, 달라요. 같이 산 적이 없어서 주소가 같을 리 없죠."
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [
+     "same_registration_address"
+    ],
+    "confidence": 0.9,
+    "unclear": [
+     "가해자와 주민등록지가 아직 같나요?"
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 1.96
+  },
+  {
+   "role": "user_sim",
+   "text": "방금 말씀드렸는데, 아니요 같지 않아요. 같이 산 적도 없고 주소가 같은 적이 없어요.",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "헤어진 사람이 자꾸 집으로 찾아와요. 법으로 아예 못 오게 막는 방법 있어요?\n아니요, 달라요. 같이 산 적이 없어서 주소가 같을 리 없죠.\n방금 말씀드렸는데, 아니요 같지 않아요. 같이 산 적도 없고 주소가 같은 적이 없어요."
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [
+     "same_registration_address"
+    ],
+    "confidence": 0.8,
+    "unclear": [
+     "가해자와 주민등록지가 아직 같나요?"
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 1.96
+  },
+  {
+   "role": "user_sim",
+   "text": "아니요, 같지 않다고요. 이제 세 번째 여쭤보시는 것 같은데, 확실히 달라요.",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/intake",
+   "request": {
+    "text": "헤어진 사람이 자꾸 집으로 찾아와요. 법으로 아예 못 오게 막는 방법 있어요?\n아니요, 달라요. 같이 산 적이 없어서 주소가 같을 리 없죠.\n방금 말씀드렸는데, 아니요 같지 않아요. 같이 산 적도 없고 주소가 같은 적이 없어요.\n아니요, 같지 않다고요. 이제 세 번째 여쭤보시는 것 같은데, 확실히 달라요."
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "victim_type": "stalking",
+    "flags": [],
+    "confidence": 0.9,
+    "unclear": [
+     "가해자와 주민등록 주소가 아직 같나요?"
+    ],
+    "ai_generated": true
+   },
+   "latency_s": 2.48
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/diagnose",
+   "request": {
+    "victim_type": "stalking",
+    "flags": []
+   },
+   "status": 200,
+   "response": {
+    "checklist": [
+     {
+      "id": "A3",
+      "area": "행정",
+      "path": "열람·교부 사실을 모르는 상태",
+      "exposure": "발급돼도 피해자가 알 수 없다",
+      "measure": "열람·교부 사실 본인 통보 서비스(우편·문자)",
+      "basis": [
+       {
+        "law": "주민등록법 시행령",
+        "article": "제47조 제8항",
+        "effective": "2026-10-29",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285733&efYd=20261029",
+        "primary": true
+       },
+       {
+        "law": "주민등록법 시행규칙",
+        "article": "제6조의2 제1항",
+        "effective": "2026-10-29",
+        "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=285757&efYd=20261029&chrClsCd=010202&ancYnChk=0",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "any"
+      ],
+      "triggers": {
+       "all": [],
+       "any": []
+      },
+      "urgency": 2,
+      "timing": "전입신고 때 함께",
+      "where": "주민센터(정부24 온라인은 생활법령 안내만, 미확인)",
+      "documents": "신청서, 신분증",
+      "limits": "사후 통보일 뿐. 공무상·공익상 열람은 통보 제외. 통보 연락처를 가해자가 볼 수 있으면 위험",
+      "notify_warning": null,
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "내 주민등록 등·초본이 열람되거나 교부된 사실을 우편이나 문자로 사후에 통보받는 서비스예요. 주민센터에 신청하고 유형과 무관하게 쓸 수 있어요. 사후 통보일 뿐이고 공무상·공익상 열람은 통보에서 빠지며, 통보 연락처를 가해자가 볼 수 있으면 오히려 위험해요.",
+      "plain_reviewed": false
+     },
+     {
+      "id": "J13",
+      "area": "소송·수사",
+      "path": "스토킹 접근·연락",
+      "exposure": "주거·직장·학교 등 '주거등' 주변",
+      "measure": "긴급응급조치(1개월), 잠정조치(서면경고, 100m, 전기통신, 전자장치, 유치)",
+      "basis": [
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제9조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제9조",
+        "primary": true
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제4조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제4조",
+        "primary": false
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제8조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제8조",
+        "primary": false
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제3조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289995&efYd=20261002",
+        "primary": false
+       },
+       {
+        "law": "스토킹범죄의 처벌 등에 관한 법률",
+        "article": "제20조",
+        "effective": "2026-10-02",
+        "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제20조",
+        "primary": false
+       }
+      ],
+      "victim_types": [
+       "stalking",
+       "dating",
+       "family"
+      ],
+      "triggers": {
+       "all": [],
+       "any": []
+      },
+      "urgency": 2,
+      "timing": "위험이 있으면 즉시(112)",
+      "where": "112, 스토킹 전담 사법경찰관",
+      "documents": "진술, 증거",
+      "limits": "잠정조치 3개월씩 두 차례 연장(최장 9개월). 불기소 시 효력 상실(제11조 제5항). 단발성 교제폭력에는 적용 안 됨",
+      "notify_warning": "긴급응급조치·잠정조치 결정과 그 변경 내용은 스토킹행위자에게 고지됩니다(스토킹처벌법 제7조 제5항, 제10조 제2·4항). 결정서에 피해자 주거 기재를 생략하는 근거는 확인되지 않았으니 기재 방식을 먼저 확인하세요.",
+      "status": "in_force",
+      "pending_effective": null,
+      "confidence": "확인",
+      "plain": "스토킹 신고 후 경찰의 긴급응급조치와 법원의 잠정조치로 가해자에게 서면경고, 100미터 접근금지, 전기통신 접근금지, 전자장치 부착, 유치를 하게 하는 제도예요. 스토킹처벌법은 관계를 따지지 않아, 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 쓸 수 있어요. 잠정조치는 3개월씩 두 차례 연장되지만, 불기소되면 효력이 없어지고 단발성 폭력에는 적용되지 않아요.",
+      "plain_reviewed": false
+     }
+    ],
+    "residual": [],
+    "not_applicable": [
+     {
+      "id": "A1",
+      "measure": "열람·교부 제한(제한대상자 지정). 이해관계 초본 신청도 제한(제8항)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A4",
+      "measure": "해제 사유를 법정으로 한정. 주민등록지가 같은 사람 전원의 동의(7일 회신)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A8",
+      "measure": "교부제한대상자 지정(교부는 재량, 인터넷 발급·전자열람은 기속 금지)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A9",
+      "measure": "공시제한('*' 처리)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "A10",
+      "measure": "제한 등록 시 열람 금지(가정법원 허가 시 예외), 증명서는 가림",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "J11",
+      "measure": "응급조치, 긴급임시조치, 임시조치(퇴거, 100m, 전기통신, 유치)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "J12",
+      "measure": "퇴거, 100m, 전기통신, 친권행사 제한, 면접교섭 제한, 임시보호명령",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "D8",
+      "measure": "목적 외 요청 금지(과태료 1천만 원), 기관의 상황 판단, 경찰의 본인 의사 확인, 제3자 고지 금지(5년 이하), 본인 통보, 기록 열람",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     },
+     {
+      "id": "P5",
+      "measure": "해바라기센터 통합 지원(위기·통합형 24시간)",
+      "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+     }
+    ],
+    "summary": {
+     "checklist": 2,
+     "residual": 0,
+     "not_applicable": 9,
+     "pending": 0,
+     "urgent": 0,
+     "notify_warnings": 1
+    }
+   },
+   "latency_s": 0.08
+  },
+  {
+   "role": "user_sim",
+   "text": "체크리스트 봤어요. 근데 저는 2년 사귄 남자친구라 부부는 아닌데, 부부가 아니면 법원에 못 오게 해 달라고 못 해요?",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/answer",
+   "request": {
+    "question": "체크리스트 봤어요. 근데 저는 2년 사귄 남자친구라 부부는 아닌데, 부부가 아니면 법원에 못 오게 해 달라고 못 해요?",
+    "item_ids": [
+     "A3",
+     "J13"
+    ]
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "answer": "스토킹처벌법은 관계를 따지지 않아 부부가 아니어도 신고할 수 있어요 [J13]. 단발성 교제폭력에는 적용되지 않으나, 지속적·반복적인 연락이나 접근이 있으면 스토킹으로 보아 잠정조치나 긴급응급조치를 받을 수 있어요 [J13].",
+    "citations": [
+     "J13"
+    ],
+    "grounded": true,
+    "ai_generated": true
+   },
+   "latency_s": 5.87,
+   "followup": true
+  },
+  {
+   "role": "user_sim",
+   "text": "아, 부부가 아니어도 되는 거였군요. 그럼 경찰에 신고하면 바로 못 오게 막아 줘요?",
+   "end": false
+  },
+  {
+   "role": "service",
+   "endpoint": "/api/answer",
+   "request": {
+    "question": "아, 부부가 아니어도 되는 거였군요. 그럼 경찰에 신고하면 바로 못 오게 막아 줘요?",
+    "item_ids": [
+     "A3",
+     "J13"
+    ]
+   },
+   "status": 200,
+   "response": {
+    "refused": false,
+    "answer": "스토킹 신고 후 경찰은 긴급응급조치로 가해자에게 100미터 접근금지 등을 할 수 있어요 [J13]. 잠정조치는 법원에서 결정하며, 3개월씩 최대 9개월까지 적용될 수 있어요. 단, 불기소 시 효력이 없으며, 단발성 교제폭력에는 적용되지 않아요 [J13]. 스토킹처벌법은 관계를 따지지 않아요. 피해자 보호를 위해 즉시 신고하시면 됩니다 [J13].",
+    "citations": [
+     "J13"
+    ],
+    "grounded": true,
+    "ai_generated": true
+   },
+   "latency_s": 4.94,
+   "followup": true
+  },
+  {
+   "role": "user_sim",
+   "text": "알겠어요. 지속적으로 계속 찾아오고 있으니까 바로 신고해 볼게요. 자세히 알려 주셔서 감사해요.",
+   "end": true
+  }
+ ],
+ "final": {
+  "victim_type": "stalking",
+  "flags": [],
+  "diagnosis": {
+   "checklist": [
+    {
+     "id": "A3",
+     "area": "행정",
+     "path": "열람·교부 사실을 모르는 상태",
+     "exposure": "발급돼도 피해자가 알 수 없다",
+     "measure": "열람·교부 사실 본인 통보 서비스(우편·문자)",
+     "basis": [
+      {
+       "law": "주민등록법 시행령",
+       "article": "제47조 제8항",
+       "effective": "2026-10-29",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=285733&efYd=20261029",
+       "primary": true
+      },
+      {
+       "law": "주민등록법 시행규칙",
+       "article": "제6조의2 제1항",
+       "effective": "2026-10-29",
+       "url": "https://www.law.go.kr/LSW/lsInfoR.do?lsiSeq=285757&efYd=20261029&chrClsCd=010202&ancYnChk=0",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "any"
+     ],
+     "triggers": {
+      "all": [],
+      "any": []
+     },
+     "urgency": 2,
+     "timing": "전입신고 때 함께",
+     "where": "주민센터(정부24 온라인은 생활법령 안내만, 미확인)",
+     "documents": "신청서, 신분증",
+     "limits": "사후 통보일 뿐. 공무상·공익상 열람은 통보 제외. 통보 연락처를 가해자가 볼 수 있으면 위험",
+     "notify_warning": null,
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "내 주민등록 등·초본이 열람되거나 교부된 사실을 우편이나 문자로 사후에 통보받는 서비스예요. 주민센터에 신청하고 유형과 무관하게 쓸 수 있어요. 사후 통보일 뿐이고 공무상·공익상 열람은 통보에서 빠지며, 통보 연락처를 가해자가 볼 수 있으면 오히려 위험해요.",
+     "plain_reviewed": false
+    },
+    {
+     "id": "J13",
+     "area": "소송·수사",
+     "path": "스토킹 접근·연락",
+     "exposure": "주거·직장·학교 등 '주거등' 주변",
+     "measure": "긴급응급조치(1개월), 잠정조치(서면경고, 100m, 전기통신, 전자장치, 유치)",
+     "basis": [
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제9조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제9조",
+       "primary": true
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제4조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제4조",
+       "primary": false
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제8조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제8조",
+       "primary": false
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제3조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=289995&efYd=20261002",
+       "primary": false
+      },
+      {
+       "law": "스토킹범죄의 처벌 등에 관한 법률",
+       "article": "제20조",
+       "effective": "2026-10-02",
+       "url": "https://www.law.go.kr/법령/스토킹범죄의처벌등에관한법률/제20조",
+       "primary": false
+      }
+     ],
+     "victim_types": [
+      "stalking",
+      "dating",
+      "family"
+     ],
+     "triggers": {
+      "all": [],
+      "any": []
+     },
+     "urgency": 2,
+     "timing": "위험이 있으면 즉시(112)",
+     "where": "112, 스토킹 전담 사법경찰관",
+     "documents": "진술, 증거",
+     "limits": "잠정조치 3개월씩 두 차례 연장(최장 9개월). 불기소 시 효력 상실(제11조 제5항). 단발성 교제폭력에는 적용 안 됨",
+     "notify_warning": "긴급응급조치·잠정조치 결정과 그 변경 내용은 스토킹행위자에게 고지됩니다(스토킹처벌법 제7조 제5항, 제10조 제2·4항). 결정서에 피해자 주거 기재를 생략하는 근거는 확인되지 않았으니 기재 방식을 먼저 확인하세요.",
+     "status": "in_force",
+     "pending_effective": null,
+     "confidence": "확인",
+     "plain": "스토킹 신고 후 경찰의 긴급응급조치와 법원의 잠정조치로 가해자에게 서면경고, 100미터 접근금지, 전기통신 접근금지, 전자장치 부착, 유치를 하게 하는 제도예요. 스토킹처벌법은 관계를 따지지 않아, 가정폭력·교제폭력 피해자도 스토킹 요건을 충족하면 쓸 수 있어요. 잠정조치는 3개월씩 두 차례 연장되지만, 불기소되면 효력이 없어지고 단발성 폭력에는 적용되지 않아요.",
+     "plain_reviewed": false
+    }
+   ],
+   "residual": [],
+   "not_applicable": [
+    {
+     "id": "A1",
+     "measure": "열람·교부 제한(제한대상자 지정). 이해관계 초본 신청도 제한(제8항)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A4",
+     "measure": "해제 사유를 법정으로 한정. 주민등록지가 같은 사람 전원의 동의(7일 회신)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A8",
+     "measure": "교부제한대상자 지정(교부는 재량, 인터넷 발급·전자열람은 기속 금지)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A9",
+     "measure": "공시제한('*' 처리)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "A10",
+     "measure": "제한 등록 시 열람 금지(가정법원 허가 시 예외), 증명서는 가림",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "J11",
+     "measure": "응급조치, 긴급임시조치, 임시조치(퇴거, 100m, 전기통신, 유치)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "J12",
+     "measure": "퇴거, 100m, 전기통신, 친권행사 제한, 면접교섭 제한, 임시보호명령",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "D8",
+     "measure": "목적 외 요청 금지(과태료 1천만 원), 기관의 상황 판단, 경찰의 본인 의사 확인, 제3자 고지 금지(5년 이하), 본인 통보, 기록 열람",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    },
+    {
+     "id": "P5",
+     "measure": "해바라기센터 통합 지원(위기·통합형 24시간)",
+     "reason": "이 피해 유형(스토킹)에는 해당 제도가 없습니다"
+    }
+   ],
+   "summary": {
+    "checklist": 2,
+    "residual": 0,
+    "not_applicable": 9,
+    "pending": 0,
+    "urgent": 0,
+    "notify_warnings": 1
+   }
+  }
+ },
+ "turns": 7,
+ "false_refusals": 0,
+ "wall_s": 77.4,
+ "seed": 1
+}
